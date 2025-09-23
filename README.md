@@ -1,2 +1,2 @@
-# cognitpro
+# CognitPro
 CognitPro AI Prompt Marketplace
