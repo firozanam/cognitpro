@@ -241,4 +241,154 @@ class PromptController extends Controller
             'relatedPrompts' => $relatedPrompts,
         ]);
     }
+
+    /**
+     * Show the form for creating a new prompt.
+     */
+    public function create(): Response
+    {
+        // Get categories for the form
+        $categories = Category::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'color']);
+
+        // Get tags for the form
+        $tags = Tag::orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        return Inertia::render('prompts/create', [
+            'categories' => $categories,
+            'tags' => $tags,
+        ]);
+    }
+
+    /**
+     * Show the form for editing the specified prompt.
+     */
+    public function edit(Prompt $prompt): Response
+    {
+        // Check if user owns the prompt
+        if ($prompt->user_id !== Auth::id()) {
+            abort(403, 'You can only edit your own prompts.');
+        }
+
+        // Load relationships
+        $prompt->load(['category', 'tags']);
+
+        // Get categories for the form
+        $categories = Category::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug', 'color']);
+
+        // Get tags for the form
+        $tags = Tag::orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        // Transform prompt data
+        $promptData = [
+            'id' => $prompt->id,
+            'uuid' => $prompt->uuid,
+            'title' => $prompt->title,
+            'description' => $prompt->description,
+            'content' => $prompt->content,
+            'category_id' => $prompt->category_id,
+            'price_type' => $prompt->price_type,
+            'price' => $prompt->price,
+            'minimum_price' => $prompt->minimum_price,
+            'status' => $prompt->status,
+            'tags' => $prompt->tags->map(function ($tag) {
+                return [
+                    'id' => $tag->id,
+                    'name' => $tag->name,
+                    'slug' => $tag->slug,
+                ];
+            }),
+        ];
+
+        return Inertia::render('prompts/edit', [
+            'prompt' => $promptData,
+            'categories' => $categories,
+            'tags' => $tags,
+        ]);
+    }
+
+    /**
+     * Display seller's prompt management page.
+     */
+    public function manage(Request $request): Response
+    {
+        $query = Prompt::with(['category', 'tags'])
+            ->where('user_id', Auth::id());
+
+        // Apply filters
+        $filters = $request->only(['status', 'search', 'sort_by', 'sort_order']);
+
+        // Status filter
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        // Search filter
+        if (!empty($filters['search'])) {
+            $search = $filters['search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Sorting
+        $sortBy = $filters['sort_by'] ?? 'created_at';
+        $sortOrder = $filters['sort_order'] ?? 'desc';
+
+        if ($sortBy === 'popularity') {
+            $query->withCount('purchases')->orderBy('purchases_count', $sortOrder);
+        } elseif ($sortBy === 'rating') {
+            $query->withAvg('reviews', 'rating')->orderBy('reviews_avg_rating', $sortOrder);
+        } else {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        // Paginate results
+        $prompts = $query->paginate($request->get('per_page', 15));
+
+        // Transform prompt data
+        $prompts->getCollection()->transform(function ($prompt) {
+            return [
+                'id' => $prompt->id,
+                'uuid' => $prompt->uuid,
+                'title' => $prompt->title,
+                'description' => $prompt->description,
+                'excerpt' => $prompt->excerpt,
+                'price' => $prompt->price ? (float) $prompt->price : 0.0,
+                'price_type' => $prompt->price_type,
+                'minimum_price' => $prompt->minimum_price ? (float) $prompt->minimum_price : null,
+                'status' => $prompt->status,
+                'featured' => $prompt->featured,
+                'created_at' => $prompt->created_at->format('Y-m-d H:i:s'),
+                'updated_at' => $prompt->updated_at->format('Y-m-d H:i:s'),
+                'published_at' => $prompt->published_at?->format('Y-m-d H:i:s'),
+                'average_rating' => (float) $prompt->getAverageRating(),
+                'purchase_count' => (int) $prompt->getPurchaseCount(),
+                'category' => $prompt->category ? [
+                    'id' => $prompt->category->id,
+                    'name' => $prompt->category->name,
+                    'slug' => $prompt->category->slug,
+                    'color' => $prompt->category->color,
+                ] : null,
+                'tags' => $prompt->tags->map(function ($tag) {
+                    return [
+                        'id' => $tag->id,
+                        'name' => $tag->name,
+                        'slug' => $tag->slug,
+                    ];
+                }),
+            ];
+        });
+
+        return Inertia::render('dashboard/prompts', [
+            'prompts' => $prompts,
+            'filters' => $filters,
+        ]);
+    }
 }

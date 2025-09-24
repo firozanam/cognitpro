@@ -37,6 +37,14 @@ Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->
 Route::middleware(['auth', 'verified'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+    // Seller routes
+    Route::middleware(['role:seller'])->group(function () {
+        // Prompt management
+        Route::get('/dashboard/prompts', [PromptController::class, 'manage'])->name('prompts.manage');
+        Route::get('/prompts/create', [PromptController::class, 'create'])->name('prompts.create');
+        Route::get('/prompts/{prompt:uuid}/edit', [PromptController::class, 'edit'])->name('prompts.edit');
+    });
 });
 
 require __DIR__.'/settings.php';
