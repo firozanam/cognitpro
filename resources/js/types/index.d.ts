@@ -34,6 +34,7 @@ export interface User {
     id: number;
     name: string;
     email: string;
+    role: 'buyer' | 'seller' | 'admin';
     avatar?: string;
     email_verified_at: string | null;
     two_factor_enabled?: boolean;

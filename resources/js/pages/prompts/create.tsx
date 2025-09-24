@@ -63,7 +63,7 @@ export default function CreatePrompt({ categories, tags }: CreatePromptProps) {
       minimum_price: data.price_type === 'pay_what_you_want' ? data.minimum_price : null,
     };
 
-    post('/api/prompts', {
+    post(route('prompts.store'), {
       onSuccess: () => {
         // Redirect will be handled by Inertia
       },
@@ -79,7 +79,7 @@ export default function CreatePrompt({ categories, tags }: CreatePromptProps) {
       minimum_price: data.price_type === 'pay_what_you_want' ? data.minimum_price : null,
     };
 
-    post('/api/prompts', {
+    post(route('prompts.store'), {
       onSuccess: () => {
         // Redirect will be handled by Inertia
       },

@@ -263,6 +263,37 @@ class PromptController extends Controller
     }
 
     /**
+     * Store a newly created prompt in storage.
+     */
+    public function store(Request $request)
+    {
+        $validatedData = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string',
+            'content' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'price_type' => 'required|in:fixed,pay_what_you_want,free',
+            'price' => 'required_if:price_type,fixed|nullable|numeric|min:0',
+            'minimum_price' => 'required_if:price_type,pay_what_you_want|nullable|numeric|min:0',
+            'tags' => 'nullable|array',
+            'tags.*' => 'exists:tags,id',
+            'status' => 'nullable|in:draft,published',
+        ]);
+
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['status'] = $validatedData['status'] ?? 'draft';
+
+        $prompt = Prompt::create($validatedData);
+
+        // Attach tags if provided
+        if (isset($validatedData['tags'])) {
+            $prompt->tags()->attach($validatedData['tags']);
+        }
+
+        return redirect()->route('prompts.manage')->with('success', 'Prompt created successfully!');
+    }
+
+    /**
      * Show the form for editing the specified prompt.
      */
     public function edit(Prompt $prompt): Response

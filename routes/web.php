@@ -22,6 +22,13 @@ Route::get('/', [HomepageController::class, 'index'])->name('home');
 
 // Public prompt browsing
 Route::get('/prompts', [PromptController::class, 'index'])->name('prompts.index');
+
+// Prompt creation (must come before show route to avoid route conflicts)
+Route::middleware(['auth', 'seller'])->group(function () {
+    Route::get('/prompts/create', [PromptController::class, 'create'])->name('prompts.create');
+    Route::post('/prompts', [PromptController::class, 'store'])->name('prompts.store');
+});
+
 Route::get('/prompts/{prompt:uuid}', [PromptController::class, 'show'])->name('prompts.show');
 
 // Category browsing
@@ -34,16 +41,29 @@ Route::get('/categories/{category:slug}', [CategoryController::class, 'show'])->
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Dashboard
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Seller routes
-    Route::middleware(['role:seller'])->group(function () {
+    Route::middleware(['seller'])->group(function () {
         // Prompt management
         Route::get('/dashboard/prompts', [PromptController::class, 'manage'])->name('prompts.manage');
-        Route::get('/prompts/create', [PromptController::class, 'create'])->name('prompts.create');
         Route::get('/prompts/{prompt:uuid}/edit', [PromptController::class, 'edit'])->name('prompts.edit');
+
+        // Seller dashboard pages
+        Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
+        Route::get('/dashboard/sales', [DashboardController::class, 'sales'])->name('dashboard.sales');
+        Route::get('/dashboard/payouts', [DashboardController::class, 'payouts'])->name('dashboard.payouts');
+        Route::get('/dashboard/reviews', [DashboardController::class, 'sellerReviews'])->name('dashboard.seller-reviews');
+    });
+
+    // Buyer routes
+    Route::middleware(['buyer'])->group(function () {
+        // Buyer dashboard pages
+        Route::get('/dashboard/purchases', [DashboardController::class, 'purchases'])->name('dashboard.purchases');
+        Route::get('/dashboard/reviews', [DashboardController::class, 'buyerReviews'])->name('dashboard.buyer-reviews');
+        Route::get('/dashboard/favorites', [DashboardController::class, 'favorites'])->name('dashboard.favorites');
     });
 });
 
