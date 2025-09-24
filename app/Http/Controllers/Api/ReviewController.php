@@ -12,10 +12,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ReviewController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-    }
 
     /**
      * Display a listing of the resource.
@@ -165,6 +161,23 @@ class ReviewController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Review deleted successfully',
+        ]);
+    }
+
+    /**
+     * Get current user's reviews.
+     */
+    public function myReviews(Request $request): JsonResponse
+    {
+        $query = Review::with(['prompt.user', 'prompt.category'])
+            ->where('user_id', Auth::id());
+
+        $reviews = $query->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 15));
+
+        return response()->json([
+            'success' => true,
+            'data' => $reviews,
         ]);
     }
 }

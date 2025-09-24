@@ -13,10 +13,14 @@ import { Link, router } from '@inertiajs/react';
 import { LogOut, Settings } from 'lucide-react';
 
 interface UserMenuContentProps {
-    user: User;
+    user: User | null;
 }
 
 export function UserMenuContent({ user }: UserMenuContentProps) {
+    // Return null if user is not provided
+    if (!user) {
+        return null;
+    }
     const cleanup = useMobileNavigation();
 
     const handleLogout = () => {

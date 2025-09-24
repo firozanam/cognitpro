@@ -36,7 +36,11 @@ return new class extends Migration
             $table->index('featured');
             $table->index('published_at');
             $table->index('uuid');
-            $table->fullText(['title', 'description', 'excerpt']);
+
+            // Only create fulltext index for MySQL
+            if (config('database.default') === 'mysql') {
+                $table->fullText(['title', 'description', 'excerpt']);
+            }
         });
     }
 

@@ -24,5 +24,8 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
+
+        // Run test data seeder
+        $this->call(TestDataSeeder::class);
     }
 }

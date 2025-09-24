@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 interface RatingStarsProps {
   rating: number;
   maxRating?: number;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'xs' | 'sm' | 'md' | 'lg';
   interactive?: boolean;
   onRatingChange?: (rating: number) => void;
   showValue?: boolean;
@@ -24,12 +24,14 @@ export function RatingStars({
   const [hoverRating, setHoverRating] = useState(0);
 
   const sizeClasses = {
+    xs: 'h-2.5 w-2.5',
     sm: 'h-3 w-3',
     md: 'h-4 w-4',
     lg: 'h-5 w-5'
   };
 
   const textSizeClasses = {
+    xs: 'text-xs',
     sm: 'text-xs',
     md: 'text-sm',
     lg: 'text-base'

@@ -93,4 +93,12 @@ class Category extends Model
     {
         return 'slug';
     }
+
+    /**
+     * Check if category is active.
+     */
+    public function isActive(): bool
+    {
+        return $this->is_active;
+    }
 }

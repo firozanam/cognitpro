@@ -11,11 +11,6 @@ use Illuminate\Support\Facades\Validator;
 
 class PromptController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-        $this->middleware('seller')->except(['index', 'show']);
-    }
 
     /**
      * Display a listing of the resource.
@@ -142,8 +137,8 @@ class PromptController extends Controller
         ]);
 
         // Add computed attributes
-        $prompt->average_rating = $prompt->getAverageRating();
-        $prompt->purchase_count = $prompt->getPurchaseCount();
+        $prompt->average_rating = (float) $prompt->getAverageRating();
+        $prompt->purchase_count = (int) $prompt->getPurchaseCount();
         $prompt->is_purchased = Auth::check() ? $prompt->isPurchasedBy(Auth::user()) : false;
 
         return response()->json([
@@ -233,6 +228,139 @@ class PromptController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Prompt deleted successfully',
+        ]);
+    }
+
+    /**
+     * Get seller's prompts (including drafts).
+     */
+    public function sellerPrompts(Request $request): JsonResponse
+    {
+        $query = Prompt::with(['category', 'tags'])
+            ->where('user_id', Auth::id());
+
+        // Filter by status
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $prompts = $query->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 15));
+
+        return response()->json([
+            'success' => true,
+            'data' => $prompts,
+        ]);
+    }
+
+    /**
+     * Get user's own prompts (for sellers who are also buyers).
+     */
+    public function myPrompts(Request $request): JsonResponse
+    {
+        $query = Prompt::with(['category', 'tags'])
+            ->where('user_id', Auth::id());
+
+        // Filter by status
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $prompts = $query->orderBy('created_at', 'desc')
+            ->paginate($request->get('per_page', 15));
+
+        return response()->json([
+            'success' => true,
+            'data' => $prompts,
+        ]);
+    }
+
+    /**
+     * Get prompt content (only for purchasers or owners).
+     */
+    public function getContent(Prompt $prompt): JsonResponse
+    {
+        // Check if user owns the prompt or has purchased it
+        if ($prompt->user_id !== Auth::id() && !$prompt->isPurchasedBy(Auth::user())) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Access denied. Purchase required to view content.',
+            ], 403);
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'content' => $prompt->content,
+                'prompt_id' => $prompt->id,
+                'title' => $prompt->title,
+            ],
+        ]);
+    }
+
+    /**
+     * Advanced search for prompts.
+     */
+    public function search(Request $request): JsonResponse
+    {
+        $query = Prompt::with(['user', 'category', 'tags', 'reviews'])
+            ->published();
+
+        // Search term
+        if ($request->has('q')) {
+            $search = $request->q;
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%")
+                  ->orWhere('excerpt', 'like', "%{$search}%");
+            });
+        }
+
+        // Category filter
+        if ($request->has('category')) {
+            $query->whereHas('category', function ($q) use ($request) {
+                $q->where('slug', $request->category);
+            });
+        }
+
+        // Tags filter
+        if ($request->has('tags')) {
+            $tags = is_array($request->tags) ? $request->tags : explode(',', $request->tags);
+            $query->whereHas('tags', function ($q) use ($tags) {
+                $q->whereIn('slug', $tags);
+            });
+        }
+
+        // Price range filter
+        if ($request->has('min_price')) {
+            $query->where('price', '>=', $request->min_price);
+        }
+        if ($request->has('max_price')) {
+            $query->where('price', '<=', $request->max_price);
+        }
+
+        // Price type filter
+        if ($request->has('price_type')) {
+            $query->where('price_type', $request->price_type);
+        }
+
+        // Sort
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if ($sortBy === 'popularity') {
+            $query->withCount('purchases')->orderBy('purchases_count', $sortOrder);
+        } elseif ($sortBy === 'rating') {
+            $query->withAvg('reviews', 'rating')->orderBy('reviews_avg_rating', $sortOrder);
+        } else {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        $prompts = $query->paginate($request->get('per_page', 15));
+
+        return response()->json([
+            'success' => true,
+            'data' => $prompts,
         ]);
     }
 }

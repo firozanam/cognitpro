@@ -30,6 +30,11 @@ export default function Profile({
 }) {
     const { auth } = usePage<SharedData>().props;
 
+    // Redirect if user is not authenticated (shouldn't happen on protected routes)
+    if (!auth.user) {
+        return null;
+    }
+
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Profile settings" />

@@ -21,6 +21,7 @@ import {
   Shield,
   MessageCircle
 } from 'lucide-react';
+import { formatPrice, formatRating } from '@/lib/utils';
 
 interface PromptShowProps {
   prompt: {
@@ -66,15 +67,7 @@ interface PromptShowProps {
 export default function PromptShow({ prompt, relatedPrompts, auth }: PromptShowProps) {
   const [activeTab, setActiveTab] = useState('description');
 
-  const formatPrice = (price: number, priceType: string, minimumPrice?: number) => {
-    if (priceType === 'free') {
-      return 'Free';
-    }
-    if (priceType === 'pay_what_you_want') {
-      return `$${minimumPrice}+`;
-    }
-    return `$${price.toFixed(2)}`;
-  };
+
 
   const getUserInitials = (name: string) => {
     return name

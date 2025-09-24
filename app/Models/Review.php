@@ -77,4 +77,20 @@ class Review extends Model
     {
         return 'uuid';
     }
+
+    /**
+     * Check if review is approved.
+     */
+    public function isApproved(): bool
+    {
+        return $this->is_approved;
+    }
+
+    /**
+     * Check if review is from verified purchase.
+     */
+    public function isVerifiedPurchase(): bool
+    {
+        return $this->verified_purchase;
+    }
 }

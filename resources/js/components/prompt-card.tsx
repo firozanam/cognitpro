@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Star, ShoppingCart, Eye, Heart } from 'lucide-react';
+import { formatPrice, formatRating } from '@/lib/utils';
 
 interface Prompt {
   id: number;
@@ -44,15 +45,6 @@ interface PromptCardProps {
 }
 
 export function PromptCard({ prompt, showActions = true, className = '' }: PromptCardProps) {
-  const formatPrice = (price: number, priceType: string, minimumPrice?: number) => {
-    if (priceType === 'free') {
-      return 'Free';
-    }
-    if (priceType === 'pay_what_you_want') {
-      return `$${minimumPrice}+`;
-    }
-    return `$${price.toFixed(2)}`;
-  };
 
   const getUserInitials = (name: string) => {
     return name
@@ -126,7 +118,7 @@ export function PromptCard({ prompt, showActions = true, className = '' }: Promp
             {prompt.average_rating && (
               <div className="flex items-center gap-1">
                 <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                <span>{prompt.average_rating.toFixed(1)}</span>
+                <span>{formatRating(prompt.average_rating)}</span>
               </div>
             )}
             {prompt.purchase_count !== undefined && (

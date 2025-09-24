@@ -112,4 +112,33 @@ class TagController extends Controller
             'message' => 'Tag deleted successfully',
         ]);
     }
+
+    /**
+     * Get prompts with a specific tag.
+     */
+    public function prompts(Tag $tag, Request $request): JsonResponse
+    {
+        $query = $tag->prompts()
+            ->with(['user', 'category', 'tags'])
+            ->published();
+
+        // Sort
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        if ($sortBy === 'popularity') {
+            $query->withCount('purchases')->orderBy('purchases_count', $sortOrder);
+        } elseif ($sortBy === 'rating') {
+            $query->withAvg('reviews', 'rating')->orderBy('reviews_avg_rating', $sortOrder);
+        } else {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        $prompts = $query->paginate($request->get('per_page', 15));
+
+        return response()->json([
+            'success' => true,
+            'data' => $prompts,
+        ]);
+    }
 }

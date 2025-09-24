@@ -136,7 +136,7 @@ class Prompt extends Model
             return 0.00;
         }
 
-        return (float) $this->price;
+        return $this->price ? (float) $this->price : 0.00;
     }
 
     /**
@@ -144,7 +144,8 @@ class Prompt extends Model
      */
     public function getAverageRating(): float
     {
-        return $this->approvedReviews()->avg('rating') ?? 0.0;
+        $rating = $this->approvedReviews()->avg('rating');
+        return $rating ? (float) $rating : 0.0;
     }
 
     /**

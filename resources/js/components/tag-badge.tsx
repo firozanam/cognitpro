@@ -18,6 +18,7 @@ interface TagBadgeProps {
   interactive?: boolean;
   removable?: boolean;
   onRemove?: (tag: Tag) => void;
+  onClick?: (tag: Tag) => void;
   showCount?: boolean;
   className?: string;
 }
@@ -29,6 +30,7 @@ export function TagBadge({
   interactive = false,
   removable = false,
   onRemove,
+  onClick,
   showCount = false,
   className = ''
 }: TagBadgeProps) {
@@ -46,8 +48,15 @@ export function TagBadge({
     }
   };
 
+  const handleClick = (e: React.MouseEvent) => {
+    if (onClick) {
+      e.preventDefault();
+      onClick(tag);
+    }
+  };
+
   const badgeContent = (
-    <Badge 
+    <Badge
       variant={variant}
       className={cn(
         sizeClasses[size],
@@ -55,6 +64,7 @@ export function TagBadge({
         removable && 'pr-1',
         className
       )}
+      onClick={onClick ? handleClick : undefined}
     >
       <span>{tag.name}</span>
       {showCount && tag.prompts_count !== undefined && (
