@@ -1,4 +1,4 @@
-import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
+import ProfileController from '@/actions/App/Modules/User/Http/Controllers/Settings/ProfileController';
 import { send } from '@/routes/verification';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { Transition } from '@headlessui/react';
@@ -30,14 +30,11 @@ export default function Profile({
 }) {
     const { auth } = usePage<SharedData>().props;
 
-    // Redirect if user is not authenticated (shouldn't happen on protected routes)
-    if (!auth.user) {
-        return null;
-    }
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Profile settings" />
+
+            <h1 className="sr-only">Profile Settings</h1>
 
             <SettingsLayout>
                 <div className="space-y-6">
@@ -61,7 +58,7 @@ export default function Profile({
                                     <Input
                                         id="name"
                                         className="mt-1 block w-full"
-                                        defaultValue={auth.user.name}
+                                        defaultValue={auth.user?.name ?? ''}
                                         name="name"
                                         required
                                         autoComplete="name"
@@ -81,7 +78,7 @@ export default function Profile({
                                         id="email"
                                         type="email"
                                         className="mt-1 block w-full"
-                                        defaultValue={auth.user.email}
+                                        defaultValue={auth.user?.email ?? ''}
                                         name="email"
                                         required
                                         autoComplete="username"
@@ -95,7 +92,7 @@ export default function Profile({
                                 </div>
 
                                 {mustVerifyEmail &&
-                                    auth.user.email_verified_at === null && (
+                                    auth.user?.email_verified_at === null && (
                                         <div>
                                             <p className="-mt-4 text-sm text-muted-foreground">
                                                 Your email address is

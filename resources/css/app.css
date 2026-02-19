@@ -1,6 +1,6 @@
 @import 'tailwindcss';
 
-@plugin 'tailwindcss-animate';
+@import 'tw-animate-css';
 
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
@@ -9,7 +9,7 @@
 
 @theme {
     --font-sans:
-        'Inter', ui-sans-serif, system-ui, sans-serif,
+        'Instrument Sans', ui-sans-serif, system-ui, sans-serif,
         'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 
@@ -62,121 +62,74 @@
 }
 
 :root {
-    /* CognitPro AI Prompt Marketplace Color Palette */
-    /* Background: Light neutral #F3F4F6 */
-    --background: oklch(0.965 0.003 247.858);
-    /* Text: Dark gray #1F2937 */
-    --foreground: oklch(0.278 0.029 255.085);
-
-    /* Card backgrounds use light neutral */
-    --card: oklch(0.965 0.003 247.858);
-    --card-foreground: oklch(0.278 0.029 255.085);
-
-    /* Popover backgrounds */
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.278 0.029 255.085);
-
-    /* Primary: Blue #3B82F6 for trust and professionalism */
-    --primary: oklch(0.628 0.214 255.085);
-    --primary-foreground: oklch(1 0 0);
-
-    /* Secondary: Green #10B981 for growth and success */
-    --secondary: oklch(0.696 0.170 162.48);
-    --secondary-foreground: oklch(1 0 0);
-
-    /* Muted backgrounds and text */
-    --muted: oklch(0.965 0.003 247.858);
-    --muted-foreground: oklch(0.556 0.016 252.890);
-
-    /* Accent: Purple #8B5CF6 for creativity and innovation */
-    --accent: oklch(0.688 0.261 293.618);
-    --accent-foreground: oklch(1 0 0);
-
-    /* Error: Red #EF4444 for errors and warnings */
-    --destructive: oklch(0.628 0.258 27.325);
-    --destructive-foreground: oklch(1 0 0);
-
-    /* Border and input styling */
-    --border: oklch(0.898 0.006 247.858);
-    --input: oklch(0.898 0.006 247.858);
-    --ring: oklch(0.628 0.214 255.085);
-
-    /* Chart colors using the design palette */
-    --chart-1: oklch(0.628 0.214 255.085); /* Primary Blue */
-    --chart-2: oklch(0.696 0.170 162.48);  /* Secondary Green */
-    --chart-3: oklch(0.688 0.261 293.618); /* Accent Purple */
-    --chart-4: oklch(0.628 0.258 27.325);  /* Error Red */
-    --chart-5: oklch(0.769 0.188 70.08);   /* Complementary Orange */
-
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.87 0 0);
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
     --radius: 0.625rem;
-
-    /* Sidebar using neutral backgrounds with primary accents */
-    --sidebar: oklch(0.985 0.001 247.858);
-    --sidebar-foreground: oklch(0.278 0.029 255.085);
-    --sidebar-primary: oklch(0.628 0.214 255.085);
-    --sidebar-primary-foreground: oklch(1 0 0);
-    --sidebar-accent: oklch(0.965 0.003 247.858);
-    --sidebar-accent-foreground: oklch(0.278 0.029 255.085);
-    --sidebar-border: oklch(0.898 0.006 247.858);
-    --sidebar-ring: oklch(0.628 0.214 255.085);
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.87 0 0);
 }
 
 .dark {
-    /* CognitPro AI Prompt Marketplace Dark Mode Color Palette */
-    /* Background: Dark neutral */
-    --background: oklch(0.145 0.006 255.085);
-    /* Foreground: Light text for contrast */
-    --foreground: oklch(0.985 0.002 247.858);
-
-    /* Card backgrounds slightly lighter than main background */
-    --card: oklch(0.180 0.008 255.085);
-    --card-foreground: oklch(0.985 0.002 247.858);
-
-    /* Popover backgrounds */
-    --popover: oklch(0.180 0.008 255.085);
-    --popover-foreground: oklch(0.985 0.002 247.858);
-
-    /* Primary: Lighter blue for better contrast in dark mode */
-    --primary: oklch(0.728 0.184 255.085);
-    --primary-foreground: oklch(0.145 0.006 255.085);
-
-    /* Secondary: Lighter green for better contrast */
-    --secondary: oklch(0.796 0.140 162.48);
-    --secondary-foreground: oklch(0.145 0.006 255.085);
-
-    /* Muted backgrounds and text */
-    --muted: oklch(0.269 0.012 255.085);
-    --muted-foreground: oklch(0.708 0.008 247.858);
-
-    /* Accent: Lighter purple for better contrast */
-    --accent: oklch(0.788 0.231 293.618);
-    --accent-foreground: oklch(0.145 0.006 255.085);
-
-    /* Error: Adjusted red for dark mode */
-    --destructive: oklch(0.728 0.228 27.325);
-    --destructive-foreground: oklch(0.145 0.006 255.085);
-
-    /* Border and input styling for dark mode */
-    --border: oklch(0.269 0.012 255.085);
-    --input: oklch(0.269 0.012 255.085);
-    --ring: oklch(0.728 0.184 255.085);
-
-    /* Chart colors adjusted for dark mode */
-    --chart-1: oklch(0.728 0.184 255.085); /* Primary Blue */
-    --chart-2: oklch(0.796 0.140 162.48);  /* Secondary Green */
-    --chart-3: oklch(0.788 0.231 293.618); /* Accent Purple */
-    --chart-4: oklch(0.728 0.228 27.325);  /* Error Red */
-    --chart-5: oklch(0.869 0.158 70.08);   /* Complementary Orange */
-
-    /* Sidebar for dark mode */
-    --sidebar: oklch(0.205 0.010 255.085);
-    --sidebar-foreground: oklch(0.985 0.002 247.858);
-    --sidebar-primary: oklch(0.728 0.184 255.085);
-    --sidebar-primary-foreground: oklch(0.145 0.006 255.085);
-    --sidebar-accent: oklch(0.269 0.012 255.085);
-    --sidebar-accent-foreground: oklch(0.985 0.002 247.858);
-    --sidebar-border: oklch(0.269 0.012 255.085);
-    --sidebar-ring: oklch(0.728 0.184 255.085);
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.145 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.145 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.985 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.396 0.141 25.723);
+    --destructive-foreground: oklch(0.637 0.237 25.331);
+    --border: oklch(0.269 0 0);
+    --input: oklch(0.269 0 0);
+    --ring: oklch(0.439 0 0);
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.985 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(0.269 0 0);
+    --sidebar-ring: oklch(0.439 0 0);
 }
 
 @layer base {

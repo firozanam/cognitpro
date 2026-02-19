@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Models\User;
+use App\Modules\User\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -16,7 +16,7 @@ class PasswordResetTest extends TestCase
     {
         $response = $this->get(route('password.request'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     public function test_reset_password_link_can_be_requested()
@@ -41,7 +41,7 @@ class PasswordResetTest extends TestCase
         Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
             $response = $this->get(route('password.reset', $notification->token));
 
-            $response->assertStatus(200);
+            $response->assertOk();
 
             return true;
         });
@@ -56,7 +56,7 @@ class PasswordResetTest extends TestCase
         $this->post(route('password.email'), ['email' => $user->email]);
 
         Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
-            $response = $this->post(route('password.store'), [
+            $response = $this->post(route('password.update'), [
                 'token' => $notification->token,
                 'email' => $user->email,
                 'password' => 'password',
@@ -75,7 +75,7 @@ class PasswordResetTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->post(route('password.store'), [
+        $response = $this->post(route('password.update'), [
             'token' => 'invalid-token',
             'email' => $user->email,
             'password' => 'newpassword123',

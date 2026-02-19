@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/sidebar';
 import { UserInfo } from '@/components/user-info';
 import { UserMenuContent } from '@/components/user-menu-content';
-import ErrorBoundary from '@/components/error-boundary';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
@@ -22,11 +21,6 @@ export function NavUser() {
     const { state } = useSidebar();
     const isMobile = useIsMobile();
 
-    // Don't render anything if user is not authenticated
-    if (!auth.user) {
-        return null;
-    }
-
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -35,10 +29,9 @@ export function NavUser() {
                         <SidebarMenuButton
                             size="lg"
                             className="group text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent"
+                            data-test="sidebar-menu-button"
                         >
-                            <ErrorBoundary fallback={<div className="text-sm">User info unavailable</div>}>
-                                <UserInfo user={auth.user} />
-                            </ErrorBoundary>
+                            <UserInfo user={auth.user} />
                             <ChevronsUpDown className="ml-auto size-4" />
                         </SidebarMenuButton>
                     </DropdownMenuTrigger>

@@ -1,4 +1,4 @@
-import PasswordController from '@/actions/App/Http/Controllers/Settings/PasswordController';
+import PasswordController from '@/actions/App/Modules/User/Http/Controllers/Settings/PasswordController';
 import InputError from '@/components/input-error';
 import AppLayout from '@/layouts/app-layout';
 import SettingsLayout from '@/layouts/settings/layout';
@@ -11,7 +11,7 @@ import HeadingSmall from '@/components/heading-small';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { edit } from '@/routes/password';
+import { edit } from '@/routes/user-password';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -27,6 +27,8 @@ export default function Password() {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Password settings" />
+
+            <h1 className="sr-only">Password Settings</h1>
 
             <SettingsLayout>
                 <div className="space-y-6">

@@ -12,14 +12,16 @@ import {
     InputOTPGroup,
     InputOTPSlot,
 } from '@/components/ui/input-otp';
+import { useAppearance } from '@/hooks/use-appearance';
 import { useClipboard } from '@/hooks/use-clipboard';
 import { OTP_MAX_LENGTH } from '@/hooks/use-two-factor-auth';
 import { confirm } from '@/routes/two-factor';
 import { Form } from '@inertiajs/react';
 import { REGEXP_ONLY_DIGITS } from 'input-otp';
-import { Check, Copy, Loader2, ScanLine } from 'lucide-react';
+import { Check, Copy, ScanLine } from 'lucide-react';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import AlertError from './alert-error';
+import { Spinner } from './ui/spinner';
 
 function GridScanIcon() {
     return (
@@ -60,6 +62,7 @@ function TwoFactorSetupStep({
     onNextStep: () => void;
     errors: string[];
 }) {
+    const { resolvedAppearance } = useAppearance();
     const [copiedText, copy] = useClipboard();
     const IconComponent = copiedText === manualSetupKey ? Check : Copy;
 
@@ -74,12 +77,19 @@ function TwoFactorSetupStep({
                             <div className="z-10 flex h-full w-full items-center justify-center p-5">
                                 {qrCodeSvg ? (
                                     <div
+                                        className="aspect-square w-full rounded-lg bg-white p-2 [&_svg]:size-full"
                                         dangerouslySetInnerHTML={{
                                             __html: qrCodeSvg,
                                         }}
+                                        style={{
+                                            filter:
+                                                resolvedAppearance === 'dark'
+                                                    ? 'invert(1) brightness(1.5)'
+                                                    : undefined,
+                                        }}
                                     />
                                 ) : (
-                                    <Loader2 className="flex size-4 animate-spin" />
+                                    <Spinner />
                                 )}
                             </div>
                         </div>
@@ -102,7 +112,7 @@ function TwoFactorSetupStep({
                         <div className="flex w-full items-stretch overflow-hidden rounded-xl border border-border">
                             {!manualSetupKey ? (
                                 <div className="flex h-full w-full items-center justify-center bg-muted p-3">
-                                    <Loader2 className="size-4 animate-spin" />
+                                    <Spinner />
                                 </div>
                             ) : (
                                 <>
@@ -278,7 +288,6 @@ export default function TwoFactorSetupModal({
     const handleModalNextStep = useCallback(() => {
         if (requiresConfirmation) {
             setShowVerificationStep(true);
-
             return;
         }
 
@@ -288,25 +297,25 @@ export default function TwoFactorSetupModal({
 
     const resetModalState = useCallback(() => {
         setShowVerificationStep(false);
+
         if (twoFactorEnabled) {
             clearSetupData();
         }
     }, [twoFactorEnabled, clearSetupData]);
 
     useEffect(() => {
-        if (!isOpen) {
-            resetModalState();
-
-            return;
-        }
-
-        if (!qrCodeSvg) {
+        if (isOpen && !qrCodeSvg) {
             fetchSetupData();
         }
-    }, [isOpen, qrCodeSvg, fetchSetupData, resetModalState]);
+    }, [isOpen, qrCodeSvg, fetchSetupData]);
+
+    const handleClose = useCallback(() => {
+        resetModalState();
+        onClose();
+    }, [onClose, resetModalState]);
 
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader className="flex items-center justify-center">
                     <GridScanIcon />

@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Settings;
 
-use App\Models\User;
+use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
@@ -17,9 +17,9 @@ class PasswordUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->get(route('password.edit'));
+            ->get(route('user-password.edit'));
 
-        $response->assertStatus(200);
+        $response->assertOk();
     }
 
     public function test_password_can_be_updated()
@@ -28,8 +28,8 @@ class PasswordUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->from(route('password.edit'))
-            ->put(route('password.update'), [
+            ->from(route('user-password.edit'))
+            ->put(route('user-password.update'), [
                 'current_password' => 'password',
                 'password' => 'new-password',
                 'password_confirmation' => 'new-password',
@@ -37,7 +37,7 @@ class PasswordUpdateTest extends TestCase
 
         $response
             ->assertSessionHasNoErrors()
-            ->assertRedirect(route('password.edit'));
+            ->assertRedirect(route('user-password.edit'));
 
         $this->assertTrue(Hash::check('new-password', $user->refresh()->password));
     }
@@ -48,8 +48,8 @@ class PasswordUpdateTest extends TestCase
 
         $response = $this
             ->actingAs($user)
-            ->from(route('password.edit'))
-            ->put(route('password.update'), [
+            ->from(route('user-password.edit'))
+            ->put(route('user-password.update'), [
                 'current_password' => 'wrong-password',
                 'password' => 'new-password',
                 'password_confirmation' => 'new-password',
@@ -57,6 +57,6 @@ class PasswordUpdateTest extends TestCase
 
         $response
             ->assertSessionHasErrors('current_password')
-            ->assertRedirect(route('password.edit'));
+            ->assertRedirect(route('user-password.edit'));
     }
 }

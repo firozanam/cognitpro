@@ -1,32 +1,118 @@
-/.phpunit.cache
+# ============================================
+# Laravel Framework
+# ============================================
+/vendor/
 /bootstrap/ssr
-/node_modules
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitkeep
+/storage/*.key
+/storage/pail
 /public/build
 /public/hot
 /public/storage
+
+# ============================================
+# Node.js & Frontend
+# ============================================
+/node_modules
+npm-debug.log
+yarn-error.log
+
+# Auto-generated frontend files (Wayfinder)
 /resources/js/actions
 /resources/js/routes
 /resources/js/wayfinder
-/storage/*.key
-/storage/pail
-/vendor
-.DS_Store
+
+# ============================================
+# Environment & Configuration
+# ============================================
 .env
 .env.backup
 .env.production
-.phpactor.json
+.env.local
+.env.*.local
+
+# ============================================
+# Testing & Coverage
+# ============================================
+/.phpunit.cache
 .phpunit.result.cache
-Homestead.json
-Homestead.yaml
-npm-debug.log
-yarn-error.log
-/auth.json
+/coverage
+/tests/Browser/screenshots
+/tests/Browser/console
+/_ide_helper*.php
+/.phpstorm.meta.php
+
+# ============================================
+# IDE & Editor Files
+# ============================================
 /.fleet
 /.idea
 /.nova
 /.vscode
 /.zed
+.phpactor.json
+*.sublime-project
+*.sublime-workspace
 
-git-message.txt
-/progress
-credentials.md
+# ============================================
+# Operating System Files
+# ============================================
+.DS_Store
+Thumbs.db
+
+# ============================================
+# Laravel Homestead & Vagrant
+# ============================================
+Homestead.json
+Homestead.yaml
+/.vagrant
+
+# ============================================
+# Composer Auth
+# ============================================
+/auth.json
+
+# ============================================
+# Documentation & Temporary Files
+# ============================================
+/docs/
+git-commit.txt
+*.log
+*.tmp
+*.cache
+
+# ============================================
+# Build & Compiled Files
+# ============================================
+*.compiled.php
+/dist
+/build
+
+# ============================================
+# Database
+# ============================================
+*.sqlite
+*.sqlite-journal
+
+# ============================================
+# Archive & Compressed Files
+# ============================================
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.gz
+*.bz2
+*.xz
+*.iso
+*.dmg
+
+# ============================================
+# Package Lock Files (optional - team decision)
+# ============================================
+# Uncomment if you want to ignore lock files
+# composer.lock
+# package-lock.json
