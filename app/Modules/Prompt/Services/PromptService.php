@@ -5,6 +5,8 @@ namespace App\Modules\Prompt\Services;
 use App\Modules\Prompt\Contracts\PromptRepositoryInterface;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\Prompt\Models\Tag;
+use App\Notifications\PromptApprovedNotification;
+use App\Notifications\PromptRejectedNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -169,10 +171,22 @@ class PromptService
      */
     public function approvePrompt(Prompt $prompt): Prompt
     {
-        return $this->promptRepository->update($prompt, [
+        $prompt = $this->promptRepository->update($prompt, [
             'status' => 'approved',
             'rejection_reason' => null,
         ]);
+
+        // Send approval notification to seller
+        if ($prompt->seller) {
+            $prompt->seller->notify(new PromptApprovedNotification([
+                'id' => $prompt->id,
+                'title' => $prompt->title,
+                'slug' => $prompt->slug,
+                'price' => $prompt->price,
+            ]));
+        }
+
+        return $prompt;
     }
 
     /**
@@ -180,10 +194,21 @@ class PromptService
      */
     public function rejectPrompt(Prompt $prompt, string $reason): Prompt
     {
-        return $this->promptRepository->update($prompt, [
+        $prompt = $this->promptRepository->update($prompt, [
             'status' => 'rejected',
             'rejection_reason' => $reason,
         ]);
+
+        // Send rejection notification to seller
+        if ($prompt->seller) {
+            $prompt->seller->notify(new PromptRejectedNotification([
+                'id' => $prompt->id,
+                'title' => $prompt->title,
+                'rejection_reason' => $reason,
+            ]));
+        }
+
+        return $prompt;
     }
 
     /**
@@ -265,5 +290,33 @@ class PromptService
         }
 
         return array_unique($tagIds);
+    }
+
+    /**
+     * Get total prompt count.
+     */
+    public function getTotalPrompts(): int
+    {
+        return Prompt::count();
+    }
+
+    /**
+     * Get pending prompts count.
+     */
+    public function getPendingPromptsCount(): int
+    {
+        return Prompt::where('status', 'pending')->count();
+    }
+
+    /**
+     * Get pending prompts for moderation.
+     */
+    public function getPendingPrompts(int $limit = 10): Collection
+    {
+        return Prompt::with(['seller', 'category'])
+            ->where('status', 'pending')
+            ->orderBy('created_at', 'asc')
+            ->limit($limit)
+            ->get();
     }
 }

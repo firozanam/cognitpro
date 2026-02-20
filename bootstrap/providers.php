@@ -8,4 +8,6 @@ return [
     App\Modules\Core\Providers\CoreModuleServiceProvider::class,
     App\Modules\User\Providers\UserModuleServiceProvider::class,
     App\Modules\Prompt\Providers\PromptModuleServiceProvider::class,
+    App\Modules\Payment\Providers\PaymentModuleServiceProvider::class,
+    App\Modules\Admin\Providers\AdminModuleServiceProvider::class,
 ];

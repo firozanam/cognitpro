@@ -73,4 +73,31 @@ class UserService
     {
         return !$this->userRepository->emailExists($email, $excludeUserId);
     }
+
+    /**
+     * Get total user count.
+     */
+    public function getTotalUsers(): int
+    {
+        return User::count();
+    }
+
+    /**
+     * Get total seller count.
+     */
+    public function getTotalSellers(): int
+    {
+        return User::where('role', 'seller')->count();
+    }
+
+    /**
+     * Get recent users.
+     */
+    public function getRecentUsers(int $limit = 5): \Illuminate\Database\Eloquent\Collection
+    {
+        return User::with('profile')
+            ->orderBy('created_at', 'desc')
+            ->limit($limit)
+            ->get();
+    }
 }

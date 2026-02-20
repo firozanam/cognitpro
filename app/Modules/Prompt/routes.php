@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Prompt\Http\Controllers\CartController;
 use App\Modules\Prompt\Http\Controllers\PromptController;
 use App\Modules\Prompt\Http\Controllers\PurchaseController;
 use App\Modules\Prompt\Http\Controllers\ReviewController;
@@ -9,20 +10,26 @@ use Illuminate\Support\Facades\Route;
 Route::get('marketplace', [PromptController::class, 'index'])->name('marketplace.index');
 Route::get('marketplace/search', [PromptController::class, 'search'])->name('marketplace.search');
 Route::get('marketplace/featured', [PromptController::class, 'featured'])->name('marketplace.featured');
-Route::get('prompts/{slug}', [PromptController::class, 'show'])->name('prompts.show');
 
 // Public review routes
 Route::get('prompts/{prompt}/reviews', [ReviewController::class, 'index'])->name('prompts.reviews.index');
 
 // Authenticated routes
 Route::middleware(['web', 'auth', 'verified'])->group(function () {
-    // Prompt CRUD (sellers)
+    // Prompt CRUD (sellers) - must be before {slug} route
     Route::get('prompts/create', [PromptController::class, 'create'])->name('prompts.create');
     Route::post('prompts', [PromptController::class, 'store'])->name('prompts.store');
     Route::get('prompts/{prompt}/edit', [PromptController::class, 'edit'])->name('prompts.edit');
     Route::put('prompts/{prompt}', [PromptController::class, 'update'])->name('prompts.update');
     Route::delete('prompts/{prompt}', [PromptController::class, 'destroy'])->name('prompts.destroy');
     Route::post('prompts/{prompt}/submit', [PromptController::class, 'submitForApproval'])->name('prompts.submit');
+
+    // Cart routes
+    Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('cart/add/{prompt}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('cart/{cartId}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('cart', [CartController::class, 'clear'])->name('cart.clear');
+    Route::get('cart/count', [CartController::class, 'count'])->name('cart.count');
 
     // Purchase routes (buyers)
     Route::get('checkout/{prompt}', [PurchaseController::class, 'checkout'])->name('purchases.checkout');
@@ -45,3 +52,6 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
     Route::post('reviews/{review}/helpful', [ReviewController::class, 'helpful'])->name('reviews.helpful');
     Route::get('my-reviews', [ReviewController::class, 'myReviews'])->name('reviews.my');
 });
+
+// Public prompt show route - must be after authenticated routes to avoid conflicts
+Route::get('prompts/{slug}', [PromptController::class, 'show'])->name('prompts.show');

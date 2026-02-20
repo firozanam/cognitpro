@@ -7,6 +7,8 @@ use App\Modules\Prompt\Contracts\PromptRepositoryInterface;
 use App\Modules\Prompt\Models\Purchase;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\User\Models\User;
+use App\Notifications\PurchaseConfirmationNotification;
+use App\Notifications\SellerSaleNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
@@ -144,6 +146,9 @@ class PurchaseService
 
             // Refresh the purchase
             $purchase->refresh();
+
+            // Send notifications
+            $this->sendPurchaseNotifications($purchase);
 
             Log::info('Purchase completed', [
                 'purchase_id' => $purchase->id,
@@ -287,5 +292,44 @@ class PurchaseService
 
         // Fixed price
         return $prompt->price;
+    }
+
+    /**
+     * Get total sales count.
+     */
+    public function getTotalSales(): int
+    {
+        return Purchase::where('status', 'completed')->count();
+    }
+
+    /**
+     * Send purchase notifications to buyer and seller.
+     */
+    protected function sendPurchaseNotifications(Purchase $purchase): void
+    {
+        $prompt = $purchase->prompt;
+        $buyer = $purchase->buyer;
+        $seller = $prompt->seller ?? null;
+
+        // Send confirmation to buyer
+        if ($buyer) {
+            $buyer->notify(new PurchaseConfirmationNotification([
+                'purchase_id' => $purchase->id,
+                'order_number' => $purchase->order_number,
+                'prompt_title' => $prompt->title,
+                'price' => $purchase->price,
+            ]));
+        }
+
+        // Notify seller of the sale
+        if ($seller && $seller->id !== $buyer->id) {
+            $seller->notify(new SellerSaleNotification([
+                'purchase_id' => $purchase->id,
+                'prompt_title' => $prompt->title,
+                'price' => $purchase->price,
+                'seller_earnings' => $purchase->seller_earnings,
+                'order_number' => $purchase->order_number,
+            ]));
+        }
     }
 }

@@ -2,12 +2,15 @@
 
 namespace App\Modules\Prompt\Providers;
 
+use App\Modules\Prompt\Contracts\CartRepositoryInterface;
 use App\Modules\Prompt\Contracts\PromptRepositoryInterface;
 use App\Modules\Prompt\Contracts\PurchaseRepositoryInterface;
 use App\Modules\Prompt\Contracts\ReviewRepositoryInterface;
+use App\Modules\Prompt\Repositories\CartRepository;
 use App\Modules\Prompt\Repositories\PromptRepository;
 use App\Modules\Prompt\Repositories\PurchaseRepository;
 use App\Modules\Prompt\Repositories\ReviewRepository;
+use App\Modules\Prompt\Services\CartService;
 use App\Modules\Prompt\Services\PromptService;
 use App\Modules\Prompt\Services\PurchaseService;
 use App\Modules\Prompt\Services\ReviewService;
@@ -24,6 +27,7 @@ class PromptModuleServiceProvider extends ServiceProvider
         $this->app->bind(PromptRepositoryInterface::class, PromptRepository::class);
         $this->app->bind(PurchaseRepositoryInterface::class, PurchaseRepository::class);
         $this->app->bind(ReviewRepositoryInterface::class, ReviewRepository::class);
+        $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
 
         // Bind services
         $this->app->bind(PromptService::class, function ($app) {
@@ -42,6 +46,13 @@ class PromptModuleServiceProvider extends ServiceProvider
         $this->app->bind(ReviewService::class, function ($app) {
             return new ReviewService(
                 $app->make(ReviewRepositoryInterface::class),
+                $app->make(PurchaseRepositoryInterface::class)
+            );
+        });
+
+        $this->app->bind(CartService::class, function ($app) {
+            return new CartService(
+                $app->make(CartRepositoryInterface::class),
                 $app->make(PurchaseRepositoryInterface::class)
             );
         });
