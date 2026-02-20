@@ -171,7 +171,7 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={prompt.title} />
             
-            <div className="container py-8">
+            <div className="container mx-auto px-6 py-8">
                 {/* Back Button */}
                 <Link
                     href="/marketplace"

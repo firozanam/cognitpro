@@ -349,7 +349,7 @@ export default function MarketplaceIndex({ prompts, categories, filters, aiModel
         <>
             {/* Hero Section */}
             <section className="border-b bg-gradient-to-b from-muted/50 to-background">
-                <div className="container py-12">
+                <div className="container mx-auto px-6 py-12">
                     <div className="mx-auto max-w-3xl text-center">
                         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
                             AI Prompt Marketplace
@@ -380,7 +380,7 @@ export default function MarketplaceIndex({ prompts, categories, filters, aiModel
             </section>
 
             {/* Main Content */}
-            <section className="container py-8">
+            <section className="container mx-auto px-6 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
                     {/* Sidebar Filters */}
                     <aside className={`lg:w-64 shrink-0 ${showFilters ? 'block' : 'hidden lg:block'}`}>
