@@ -103,12 +103,12 @@ export default function PurchasesIndex({ purchases }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="My Purchases" />
 
-            <div className="container py-8">
+            <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold">My Purchases</h1>
-                        <p className="text-muted-foreground mt-1">
+                        <h1 className="text-2xl font-bold tracking-tight">My Purchases</h1>
+                        <p className="text-muted-foreground">
                             View and manage your purchased prompts
                         </p>
                     </div>

@@ -120,17 +120,19 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Admin Dashboard" />
 
-            <div className="container py-8">
+            <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-                    <p className="text-muted-foreground mt-1">
-                        Manage your platform and monitor performance
-                    </p>
+                <div className="flex items-center justify-between">
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
+                        <p className="text-muted-foreground">
+                            Manage your platform and monitor performance
+                        </p>
+                    </div>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+                <div className="grid gap-4 md:grid-cols-4">
                     {statCards.map((stat) => (
                         <Card key={stat.title} className={stat.href ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}>
                             {stat.href ? (
@@ -172,7 +174,7 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                     ))}
                 </div>
 
-                <div className="grid gap-6 lg:grid-cols-2">
+                <div className="grid gap-4 lg:grid-cols-2">
                     {/* Pending Prompts */}
                     <Card>
                         <CardHeader>

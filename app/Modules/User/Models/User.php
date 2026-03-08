@@ -3,6 +3,7 @@
 namespace App\Modules\User\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Modules\Prompt\Models\Cart;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\Prompt\Models\Purchase;
 use App\Modules\Prompt\Models\Review;
@@ -96,6 +97,14 @@ class User extends Authenticatable
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Get the cart items for this user.
+     */
+    public function cart(): HasMany
+    {
+        return $this->hasMany(Cart::class);
     }
 
     /**

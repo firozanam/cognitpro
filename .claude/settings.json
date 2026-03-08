@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc --noEmit --skipLibCheck)",
+      "Bash(php -l app/Modules/Core/Http/Controllers/DashboardController.php)",
+      "Bash(php -l app/Modules/User/Models/User.php)"
+    ]
+  }
+}

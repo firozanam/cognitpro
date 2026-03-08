@@ -86,15 +86,15 @@ export default function CartIndex({ cartItems, total, count }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Shopping Cart" />
 
-            <div className="container py-8">
+            <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold flex items-center gap-3">
-                            <ShoppingCart className="h-8 w-8" />
+                        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
+                            <ShoppingCart className="h-6 w-6" />
                             Shopping Cart
                         </h1>
-                        <p className="text-muted-foreground mt-1">
+                        <p className="text-muted-foreground">
                             {count === 0 ? 'Your cart is empty' : `${count} item${count !== 1 ? 's' : ''} in your cart`}
                         </p>
                     </div>
@@ -107,7 +107,7 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                 </div>
 
                 {cartItems.length > 0 ? (
-                    <div className="grid gap-8 lg:grid-cols-3">
+                    <div className="grid gap-4 lg:grid-cols-3">
                         {/* Cart Items */}
                         <div className="lg:col-span-2 space-y-4">
                             {cartItems.map((item) => (

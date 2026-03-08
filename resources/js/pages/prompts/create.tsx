@@ -128,9 +128,9 @@ export default function PromptCreate({ categories, aiModels }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Prompt" />
             
-            <div className="container py-8 max-w-4xl">
+            <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="flex items-center justify-between">
                     <div>
                         <Link
                             href="/seller/dashboard"
@@ -139,8 +139,8 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                             <ArrowLeft className="h-4 w-4 mr-1" />
                             Back to Dashboard
                         </Link>
-                        <h1 className="text-3xl font-bold">Create New Prompt</h1>
-                        <p className="text-muted-foreground mt-1">
+                        <h1 className="text-2xl font-bold tracking-tight">Create New Prompt</h1>
+                        <p className="text-muted-foreground">
                             Share your prompt with the community and start earning
                         </p>
                     </div>

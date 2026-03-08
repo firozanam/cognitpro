@@ -147,12 +147,12 @@ export default function SellerSales({ sales, stats }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Sales - Seller Dashboard" />
 
-            <div className="container py-8">
+            <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold">Sales</h1>
-                        <p className="text-muted-foreground mt-1">
+                        <h1 className="text-2xl font-bold tracking-tight">Sales</h1>
+                        <p className="text-muted-foreground">
                             Track your prompt sales and earnings
                         </p>
                     </div>
@@ -165,7 +165,7 @@ export default function SellerSales({ sales, stats }: Props) {
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-3 mb-8">
+                <div className="grid gap-4 md:grid-cols-3">
                     {statCards.map((stat) => (
                         <Card key={stat.title}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
