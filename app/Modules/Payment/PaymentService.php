@@ -10,8 +10,8 @@ use Stripe\Exception\ApiErrorException;
 
 class PaymentService
 {
-    protected string $secretKey;
-    protected string $publishableKey;
+    protected ?string $secretKey;
+    protected ?string $publishableKey;
     protected string $currency;
 
     public function __construct()
