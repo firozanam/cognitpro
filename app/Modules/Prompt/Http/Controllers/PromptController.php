@@ -148,7 +148,7 @@ class PromptController extends Controller
 
         $this->promptService->deletePrompt($prompt);
 
-        return redirect()->route('seller.prompts')
+        return redirect()->route('seller.dashboard')
             ->with('success', 'Prompt deleted successfully.');
     }
 

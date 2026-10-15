@@ -557,10 +557,7 @@ export default function PromptShow({
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
-                                <Link
-                                    href={`/sellers/${prompt.seller.id}`}
-                                    className="mb-4 flex items-center gap-3"
-                                >
+                                <div className="mb-4 flex items-center gap-3">
                                     <Avatar className="h-12 w-12">
                                         <AvatarImage
                                             src={
@@ -591,7 +588,7 @@ export default function PromptShow({
                                             sales
                                         </p>
                                     </div>
-                                </Link>
+                                </div>
                                 {prompt.seller.profile?.bio && (
                                     <p className="line-clamp-3 text-sm text-muted-foreground">
                                         {prompt.seller.profile.bio}

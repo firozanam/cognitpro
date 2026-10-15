@@ -5,9 +5,10 @@ namespace App\Modules\Prompt\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\Prompt\Models\Purchase;
+use App\Modules\Prompt\Services\PromptService;
 use App\Modules\Prompt\Services\PurchaseService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -15,9 +16,12 @@ class PurchaseController extends Controller
 {
     protected PurchaseService $purchaseService;
 
-    public function __construct(PurchaseService $purchaseService)
+    protected PromptService $promptService;
+
+    public function __construct(PurchaseService $purchaseService, PromptService $promptService)
     {
         $this->purchaseService = $purchaseService;
+        $this->promptService = $promptService;
     }
 
     /**
@@ -47,7 +51,7 @@ class PurchaseController extends Controller
                     Purchase::where('buyer_id', $request->user()->id)
                         ->where('prompt_id', $prompt->id)
                         ->first()->order_number
-                )->id
+                )->id,
             ])->with('info', 'You already own this prompt.');
         }
 
@@ -79,7 +83,7 @@ class PurchaseController extends Controller
                 $this->purchaseService->completePurchase(
                     $purchase,
                     'free',
-                    'free_' . $purchase->order_number
+                    'free_'.$purchase->order_number
                 );
 
                 return redirect()->route('purchases.show', $purchase->id)
@@ -126,7 +130,7 @@ class PurchaseController extends Controller
         $isSeller = $purchase->prompt->seller_id === $request->user()->id;
         $isAdmin = $request->user()->isAdmin();
 
-        if (!$isBuyer && !$isSeller && !$isAdmin) {
+        if (! $isBuyer && ! $isSeller && ! $isAdmin) {
             abort(403);
         }
 
@@ -146,7 +150,7 @@ class PurchaseController extends Controller
 
         return Inertia::render('purchases/show', [
             'purchase' => $purchase,
-            'can_review' => $isBuyer && !$purchase->hasReview(),
+            'can_review' => $isBuyer && ! $purchase->hasReview(),
         ]);
     }
 
@@ -164,6 +168,33 @@ class PurchaseController extends Controller
 
         return Inertia::render('seller/sales', [
             'sales' => $sales,
+            'stats' => $stats,
+        ]);
+    }
+
+    /**
+     * Seller hub: their prompts plus sales stats (FEA-05).
+     */
+    public function sellerDashboard(Request $request): Response
+    {
+        $sellerId = $request->user()->id;
+
+        $prompts = $this->promptService->getPromptsBySeller($sellerId, 10);
+        $salesStats = $this->purchaseService->getSellerStats($sellerId);
+
+        $promptQuery = Prompt::where('seller_id', $sellerId);
+
+        $stats = [
+            'total_earnings' => $salesStats['total_earnings'],
+            'total_sales' => $salesStats['total_sales'],
+            'total_prompts' => (clone $promptQuery)->count(),
+            'total_views' => (clone $promptQuery)->sum('views_count'),
+            'average_rating' => (clone $promptQuery)->where('rating_count', '>', 0)->avg('rating') ?? 0,
+            'pending_payout' => 0,
+        ];
+
+        return Inertia::render('seller/dashboard', [
+            'prompts' => $prompts,
             'stats' => $stats,
         ]);
     }

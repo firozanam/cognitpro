@@ -44,6 +44,7 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
 
     // Seller sales routes
     Route::get('seller/sales', [PurchaseController::class, 'sales'])->name('seller.sales');
+    Route::get('seller/dashboard', [PurchaseController::class, 'sellerDashboard'])->name('seller.dashboard');
 
     // Review routes
     Route::get('purchases/{purchase}/review', [ReviewController::class, 'create'])->name('reviews.create');

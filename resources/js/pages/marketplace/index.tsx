@@ -419,9 +419,8 @@ export default function MarketplaceIndex({
                 </div>
             </CardFooter>
             <div className="border-t px-6 py-3">
-                <Link
-                    href={`/sellers/${prompt.seller.id}`}
-                    className="flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+                <div
+                    className="flex items-center gap-2 text-sm text-muted-foreground"
                 >
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/40">
                         {prompt.seller.name.charAt(0).toUpperCase()}
@@ -432,7 +431,7 @@ export default function MarketplaceIndex({
                             Verified
                         </Badge>
                     )}
-                </Link>
+                </div>
             </div>
         </Card>
     );
