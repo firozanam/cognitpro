@@ -129,6 +129,14 @@ class Purchase extends Model
     }
 
     /**
+     * Check if the purchase failed (e.g. Stripe payment_intent.payment_failed).
+     */
+    public function isFailed(): bool
+    {
+        return $this->status === 'failed';
+    }
+
+    /**
      * Check if the purchase has been reviewed.
      */
     public function hasReview(): bool
