@@ -5,8 +5,11 @@ use App\Modules\Core\Http\Controllers\DashboardController;
 use App\Modules\Core\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
-Route::get('/', [HomeController::class, 'index'])->name('home');
+// Public routes — inside the web group for sessions, Inertia shared
+// props, and asset versioning (RTE-03)
+Route::middleware('web')->group(function () {
+    Route::get('/', [HomeController::class, 'index'])->name('home');
+});
 
 // Authenticated routes
 Route::middleware(['web', 'auth', 'verified'])->group(function () {

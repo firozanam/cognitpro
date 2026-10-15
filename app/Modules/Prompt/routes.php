@@ -6,13 +6,16 @@ use App\Modules\Prompt\Http\Controllers\PurchaseController;
 use App\Modules\Prompt\Http\Controllers\ReviewController;
 use Illuminate\Support\Facades\Route;
 
-// Public routes - Marketplace
-Route::get('marketplace', [PromptController::class, 'index'])->name('marketplace.index');
-Route::get('marketplace/search', [PromptController::class, 'search'])->name('marketplace.search');
-Route::get('marketplace/featured', [PromptController::class, 'featured'])->name('marketplace.featured');
+// Public routes - Marketplace (web group: sessions, Inertia shared props,
+// asset versioning, route-model binding — RTE-03)
+Route::middleware('web')->group(function () {
+    Route::get('marketplace', [PromptController::class, 'index'])->name('marketplace.index');
+    Route::get('marketplace/search', [PromptController::class, 'search'])->name('marketplace.search');
+    Route::get('marketplace/featured', [PromptController::class, 'featured'])->name('marketplace.featured');
 
-// Public review routes
-Route::get('prompts/{prompt}/reviews', [ReviewController::class, 'index'])->name('prompts.reviews.index');
+    // Public review routes
+    Route::get('prompts/{prompt}/reviews', [ReviewController::class, 'index'])->name('prompts.reviews.index');
+});
 
 // Authenticated routes
 Route::middleware(['web', 'auth', 'verified'])->group(function () {
@@ -54,4 +57,6 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
 });
 
 // Public prompt show route - must be after authenticated routes to avoid conflicts
-Route::get('prompts/{slug}', [PromptController::class, 'show'])->name('prompts.show');
+Route::middleware('web')->group(function () {
+    Route::get('prompts/{slug}', [PromptController::class, 'show'])->name('prompts.show');
+});
