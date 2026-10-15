@@ -77,6 +77,29 @@ class ModerationPipelineTest extends TestCase
         ]);
     }
 
+    public function test_store_accepts_null_price_fields_like_the_browser_sends(): void
+    {
+        $seller = User::factory()->create(['role' => 'seller']);
+        $category = Category::factory()->create();
+
+        // Inertia submits JSON null for inapplicable price fields
+        $this->actingAs($seller)->postJson(route('prompts.store'), [
+            'title' => 'Json Null Prices',
+            'description' => 'Browser payload shape.',
+            'content' => 'Content.',
+            'category_id' => $category->id,
+            'ai_model' => 'gpt-4',
+            'pricing_model' => 'fixed',
+            'price' => 9.99,
+            'min_price' => null,
+        ])->assertSessionHasNoErrors();
+
+        $this->assertDatabaseHas('prompts', [
+            'title' => 'Json Null Prices',
+            'status' => 'draft',
+        ]);
+    }
+
     public function test_store_rejects_status_outside_draft_and_pending(): void
     {
         $seller = User::factory()->create(['role' => 'seller']);

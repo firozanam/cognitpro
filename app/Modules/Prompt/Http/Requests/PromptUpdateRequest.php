@@ -3,7 +3,6 @@
 namespace App\Modules\Prompt\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class PromptUpdateRequest extends FormRequest
 {
@@ -29,8 +28,8 @@ class PromptUpdateRequest extends FormRequest
             'category_id' => ['sometimes', 'required', 'exists:categories,id'],
             'ai_model' => ['sometimes', 'required', 'string', 'max:100'],
             'pricing_model' => ['sometimes', 'required', 'in:fixed,pay_what_you_want,free'],
-            'price' => ['required_if:pricing_model,fixed', 'numeric', 'min:0', 'max:9999.99'],
-            'min_price' => ['required_if:pricing_model,pay_what_you_want', 'numeric', 'min:0', 'max:9999.99'],
+            'price' => ['nullable', 'required_if:pricing_model,fixed', 'numeric', 'min:0', 'max:9999.99'],
+            'min_price' => ['nullable', 'required_if:pricing_model,pay_what_you_want', 'numeric', 'min:0', 'max:9999.99'],
             'tags' => ['nullable', 'array', 'max:10'],
             'tags.*' => ['string', 'max:100'],
             'status' => ['sometimes', 'in:draft,pending'],
