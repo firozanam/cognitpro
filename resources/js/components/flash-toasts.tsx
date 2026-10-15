@@ -19,18 +19,18 @@ const KIND_ICONS: Record<FlashMessage['kind'], React.ReactNode> = {
     info: <Info className="h-4 w-4 text-muted-foreground" />,
 };
 
-function Toast({
-    message,
-    onDismiss,
-}: {
-    message: FlashMessage & { id: number };
-    onDismiss: (id: number) => void;
-}) {
+function Toast({ message }: { message: FlashMessage }) {
+    const [visible, setVisible] = useState(true);
+
     useEffect(() => {
-        const timer = setTimeout(() => onDismiss(message.id), 5000);
+        const timer = setTimeout(() => setVisible(false), 5000);
 
         return () => clearTimeout(timer);
-    }, [message.id, onDismiss]);
+    }, []);
+
+    if (!visible) {
+        return null;
+    }
 
     return (
         <div
@@ -42,7 +42,7 @@ function Toast({
             <button
                 type="button"
                 aria-label="Dismiss notification"
-                onClick={() => onDismiss(message.id)}
+                onClick={() => setVisible(false)}
                 className="rounded p-1 text-muted-foreground hover:text-foreground"
             >
                 <X className="h-4 w-4" />
@@ -53,57 +53,29 @@ function Toast({
 
 /**
  * Renders session flash messages (shared as `flash` by
- * HandleInertiaRequests) as auto-dismissing toasts.
+ * HandleInertiaRequests) as self-dismissing toasts.
  */
 export function FlashToasts() {
     const { flash } = usePage().props as {
         flash?: { success?: string; error?: string; info?: string };
     };
-    const [toasts, setToasts] = useState<(FlashMessage & { id: number })[]>([]);
 
-    useEffect(() => {
-        const incoming: FlashMessage[] = [];
-        if (flash?.success)
-            incoming.push({ kind: 'success', text: flash.success });
-        if (flash?.error) incoming.push({ kind: 'error', text: flash.error });
-        if (flash?.info) incoming.push({ kind: 'info', text: flash.info });
+    const messages: FlashMessage[] = [];
+    if (flash?.success) messages.push({ kind: 'success', text: flash.success });
+    if (flash?.error) messages.push({ kind: 'error', text: flash.error });
+    if (flash?.info) messages.push({ kind: 'info', text: flash.info });
 
-        if (incoming.length > 0) {
-            setToasts((prev) => {
-                // StrictMode runs effects twice in development — skip duplicates
-                const fresh = incoming.filter(
-                    (message) =>
-                        !prev.some(
-                            (toast) =>
-                                toast.kind === message.kind &&
-                                toast.text === message.text,
-                        ),
-                );
-
-                return fresh.length > 0
-                    ? [
-                          ...fresh.map((message, index) => ({
-                              ...message,
-                              id: Date.now() + index,
-                          })),
-                          ...prev,
-                      ].slice(0, 3)
-                    : prev;
-            });
-        }
-    }, [flash?.success, flash?.error, flash?.info]);
-
-    const dismiss = (id: number) =>
-        setToasts((prev) => prev.filter((toast) => toast.id !== id));
-
-    if (toasts.length === 0) {
+    if (messages.length === 0) {
         return null;
     }
 
     return (
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-[100] flex flex-col items-center gap-2 p-4 sm:items-end">
-            {toasts.map((toast) => (
-                <Toast key={toast.id} message={toast} onDismiss={dismiss} />
+            {messages.map((message) => (
+                <Toast
+                    key={`${message.kind}:${message.text}`}
+                    message={message}
+                />
             ))}
         </div>
     );

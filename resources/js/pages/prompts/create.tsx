@@ -1,25 +1,37 @@
-import { Head, Link, router } from '@inertiajs/react';
-import { useState, FormEvent } from 'react';
-import AppLayout from '@/layouts/app-layout';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { 
-    ArrowLeft, 
-    Save, 
-    Eye, 
-    Plus, 
-    X, 
-    DollarSign,
-    Sparkles,
-    FileText,
-    Tag as TagIcon
-} from 'lucide-react';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    ArrowLeft,
+    DollarSign,
+    Eye,
+    FileText,
+    Plus,
+    Save,
+    Sparkles,
+    Tag as TagIcon,
+    X,
+} from 'lucide-react';
+import { FormEvent, useState } from 'react';
 
 interface Category {
     id: number;
@@ -41,7 +53,7 @@ export default function PromptCreate({ categories, aiModels }: Props) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showPreview, setShowPreview] = useState(false);
     const [tagInput, setTagInput] = useState('');
-    
+
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -68,10 +80,10 @@ export default function PromptCreate({ categories, aiModels }: Props) {
     ];
 
     const handleChange = (field: string, value: string) => {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData((prev) => ({ ...prev, [field]: value }));
         // Clear error when field is modified
         if (errors[field]) {
-            setErrors(prev => {
+            setErrors((prev) => {
                 const newErrors = { ...prev };
                 delete newErrors[field];
                 return newErrors;
@@ -82,15 +94,15 @@ export default function PromptCreate({ categories, aiModels }: Props) {
     const handleAddTag = () => {
         const tag = tagInput.trim().toLowerCase();
         if (tag && !formData.tags.includes(tag) && formData.tags.length < 10) {
-            setFormData(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+            setFormData((prev) => ({ ...prev, tags: [...prev.tags, tag] }));
             setTagInput('');
         }
     };
 
     const handleRemoveTag = (tagToRemove: string) => {
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            tags: prev.tags.filter(tag => tag !== tagToRemove)
+            tags: prev.tags.filter((tag) => tag !== tagToRemove),
         }));
     };
 
@@ -108,8 +120,14 @@ export default function PromptCreate({ categories, aiModels }: Props) {
 
         const submitData = {
             ...formData,
-            price: formData.pricing_model === 'free' ? 0 : parseFloat(formData.price),
-            min_price: formData.pricing_model === 'pay_what_you_want' ? parseFloat(formData.min_price) : null,
+            price:
+                formData.pricing_model === 'free'
+                    ? 0
+                    : parseFloat(formData.price),
+            min_price:
+                formData.pricing_model === 'pay_what_you_want'
+                    ? parseFloat(formData.min_price)
+                    : null,
             status: asDraft ? 'draft' : 'pending',
         };
 
@@ -127,28 +145,31 @@ export default function PromptCreate({ categories, aiModels }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Create Prompt" />
-            
+
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
                         <Link
                             href="/seller/dashboard"
-                            className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2"
+                            className="mb-2 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
                         >
-                            <ArrowLeft className="h-4 w-4 mr-1" />
+                            <ArrowLeft className="mr-1 h-4 w-4" />
                             Back to Dashboard
                         </Link>
-                        <h1 className="text-2xl font-bold tracking-tight">Create New Prompt</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Create New Prompt
+                        </h1>
                         <p className="text-muted-foreground">
-                            Share your prompt with the community and start earning
+                            Share your prompt with the community and start
+                            earning
                         </p>
                     </div>
                     <Button
                         variant="outline"
                         onClick={() => setShowPreview(!showPreview)}
                     >
-                        <Eye className="h-4 w-4 mr-2" />
+                        <Eye className="mr-2 h-4 w-4" />
                         {showPreview ? 'Hide Preview' : 'Preview'}
                     </Button>
                 </div>
@@ -173,30 +194,52 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                     id="title"
                                     placeholder="e.g., Professional Email Writer for Business Communication"
                                     value={formData.title}
-                                    onChange={(e) => handleChange('title', e.target.value)}
-                                    className={errors.title ? 'border-destructive' : ''}
+                                    onChange={(e) =>
+                                        handleChange('title', e.target.value)
+                                    }
+                                    className={
+                                        errors.title ? 'border-destructive' : ''
+                                    }
                                 />
                                 {errors.title && (
-                                    <p className="text-sm text-destructive">{errors.title}</p>
+                                    <p className="text-sm text-destructive">
+                                        {errors.title}
+                                    </p>
                                 )}
                                 <p className="text-xs text-muted-foreground">
-                                    A clear, descriptive title that helps buyers understand what your prompt does
+                                    A clear, descriptive title that helps buyers
+                                    understand what your prompt does
                                 </p>
                             </div>
 
                             {/* Description */}
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description *</Label>
+                                <Label htmlFor="description">
+                                    Description *
+                                </Label>
                                 <Textarea
                                     id="description"
                                     placeholder="Describe what your prompt does, what use cases it's best for, and any tips for getting the best results..."
                                     rows={5}
                                     value={formData.description}
-                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange('description', e.target.value)}
-                                    className={errors.description ? 'border-destructive' : ''}
+                                    onChange={(
+                                        e: React.ChangeEvent<HTMLTextAreaElement>,
+                                    ) =>
+                                        handleChange(
+                                            'description',
+                                            e.target.value,
+                                        )
+                                    }
+                                    className={
+                                        errors.description
+                                            ? 'border-destructive'
+                                            : ''
+                                    }
                                 />
                                 {errors.description && (
-                                    <p className="text-sm text-destructive">{errors.description}</p>
+                                    <p className="text-sm text-destructive">
+                                        {errors.description}
+                                    </p>
                                 )}
                             </div>
 
@@ -206,21 +249,34 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                     <Label htmlFor="category">Category *</Label>
                                     <Select
                                         value={formData.category_id}
-                                        onValueChange={(value) => handleChange('category_id', value)}
+                                        onValueChange={(value) =>
+                                            handleChange('category_id', value)
+                                        }
                                     >
-                                        <SelectTrigger className={errors.category_id ? 'border-destructive' : ''}>
+                                        <SelectTrigger
+                                            className={
+                                                errors.category_id
+                                                    ? 'border-destructive'
+                                                    : ''
+                                            }
+                                        >
                                             <SelectValue placeholder="Select a category" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {categories.map((category) => (
-                                                <SelectItem key={category.id} value={category.id.toString()}>
+                                                <SelectItem
+                                                    key={category.id}
+                                                    value={category.id.toString()}
+                                                >
                                                     {category.name}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.category_id && (
-                                        <p className="text-sm text-destructive">{errors.category_id}</p>
+                                        <p className="text-sm text-destructive">
+                                            {errors.category_id}
+                                        </p>
                                     )}
                                 </div>
 
@@ -228,21 +284,34 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                     <Label htmlFor="ai_model">AI Model *</Label>
                                     <Select
                                         value={formData.ai_model}
-                                        onValueChange={(value) => handleChange('ai_model', value)}
+                                        onValueChange={(value) =>
+                                            handleChange('ai_model', value)
+                                        }
                                     >
-                                        <SelectTrigger className={errors.ai_model ? 'border-destructive' : ''}>
+                                        <SelectTrigger
+                                            className={
+                                                errors.ai_model
+                                                    ? 'border-destructive'
+                                                    : ''
+                                            }
+                                        >
                                             <SelectValue placeholder="Select an AI model" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {aiModels.map((model) => (
-                                                <SelectItem key={model.value} value={model.value}>
+                                                <SelectItem
+                                                    key={model.value}
+                                                    value={model.value}
+                                                >
                                                     {model.label}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
                                     </Select>
                                     {errors.ai_model && (
-                                        <p className="text-sm text-destructive">{errors.ai_model}</p>
+                                        <p className="text-sm text-destructive">
+                                            {errors.ai_model}
+                                        </p>
                                     )}
                                 </div>
                             </div>
@@ -255,22 +324,34 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                         id="tags"
                                         placeholder="Add tags (press Enter)"
                                         value={tagInput}
-                                        onChange={(e) => setTagInput(e.target.value)}
+                                        onChange={(e) =>
+                                            setTagInput(e.target.value)
+                                        }
                                         onKeyDown={handleTagKeyDown}
                                     />
-                                    <Button type="button" variant="outline" onClick={handleAddTag}>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={handleAddTag}
+                                    >
                                         <Plus className="h-4 w-4" />
                                     </Button>
                                 </div>
                                 {formData.tags.length > 0 && (
-                                    <div className="flex flex-wrap gap-2 mt-2">
+                                    <div className="mt-2 flex flex-wrap gap-2">
                                         {formData.tags.map((tag) => (
-                                            <Badge key={tag} variant="secondary" className="gap-1">
+                                            <Badge
+                                                key={tag}
+                                                variant="secondary"
+                                                className="gap-1"
+                                            >
                                                 <TagIcon className="h-3 w-3" />
                                                 {tag}
                                                 <button
                                                     type="button"
-                                                    onClick={() => handleRemoveTag(tag)}
+                                                    onClick={() =>
+                                                        handleRemoveTag(tag)
+                                                    }
                                                     className="ml-1 hover:text-destructive"
                                                 >
                                                     <X className="h-3 w-3" />
@@ -280,7 +361,8 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                     </div>
                                 )}
                                 <p className="text-xs text-muted-foreground">
-                                    Add up to 10 tags to help buyers find your prompt
+                                    Add up to 10 tags to help buyers find your
+                                    prompt
                                 </p>
                             </div>
                         </CardContent>
@@ -305,14 +387,21 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                     placeholder="Enter your prompt here. This is what buyers will copy and use..."
                                     rows={12}
                                     value={formData.content}
-                                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => handleChange('content', e.target.value)}
+                                    onChange={(
+                                        e: React.ChangeEvent<HTMLTextAreaElement>,
+                                    ) =>
+                                        handleChange('content', e.target.value)
+                                    }
                                     className={`font-mono text-sm ${errors.content ? 'border-destructive' : ''}`}
                                 />
                                 {errors.content && (
-                                    <p className="text-sm text-destructive">{errors.content}</p>
+                                    <p className="text-sm text-destructive">
+                                        {errors.content}
+                                    </p>
                                 )}
                                 <p className="text-xs text-muted-foreground">
-                                    Use clear instructions and placeholders like {'{{variable}}'} for customizable parts
+                                    Use clear instructions and placeholders like{' '}
+                                    {'{{variable}}'} for customizable parts
                                 </p>
                             </div>
                         </CardContent>
@@ -335,15 +424,23 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                 <Label>Pricing Model *</Label>
                                 <Select
                                     value={formData.pricing_model}
-                                    onValueChange={(value) => handleChange('pricing_model', value)}
+                                    onValueChange={(value) =>
+                                        handleChange('pricing_model', value)
+                                    }
                                 >
                                     <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="fixed">Fixed Price</SelectItem>
-                                        <SelectItem value="pay_what_you_want">Pay What You Want</SelectItem>
-                                        <SelectItem value="free">Free</SelectItem>
+                                        <SelectItem value="fixed">
+                                            Fixed Price
+                                        </SelectItem>
+                                        <SelectItem value="pay_what_you_want">
+                                            Pay What You Want
+                                        </SelectItem>
+                                        <SelectItem value="free">
+                                            Free
+                                        </SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -353,10 +450,12 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                 <div className="grid gap-6 sm:grid-cols-2">
                                     <div className="space-y-2">
                                         <Label htmlFor="price">
-                                            {formData.pricing_model === 'fixed' ? 'Price *' : 'Suggested Price'}
+                                            {formData.pricing_model === 'fixed'
+                                                ? 'Price *'
+                                                : 'Suggested Price'}
                                         </Label>
                                         <div className="relative">
-                                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                            <DollarSign className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                             <Input
                                                 id="price"
                                                 type="number"
@@ -365,20 +464,30 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                                 max="9999.99"
                                                 placeholder="9.99"
                                                 value={formData.price}
-                                                onChange={(e) => handleChange('price', e.target.value)}
+                                                onChange={(e) =>
+                                                    handleChange(
+                                                        'price',
+                                                        e.target.value,
+                                                    )
+                                                }
                                                 className={`pl-9 ${errors.price ? 'border-destructive' : ''}`}
                                             />
                                         </div>
                                         {errors.price && (
-                                            <p className="text-sm text-destructive">{errors.price}</p>
+                                            <p className="text-sm text-destructive">
+                                                {errors.price}
+                                            </p>
                                         )}
                                     </div>
 
-                                    {formData.pricing_model === 'pay_what_you_want' && (
+                                    {formData.pricing_model ===
+                                        'pay_what_you_want' && (
                                         <div className="space-y-2">
-                                            <Label htmlFor="min_price">Minimum Price *</Label>
+                                            <Label htmlFor="min_price">
+                                                Minimum Price *
+                                            </Label>
                                             <div className="relative">
-                                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                                <DollarSign className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                                                 <Input
                                                     id="min_price"
                                                     type="number"
@@ -387,12 +496,19 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                                                     max="9999.99"
                                                     placeholder="1.00"
                                                     value={formData.min_price}
-                                                    onChange={(e) => handleChange('min_price', e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleChange(
+                                                            'min_price',
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     className={`pl-9 ${errors.min_price ? 'border-destructive' : ''}`}
                                                 />
                                             </div>
                                             {errors.min_price && (
-                                                <p className="text-sm text-destructive">{errors.min_price}</p>
+                                                <p className="text-sm text-destructive">
+                                                    {errors.min_price}
+                                                </p>
                                             )}
                                         </div>
                                     )}
@@ -401,7 +517,9 @@ export default function PromptCreate({ categories, aiModels }: Props) {
 
                             {formData.pricing_model === 'free' && (
                                 <p className="text-sm text-muted-foreground">
-                                    Free prompts are a great way to build your reputation and attract buyers to your paid content.
+                                    Free prompts are a great way to build your
+                                    reputation and attract buyers to your paid
+                                    content.
                                 </p>
                             )}
                         </CardContent>
@@ -413,34 +531,44 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                             <CardHeader>
                                 <CardTitle>Preview</CardTitle>
                                 <CardDescription>
-                                    How your prompt will appear in the marketplace
+                                    How your prompt will appear in the
+                                    marketplace
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
                                     <div>
                                         <h3 className="text-xl font-semibold">
-                                            {formData.title || 'Untitled Prompt'}
+                                            {formData.title ||
+                                                'Untitled Prompt'}
                                         </h3>
-                                        <p className="text-muted-foreground mt-2">
-                                            {formData.description || 'No description provided'}
+                                        <p className="mt-2 text-muted-foreground">
+                                            {formData.description ||
+                                                'No description provided'}
                                         </p>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
                                         {formData.ai_model && (
-                                            <Badge variant="outline">{formData.ai_model}</Badge>
+                                            <Badge variant="outline">
+                                                {formData.ai_model}
+                                            </Badge>
                                         )}
                                         {formData.category_id && (
                                             <Badge variant="secondary">
-                                                {categories.find(c => c.id.toString() === formData.category_id)?.name}
+                                                {
+                                                    categories.find(
+                                                        (c) =>
+                                                            c.id.toString() ===
+                                                            formData.category_id,
+                                                    )?.name
+                                                }
                                             </Badge>
                                         )}
                                     </div>
                                     <div className="text-lg font-bold">
-                                        {formData.pricing_model === 'free' 
-                                            ? 'Free' 
-                                            : `$${parseFloat(formData.price || '0').toFixed(2)}`
-                                        }
+                                        {formData.pricing_model === 'free'
+                                            ? 'Free'
+                                            : `$${parseFloat(formData.price || '0').toFixed(2)}`}
                                     </div>
                                 </div>
                             </CardContent>
@@ -455,14 +583,13 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                             onClick={(e) => handleSubmit(e, true)}
                             disabled={isSubmitting}
                         >
-                            <Save className="h-4 w-4 mr-2" />
+                            <Save className="mr-2 h-4 w-4" />
                             Save as Draft
                         </Button>
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting}
-                        >
-                            {isSubmitting ? 'Submitting...' : 'Submit for Review'}
+                        <Button type="submit" disabled={isSubmitting}>
+                            {isSubmitting
+                                ? 'Submitting...'
+                                : 'Submit for Review'}
                         </Button>
                     </div>
                 </form>

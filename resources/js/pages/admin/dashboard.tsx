@@ -1,19 +1,25 @@
-import { Head, Link, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
-    Users,
-    FileText,
-    DollarSign,
-    ShoppingCart,
-    AlertCircle,
-    CheckCircle,
-    TrendingUp,
-    ArrowRight,
-} from 'lucide-react';
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    AlertCircle,
+    ArrowRight,
+    CheckCircle,
+    DollarSign,
+    FileText,
+    ShoppingCart,
+    TrendingUp,
+    Users,
+} from 'lucide-react';
 
 interface User {
     id: number;
@@ -59,7 +65,12 @@ interface Props {
     pendingPrompts: Prompt[];
 }
 
-export default function AdminDashboard({ stats, recentUsers, recentPurchases, pendingPrompts }: Props) {
+export default function AdminDashboard({
+    stats,
+    recentUsers,
+    recentPurchases,
+    pendingPrompts,
+}: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Admin Dashboard',
@@ -124,7 +135,9 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Admin Dashboard</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Admin Dashboard
+                        </h1>
                         <p className="text-muted-foreground">
                             Manage your platform and monitor performance
                         </p>
@@ -134,17 +147,28 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                 {/* Stats Grid */}
                 <div className="grid gap-4 md:grid-cols-4">
                     {statCards.map((stat) => (
-                        <Card key={stat.title} className={stat.href ? 'cursor-pointer hover:shadow-md transition-shadow' : ''}>
+                        <Card
+                            key={stat.title}
+                            className={
+                                stat.href
+                                    ? 'cursor-pointer transition-shadow hover:shadow-md'
+                                    : ''
+                            }
+                        >
                             {stat.href ? (
                                 <Link href={stat.href}>
                                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                         <CardTitle className="text-sm font-medium">
                                             {stat.title}
                                         </CardTitle>
-                                        <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                                        <stat.icon
+                                            className={`h-4 w-4 ${stat.color}`}
+                                        />
                                     </CardHeader>
                                     <CardContent>
-                                        <div className={`text-2xl font-bold ${stat.color}`}>
+                                        <div
+                                            className={`text-2xl font-bold ${stat.color}`}
+                                        >
                                             {stat.value}
                                         </div>
                                         <p className="text-xs text-muted-foreground">
@@ -158,10 +182,14 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                         <CardTitle className="text-sm font-medium">
                                             {stat.title}
                                         </CardTitle>
-                                        <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                                        <stat.icon
+                                            className={`h-4 w-4 ${stat.color}`}
+                                        />
                                     </CardHeader>
                                     <CardContent>
-                                        <div className={`text-2xl font-bold ${stat.color}`}>
+                                        <div
+                                            className={`text-2xl font-bold ${stat.color}`}
+                                        >
                                             {stat.value}
                                         </div>
                                         <p className="text-xs text-muted-foreground">
@@ -184,12 +212,14 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                         <AlertCircle className="h-5 w-5 text-yellow-500" />
                                         Pending Prompts
                                     </CardTitle>
-                                    <CardDescription>Prompts awaiting review</CardDescription>
+                                    <CardDescription>
+                                        Prompts awaiting review
+                                    </CardDescription>
                                 </div>
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href="/admin/prompts?status=pending">
                                         View All
-                                        <ArrowRight className="h-4 w-4 ml-1" />
+                                        <ArrowRight className="ml-1 h-4 w-4" />
                                     </Link>
                                 </Button>
                             </div>
@@ -198,11 +228,19 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                             {pendingPrompts.length > 0 ? (
                                 <div className="space-y-4">
                                     {pendingPrompts.map((prompt) => (
-                                        <div key={prompt.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                                        <div
+                                            key={prompt.id}
+                                            className="flex items-center justify-between rounded-lg bg-muted p-3"
+                                        >
                                             <div>
-                                                <p className="font-medium line-clamp-1">{prompt.title}</p>
+                                                <p className="line-clamp-1 font-medium">
+                                                    {prompt.title}
+                                                </p>
                                                 <p className="text-sm text-muted-foreground">
-                                                    by {prompt.seller.name} • {formatDate(prompt.created_at)}
+                                                    by {prompt.seller.name} •{' '}
+                                                    {formatDate(
+                                                        prompt.created_at,
+                                                    )}
                                                 </p>
                                             </div>
                                             <div className="flex gap-2">
@@ -210,7 +248,11 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                                     size="sm"
                                                     variant="outline"
                                                     title="Approve"
-                                                    onClick={() => router.post(`/admin/prompts/${prompt.id}/approve`)}
+                                                    onClick={() =>
+                                                        router.post(
+                                                            `/admin/prompts/${prompt.id}/approve`,
+                                                        )
+                                                    }
                                                 >
                                                     <CheckCircle className="h-4 w-4" />
                                                 </Button>
@@ -219,8 +261,8 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <CheckCircle className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                <div className="py-8 text-center text-muted-foreground">
+                                    <CheckCircle className="mx-auto mb-2 h-12 w-12 opacity-50" />
                                     <p>No pending prompts</p>
                                 </div>
                             )}
@@ -236,12 +278,14 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                         <Users className="h-5 w-5 text-blue-500" />
                                         Recent Users
                                     </CardTitle>
-                                    <CardDescription>Newest registered users</CardDescription>
+                                    <CardDescription>
+                                        Newest registered users
+                                    </CardDescription>
                                 </div>
                                 <Button variant="outline" size="sm" asChild>
                                     <Link href="/admin/users">
                                         View All
-                                        <ArrowRight className="h-4 w-4 ml-1" />
+                                        <ArrowRight className="ml-1 h-4 w-4" />
                                     </Link>
                                 </Button>
                             </div>
@@ -250,25 +294,40 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                             {recentUsers.length > 0 ? (
                                 <div className="space-y-4">
                                     {recentUsers.map((user) => (
-                                        <div key={user.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                                        <div
+                                            key={user.id}
+                                            className="flex items-center justify-between rounded-lg bg-muted p-3"
+                                        >
                                             <div>
-                                                <p className="font-medium">{user.name}</p>
-                                                <p className="text-sm text-muted-foreground">{user.email}</p>
+                                                <p className="font-medium">
+                                                    {user.name}
+                                                </p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {user.email}
+                                                </p>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Badge variant={user.role === 'admin' ? 'default' : 'secondary'}>
+                                                <Badge
+                                                    variant={
+                                                        user.role === 'admin'
+                                                            ? 'default'
+                                                            : 'secondary'
+                                                    }
+                                                >
                                                     {user.role}
                                                 </Badge>
                                                 <span className="text-xs text-muted-foreground">
-                                                    {formatDate(user.created_at)}
+                                                    {formatDate(
+                                                        user.created_at,
+                                                    )}
                                                 </span>
                                             </div>
                                         </div>
                                     ))}
                                 </div>
                             ) : (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <Users className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                <div className="py-8 text-center text-muted-foreground">
+                                    <Users className="mx-auto mb-2 h-12 w-12 opacity-50" />
                                     <p>No users yet</p>
                                 </div>
                             )}
@@ -282,7 +341,9 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                 <TrendingUp className="h-5 w-5 text-green-500" />
                                 Recent Sales
                             </CardTitle>
-                            <CardDescription>Latest completed purchases</CardDescription>
+                            <CardDescription>
+                                Latest completed purchases
+                            </CardDescription>
                         </CardHeader>
                         <CardContent>
                             {recentPurchases.length > 0 ? (
@@ -290,26 +351,41 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                     <table className="w-full">
                                         <thead>
                                             <tr className="border-b">
-                                                <th className="text-left py-3 px-4 font-medium">Order</th>
-                                                <th className="text-left py-3 px-4 font-medium">Buyer</th>
-                                                <th className="text-left py-3 px-4 font-medium">Amount</th>
-                                                <th className="text-left py-3 px-4 font-medium">Date</th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Order
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Buyer
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Amount
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Date
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {recentPurchases.map((purchase) => (
-                                                <tr key={purchase.id} className="border-b">
-                                                    <td className="py-3 px-4 font-mono text-sm">
+                                                <tr
+                                                    key={purchase.id}
+                                                    className="border-b"
+                                                >
+                                                    <td className="px-4 py-3 font-mono text-sm">
                                                         #{purchase.order_number}
                                                     </td>
-                                                    <td className="py-3 px-4">
+                                                    <td className="px-4 py-3">
                                                         {purchase.buyer.name}
                                                     </td>
-                                                    <td className="py-3 px-4 font-medium text-green-600">
-                                                        {formatCurrency(purchase.price)}
+                                                    <td className="px-4 py-3 font-medium text-green-600">
+                                                        {formatCurrency(
+                                                            purchase.price,
+                                                        )}
                                                     </td>
-                                                    <td className="py-3 px-4 text-muted-foreground">
-                                                        {formatDate(purchase.created_at)}
+                                                    <td className="px-4 py-3 text-muted-foreground">
+                                                        {formatDate(
+                                                            purchase.created_at,
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -317,8 +393,8 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                     </table>
                                 </div>
                             ) : (
-                                <div className="text-center py-8 text-muted-foreground">
-                                    <ShoppingCart className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                <div className="py-8 text-center text-muted-foreground">
+                                    <ShoppingCart className="mx-auto mb-2 h-12 w-12 opacity-50" />
                                     <p>No sales yet</p>
                                 </div>
                             )}

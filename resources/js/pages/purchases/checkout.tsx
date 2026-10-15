@@ -1,22 +1,29 @@
-import { Head, useForm } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
-    ShoppingCart,
-    CreditCard,
-    Shield,
+    Card,
+    CardContent,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, useForm } from '@inertiajs/react';
+import {
+    AlertCircle,
     CheckCircle,
+    CreditCard,
+    DollarSign,
+    Shield,
+    ShoppingCart,
+    Sparkles,
     Star,
     User,
-    Sparkles,
-    DollarSign,
-    AlertCircle,
 } from 'lucide-react';
-import { type BreadcrumbItem } from '@/types';
 import { useState } from 'react';
 
 interface Category {
@@ -82,11 +89,14 @@ export default function Checkout({ prompt }: Props) {
     const [customPrice, setCustomPrice] = useState<string>(
         prompt.pricing_model === 'pay_what_you_want' && prompt.min_price
             ? prompt.min_price.toString()
-            : ''
+            : '',
     );
 
     const { post, processing, errors, setData } = useForm({
-        price: prompt.pricing_model === 'fixed' ? prompt.price : parseFloat(customPrice) || 0,
+        price:
+            prompt.pricing_model === 'fixed'
+                ? prompt.price
+                : parseFloat(customPrice) || 0,
     });
 
     const formatCurrency = (amount: number) => {
@@ -124,7 +134,7 @@ export default function Checkout({ prompt }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Checkout - ${prompt.title}`} />
 
-            <div className="container py-8 max-w-4xl">
+            <div className="container max-w-4xl py-8">
                 <div className="grid gap-8 md:grid-cols-5">
                     {/* Order Summary */}
                     <div className="md:col-span-3">
@@ -135,27 +145,38 @@ export default function Checkout({ prompt }: Props) {
                                     Order Summary
                                 </CardTitle>
                                 <CardDescription>
-                                    Review your purchase before proceeding to payment
+                                    Review your purchase before proceeding to
+                                    payment
                                 </CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-6">
                                 {/* Prompt Info */}
                                 <div className="flex gap-4">
-                                    <div className="p-4 bg-primary/10 rounded-lg">
+                                    <div className="rounded-lg bg-primary/10 p-4">
                                         <Sparkles className="h-8 w-8 text-primary" />
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-semibold text-lg">{prompt.title}</h3>
-                                        <p className="text-sm text-muted-foreground line-clamp-2">
+                                        <h3 className="text-lg font-semibold">
+                                            {prompt.title}
+                                        </h3>
+                                        <p className="line-clamp-2 text-sm text-muted-foreground">
                                             {prompt.description}
                                         </p>
-                                        <div className="flex flex-wrap items-center gap-3 mt-2">
-                                            <Badge variant="secondary">{prompt.ai_model}</Badge>
-                                            <Badge variant="outline">{prompt.category.name}</Badge>
+                                        <div className="mt-2 flex flex-wrap items-center gap-3">
+                                            <Badge variant="secondary">
+                                                {prompt.ai_model}
+                                            </Badge>
+                                            <Badge variant="outline">
+                                                {prompt.category.name}
+                                            </Badge>
                                             {prompt.rating_count > 0 && (
                                                 <div className="flex items-center gap-1 text-sm">
                                                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                    <span>{prompt.rating.toFixed(1)}</span>
+                                                    <span>
+                                                        {prompt.rating.toFixed(
+                                                            1,
+                                                        )}
+                                                    </span>
                                                     <span className="text-muted-foreground">
                                                         ({prompt.rating_count})
                                                     </span>
@@ -169,16 +190,23 @@ export default function Checkout({ prompt }: Props) {
 
                                 {/* Seller Info */}
                                 <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-muted rounded-full">
+                                    <div className="rounded-full bg-muted p-2">
                                         <User className="h-5 w-5" />
                                     </div>
                                     <div>
-                                        <p className="text-sm text-muted-foreground">Sold by</p>
-                                        <p className="font-medium">{prompt.seller.name}</p>
+                                        <p className="text-sm text-muted-foreground">
+                                            Sold by
+                                        </p>
+                                        <p className="font-medium">
+                                            {prompt.seller.name}
+                                        </p>
                                     </div>
                                     {prompt.seller.profile?.seller_verified && (
-                                        <Badge variant="secondary" className="ml-auto">
-                                            <CheckCircle className="h-3 w-3 mr-1" />
+                                        <Badge
+                                            variant="secondary"
+                                            className="ml-auto"
+                                        >
+                                            <CheckCircle className="mr-1 h-3 w-3" />
                                             Verified Seller
                                         </Badge>
                                     )}
@@ -188,11 +216,15 @@ export default function Checkout({ prompt }: Props) {
 
                                 {/* Pricing */}
                                 <div>
-                                    <h4 className="font-medium mb-3">Pricing</h4>
+                                    <h4 className="mb-3 font-medium">
+                                        Pricing
+                                    </h4>
                                     {prompt.pricing_model === 'free' ? (
                                         <div className="flex items-center gap-2 text-green-600">
                                             <CheckCircle className="h-5 w-5" />
-                                            <span className="text-lg font-semibold">Free</span>
+                                            <span className="text-lg font-semibold">
+                                                Free
+                                            </span>
                                         </div>
                                     ) : prompt.pricing_model === 'fixed' ? (
                                         <div className="text-3xl font-bold">
@@ -201,8 +233,10 @@ export default function Checkout({ prompt }: Props) {
                                     ) : (
                                         <div className="space-y-3">
                                             <p className="text-sm text-muted-foreground">
-                                                This prompt uses "Pay What You Want" pricing.
-                                                {prompt.min_price && ` Minimum: ${formatCurrency(prompt.min_price)}`}
+                                                This prompt uses "Pay What You
+                                                Want" pricing.
+                                                {prompt.min_price &&
+                                                    ` Minimum: ${formatCurrency(prompt.min_price)}`}
                                             </p>
                                             <div className="flex items-center gap-2">
                                                 <DollarSign className="h-5 w-5 text-muted-foreground" />
@@ -211,17 +245,26 @@ export default function Checkout({ prompt }: Props) {
                                                     step="0.01"
                                                     min={prompt.min_price || 0}
                                                     value={customPrice}
-                                                    onChange={(e) => setCustomPrice(e.target.value)}
+                                                    onChange={(e) =>
+                                                        setCustomPrice(
+                                                            e.target.value,
+                                                        )
+                                                    }
                                                     placeholder="Enter your price"
                                                     className="text-lg"
                                                 />
                                             </div>
-                                            {prompt.min_price && parseFloat(customPrice) < prompt.min_price && (
-                                                <p className="text-sm text-destructive flex items-center gap-1">
-                                                    <AlertCircle className="h-4 w-4" />
-                                                    Minimum price is {formatCurrency(prompt.min_price)}
-                                                </p>
-                                            )}
+                                            {prompt.min_price &&
+                                                parseFloat(customPrice) <
+                                                    prompt.min_price && (
+                                                    <p className="flex items-center gap-1 text-sm text-destructive">
+                                                        <AlertCircle className="h-4 w-4" />
+                                                        Minimum price is{' '}
+                                                        {formatCurrency(
+                                                            prompt.min_price,
+                                                        )}
+                                                    </p>
+                                                )}
                                         </div>
                                     )}
                                 </div>
@@ -237,21 +280,27 @@ export default function Checkout({ prompt }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Subtotal</span>
+                                    <span className="text-muted-foreground">
+                                        Subtotal
+                                    </span>
                                     <span>{formatCurrency(price)}</span>
                                 </div>
                                 {price > 0 && (
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Platform fee</span>
+                                        <span className="text-muted-foreground">
+                                            Platform fee
+                                        </span>
                                         <span className="text-muted-foreground">
                                             {formatCurrency(platformFee)}
                                         </span>
                                     </div>
                                 )}
                                 <Separator />
-                                <div className="flex justify-between font-semibold text-lg">
+                                <div className="flex justify-between text-lg font-semibold">
                                     <span>Total</span>
-                                    <span className="text-green-600">{formatCurrency(price)}</span>
+                                    <span className="text-green-600">
+                                        {formatCurrency(price)}
+                                    </span>
                                 </div>
 
                                 <form onSubmit={handleSubmit}>
@@ -263,12 +312,12 @@ export default function Checkout({ prompt }: Props) {
                                     >
                                         {prompt.pricing_model === 'free' ? (
                                             <>
-                                                <CheckCircle className="h-4 w-4 mr-2" />
+                                                <CheckCircle className="mr-2 h-4 w-4" />
                                                 Get for Free
                                             </>
                                         ) : (
                                             <>
-                                                <CreditCard className="h-4 w-4 mr-2" />
+                                                <CreditCard className="mr-2 h-4 w-4" />
                                                 Proceed to Payment
                                             </>
                                         )}
@@ -276,16 +325,21 @@ export default function Checkout({ prompt }: Props) {
                                 </form>
 
                                 {errors.price && (
-                                    <p className="text-sm text-destructive">{errors.price}</p>
+                                    <p className="text-sm text-destructive">
+                                        {errors.price}
+                                    </p>
                                 )}
                             </CardContent>
                             <CardFooter className="flex flex-col gap-2 text-center text-sm text-muted-foreground">
                                 <div className="flex items-center justify-center gap-1">
                                     <Shield className="h-4 w-4" />
-                                    <span>Secure checkout powered by Stripe</span>
+                                    <span>
+                                        Secure checkout powered by Stripe
+                                    </span>
                                 </div>
                                 <p>
-                                    By completing this purchase, you agree to our terms of service.
+                                    By completing this purchase, you agree to
+                                    our terms of service.
                                 </p>
                             </CardFooter>
                         </Card>
@@ -293,7 +347,9 @@ export default function Checkout({ prompt }: Props) {
                         {/* What you'll get */}
                         <Card className="mt-4">
                             <CardHeader>
-                                <CardTitle className="text-base">What You'll Get</CardTitle>
+                                <CardTitle className="text-base">
+                                    What You'll Get
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <ul className="space-y-2">

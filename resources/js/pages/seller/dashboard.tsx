@@ -1,22 +1,28 @@
-import { Head, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-    DollarSign, 
-    ShoppingBag, 
-    Eye, 
-    Star, 
-    Plus, 
-    TrendingUp,
-    FileText,
-    Clock,
-    CheckCircle,
-    XCircle,
-    AlertCircle
-} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import { Head, Link } from '@inertiajs/react';
+import {
+    AlertCircle,
+    CheckCircle,
+    Clock,
+    DollarSign,
+    Eye,
+    FileText,
+    Plus,
+    ShoppingBag,
+    Star,
+    TrendingUp,
+    XCircle,
+} from 'lucide-react';
 
 interface Prompt {
     id: number;
@@ -66,11 +72,29 @@ export default function SellerDashboard({ prompts, stats }: Props) {
     };
 
     const getStatusBadge = (status: string) => {
-        const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
-            draft: { variant: 'secondary', icon: <Clock className="h-3 w-3" /> },
-            pending: { variant: 'outline', icon: <AlertCircle className="h-3 w-3" /> },
-            approved: { variant: 'default', icon: <CheckCircle className="h-3 w-3" /> },
-            rejected: { variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
+        const statusConfig: Record<
+            string,
+            {
+                variant: 'default' | 'secondary' | 'destructive' | 'outline';
+                icon: React.ReactNode;
+            }
+        > = {
+            draft: {
+                variant: 'secondary',
+                icon: <Clock className="h-3 w-3" />,
+            },
+            pending: {
+                variant: 'outline',
+                icon: <AlertCircle className="h-3 w-3" />,
+            },
+            approved: {
+                variant: 'default',
+                icon: <CheckCircle className="h-3 w-3" />,
+            },
+            rejected: {
+                variant: 'destructive',
+                icon: <XCircle className="h-3 w-3" />,
+            },
         };
 
         const config = statusConfig[status] || statusConfig.draft;
@@ -107,7 +131,11 @@ export default function SellerDashboard({ prompts, stats }: Props) {
         },
         {
             title: 'Average Rating',
-            value: (typeof stats.average_rating === 'number' && stats.average_rating > 0) ? stats.average_rating.toFixed(1) : 'N/A',
+            value:
+                typeof stats.average_rating === 'number' &&
+                stats.average_rating > 0
+                    ? stats.average_rating.toFixed(1)
+                    : 'N/A',
             icon: Star,
             description: 'Based on reviews',
             color: 'text-yellow-600',
@@ -117,36 +145,40 @@ export default function SellerDashboard({ prompts, stats }: Props) {
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Seller Dashboard" />
-            
+
             <div className="container py-8">
                 {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+                <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold">Seller Dashboard</h1>
-                        <p className="text-muted-foreground mt-1">
+                        <p className="mt-1 text-muted-foreground">
                             Manage your prompts and track your earnings
                         </p>
                     </div>
                     <Button asChild>
                         <Link href="/prompts/create">
-                            <Plus className="h-4 w-4 mr-2" />
+                            <Plus className="mr-2 h-4 w-4" />
                             Create Prompt
                         </Link>
                     </Button>
                 </div>
 
                 {/* Stats Grid */}
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
+                <div className="mb-8 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                     {statCards.map((stat) => (
                         <Card key={stat.title}>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                                 <CardTitle className="text-sm font-medium">
                                     {stat.title}
                                 </CardTitle>
-                                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                                <stat.icon
+                                    className={`h-4 w-4 ${stat.color}`}
+                                />
                             </CardHeader>
                             <CardContent>
-                                <div className={`text-2xl font-bold ${stat.color}`}>
+                                <div
+                                    className={`text-2xl font-bold ${stat.color}`}
+                                >
                                     {stat.value}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
@@ -162,7 +194,7 @@ export default function SellerDashboard({ prompts, stats }: Props) {
                     <Card className="mb-8 border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
                         <CardContent className="flex items-center justify-between py-4">
                             <div className="flex items-center gap-4">
-                                <div className="p-2 bg-green-100 dark:bg-green-900 rounded-full">
+                                <div className="rounded-full bg-green-100 p-2 dark:bg-green-900">
                                     <TrendingUp className="h-5 w-5 text-green-600" />
                                 </div>
                                 <div>
@@ -170,11 +202,15 @@ export default function SellerDashboard({ prompts, stats }: Props) {
                                         Pending Payout Available
                                     </p>
                                     <p className="text-sm text-green-600 dark:text-green-400">
-                                        {formatCurrency(stats.pending_payout)} ready for withdrawal
+                                        {formatCurrency(stats.pending_payout)}{' '}
+                                        ready for withdrawal
                                     </p>
                                 </div>
                             </div>
-                            <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-100">
+                            <Button
+                                variant="outline"
+                                className="border-green-600 text-green-600 hover:bg-green-100"
+                            >
                                 Request Payout
                             </Button>
                         </CardContent>
@@ -198,19 +234,36 @@ export default function SellerDashboard({ prompts, stats }: Props) {
                                 <table className="w-full">
                                     <thead>
                                         <tr className="border-b">
-                                            <th className="text-left py-3 px-4 font-medium">Title</th>
-                                            <th className="text-left py-3 px-4 font-medium">Status</th>
-                                            <th className="text-left py-3 px-4 font-medium">Price</th>
-                                            <th className="text-left py-3 px-4 font-medium">Views</th>
-                                            <th className="text-left py-3 px-4 font-medium">Sales</th>
-                                            <th className="text-left py-3 px-4 font-medium">Rating</th>
-                                            <th className="text-right py-3 px-4 font-medium">Actions</th>
+                                            <th className="px-4 py-3 text-left font-medium">
+                                                Title
+                                            </th>
+                                            <th className="px-4 py-3 text-left font-medium">
+                                                Status
+                                            </th>
+                                            <th className="px-4 py-3 text-left font-medium">
+                                                Price
+                                            </th>
+                                            <th className="px-4 py-3 text-left font-medium">
+                                                Views
+                                            </th>
+                                            <th className="px-4 py-3 text-left font-medium">
+                                                Sales
+                                            </th>
+                                            <th className="px-4 py-3 text-left font-medium">
+                                                Rating
+                                            </th>
+                                            <th className="px-4 py-3 text-right font-medium">
+                                                Actions
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {prompts.data.map((prompt) => (
-                                            <tr key={prompt.id} className="border-b hover:bg-muted/50">
-                                                <td className="py-3 px-4">
+                                            <tr
+                                                key={prompt.id}
+                                                className="border-b hover:bg-muted/50"
+                                            >
+                                                <td className="px-4 py-3">
                                                     <Link
                                                         href={`/prompts/${prompt.slug}`}
                                                         className="font-medium hover:text-primary"
@@ -218,37 +271,56 @@ export default function SellerDashboard({ prompts, stats }: Props) {
                                                         {prompt.title}
                                                     </Link>
                                                 </td>
-                                                <td className="py-3 px-4">
-                                                    {getStatusBadge(prompt.status)}
+                                                <td className="px-4 py-3">
+                                                    {getStatusBadge(
+                                                        prompt.status,
+                                                    )}
                                                 </td>
-                                                <td className="py-3 px-4">
-                                                    ${(typeof prompt.price === 'number' ? prompt.price : 0).toFixed(2)}
+                                                <td className="px-4 py-3">
+                                                    $
+                                                    {(typeof prompt.price ===
+                                                    'number'
+                                                        ? prompt.price
+                                                        : 0
+                                                    ).toFixed(2)}
                                                 </td>
-                                                <td className="py-3 px-4">
+                                                <td className="px-4 py-3">
                                                     <div className="flex items-center gap-1">
                                                         <Eye className="h-4 w-4 text-muted-foreground" />
                                                         {prompt.views_count}
                                                     </div>
                                                 </td>
-                                                <td className="py-3 px-4">
+                                                <td className="px-4 py-3">
                                                     <div className="flex items-center gap-1">
                                                         <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                                                         {prompt.purchases_count}
                                                     </div>
                                                 </td>
-                                                <td className="py-3 px-4">
+                                                <td className="px-4 py-3">
                                                     {prompt.rating_count > 0 ? (
                                                         <div className="flex items-center gap-1">
                                                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                            {(typeof prompt.rating === 'number' ? prompt.rating : 0).toFixed(1)}
+                                                            {(typeof prompt.rating ===
+                                                            'number'
+                                                                ? prompt.rating
+                                                                : 0
+                                                            ).toFixed(1)}
                                                         </div>
                                                     ) : (
-                                                        <span className="text-muted-foreground">-</span>
+                                                        <span className="text-muted-foreground">
+                                                            -
+                                                        </span>
                                                     )}
                                                 </td>
-                                                <td className="py-3 px-4 text-right">
-                                                    <Button variant="ghost" size="sm" asChild>
-                                                        <Link href={`/prompts/${prompt.id}/edit`}>
+                                                <td className="px-4 py-3 text-right">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        asChild
+                                                    >
+                                                        <Link
+                                                            href={`/prompts/${prompt.id}/edit`}
+                                                        >
                                                             Edit
                                                         </Link>
                                                     </Button>
@@ -259,15 +331,17 @@ export default function SellerDashboard({ prompts, stats }: Props) {
                                 </table>
                             </div>
                         ) : (
-                            <div className="text-center py-12">
-                                <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                <h3 className="text-lg font-semibold mb-2">No prompts yet</h3>
-                                <p className="text-muted-foreground mb-4">
+                            <div className="py-12 text-center">
+                                <FileText className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                                <h3 className="mb-2 text-lg font-semibold">
+                                    No prompts yet
+                                </h3>
+                                <p className="mb-4 text-muted-foreground">
                                     Create your first prompt to start selling
                                 </p>
                                 <Button asChild>
                                     <Link href="/prompts/create">
-                                        <Plus className="h-4 w-4 mr-2" />
+                                        <Plus className="mr-2 h-4 w-4" />
                                         Create Your First Prompt
                                     </Link>
                                 </Button>
