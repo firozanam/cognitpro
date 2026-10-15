@@ -76,6 +76,20 @@ class PaymentController extends Controller
             // Verify the payment intent
             $intent = $this->paymentService->confirmPaymentIntent($request->payment_intent_id);
 
+            // Bind the intent to this purchase (RTE-01): a succeeded intent for
+            // another purchase or another amount must never complete this one.
+            if (!$purchase->isPending()) {
+                throw new \Exception('This purchase is not awaiting payment.');
+            }
+
+            if ((string) ($intent['metadata']['purchase_id'] ?? '') !== (string) $purchase->id) {
+                throw new \Exception('Payment does not belong to this purchase.');
+            }
+
+            if ((int) $intent['amount'] !== $this->paymentService->toCents((float) $purchase->price)) {
+                throw new \Exception('Payment amount does not match this purchase.');
+            }
+
             if ($intent['status'] === 'succeeded') {
                 // Complete the purchase
                 $this->purchaseService->completePurchase(

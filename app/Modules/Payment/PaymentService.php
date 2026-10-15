@@ -42,6 +42,15 @@ class PaymentService
     }
 
     /**
+     * Convert a decimal price to integer cents. round() avoids the float
+     * truncation that undercharged prices like 19.99 by one cent (INT-06).
+     */
+    public function toCents(float $price): int
+    {
+        return (int) round($price * 100);
+    }
+
+    /**
      * Create a payment intent for a purchase.
      */
     public function createPaymentIntent(Purchase $purchase): array
@@ -51,7 +60,7 @@ class PaymentService
         }
 
         try {
-            $amount = (int) ($purchase->price * 100); // Convert to cents
+            $amount = $this->toCents($purchase->price);
 
             $intent = PaymentIntent::create([
                 'amount' => $amount,
@@ -154,7 +163,7 @@ class PaymentService
         }
 
         try {
-            $refundAmount = $amount ?? (int) ($purchase->price * 100);
+            $refundAmount = $amount ?? $this->toCents($purchase->price);
 
             $refund = \Stripe\Refund::create([
                 'payment_intent' => $purchase->payment_id,

@@ -131,12 +131,10 @@ class PaymentServiceTest extends TestCase
     /** @test */
     public function it_converts_price_to_cents(): void
     {
-        // This tests the internal conversion logic
-        $price = 10.50;
-        $expectedCents = 1050;
-        
-        $actualCents = (int) ($price * 100);
-        
-        $this->assertEquals($expectedCents, $actualCents);
+        // INT-06: (int) cast truncated — 19.99 became 1998 cents.
+        $this->assertSame(1999, $this->paymentService->toCents(19.99));
+        $this->assertSame(435, $this->paymentService->toCents(4.35));
+        $this->assertSame(1050, $this->paymentService->toCents(10.50));
+        $this->assertSame(0, $this->paymentService->toCents(0));
     }
 }

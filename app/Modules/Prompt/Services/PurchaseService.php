@@ -118,13 +118,25 @@ class PurchaseService
 
     /**
      * Complete a purchase after payment.
+     *
+     * Idempotent (DB-04): the row is locked and its status re-checked, so
+     * concurrent webhook + confirm calls (or replays) complete it exactly once.
      */
     public function completePurchase(Purchase $purchase, string $paymentMethod, string $paymentId): Purchase
     {
         DB::beginTransaction();
         try {
+            $fresh = Purchase::query()->whereKey($purchase->getKey())->lockForUpdate()->firstOrFail();
+
+            // Already processed by a concurrent confirm or webhook — no counters, no duplicate notifications.
+            if ($fresh->status !== 'pending') {
+                DB::rollBack();
+
+                return $fresh;
+            }
+
             // Update purchase status
-            $this->purchaseRepository->update($purchase, [
+            $this->purchaseRepository->update($fresh, [
                 'status' => 'completed',
                 'payment_method' => $paymentMethod,
                 'payment_id' => $paymentId,
@@ -132,33 +144,33 @@ class PurchaseService
             ]);
 
             // Increment prompt purchase count
-            $prompt = $purchase->prompt;
+            $prompt = $fresh->prompt;
             $prompt->incrementPurchaseCount();
 
             // Update seller stats
             $seller = $prompt->seller;
             if ($seller && $seller->profile) {
                 $seller->profile->incrementSales();
-                $seller->profile->addEarnings($purchase->seller_earnings);
+                $seller->profile->addEarnings($fresh->seller_earnings);
             }
 
             DB::commit();
 
             // Refresh the purchase
-            $purchase->refresh();
+            $fresh->refresh();
 
             // Send notifications
-            $this->sendPurchaseNotifications($purchase);
+            $this->sendPurchaseNotifications($fresh);
 
             Log::info('Purchase completed', [
-                'purchase_id' => $purchase->id,
-                'order_number' => $purchase->order_number,
-                'buyer_id' => $purchase->buyer_id,
-                'prompt_id' => $purchase->prompt_id,
-                'price' => $purchase->price,
+                'purchase_id' => $fresh->id,
+                'order_number' => $fresh->order_number,
+                'buyer_id' => $fresh->buyer_id,
+                'prompt_id' => $fresh->prompt_id,
+                'price' => $fresh->price,
             ]);
 
-            return $purchase;
+            return $fresh;
         } catch (Exception $e) {
             DB::rollBack();
             Log::error('Failed to complete purchase', [
