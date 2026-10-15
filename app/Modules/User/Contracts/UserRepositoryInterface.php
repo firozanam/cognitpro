@@ -33,9 +33,9 @@ interface UserRepositoryInterface
     public function delete(User $user): bool;
 
     /**
-     * Get paginated users.
+     * Get paginated users, optionally filtered by search term and role.
      */
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator;
 
     /**
      * Check if email is already taken.

@@ -4,8 +4,8 @@ namespace App\Modules\Admin\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\User\Services\UserService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -23,8 +23,13 @@ class AdminUserController extends Controller
      */
     public function index(Request $request): Response
     {
-        $filters = $request->only(['search', 'role']);
-        $users = $this->userService->getPaginatedUsers(15);
+        $validated = $request->validate([
+            'search' => ['nullable', 'string', 'max:255'],
+            'role' => ['nullable', 'in:buyer,seller,admin'],
+        ]);
+
+        $filters = array_filter($validated, fn ($value) => $value !== null && $value !== '');
+        $users = $this->userService->getPaginatedUsers(15, $filters);
 
         return Inertia::render('admin/users/index', [
             'users' => $users,
@@ -43,11 +48,15 @@ class AdminUserController extends Controller
 
         $user = $this->userService->getUserById($id);
 
-        if (!$user) {
+        if (! $user) {
             return back()->with('error', 'User not found.');
         }
 
-        $user->update(['role' => $request->role]);
+        try {
+            $this->userService->updateUserRole($request->user(), $user, $request->role);
+        } catch (\RuntimeException $e) {
+            return back()->with('error', $e->getMessage());
+        }
 
         return back()->with('success', 'User role updated successfully.');
     }
@@ -59,7 +68,7 @@ class AdminUserController extends Controller
     {
         $user = $this->userService->getUserById($id);
 
-        if (!$user) {
+        if (! $user) {
             return back()->with('error', 'User not found.');
         }
 
@@ -80,7 +89,7 @@ class AdminUserController extends Controller
     {
         $user = $this->userService->getUserById($id);
 
-        if (!$user) {
+        if (! $user) {
             return back()->with('error', 'User not found.');
         }
 

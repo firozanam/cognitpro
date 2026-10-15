@@ -5,7 +5,6 @@ namespace App\Modules\User\Services;
 use App\Modules\User\Contracts\UserRepositoryInterface;
 use App\Modules\User\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 class UserService
@@ -23,11 +22,33 @@ class UserService
     }
 
     /**
-     * Get paginated users.
+     * Get paginated users, optionally filtered by search term and role.
      */
-    public function getPaginatedUsers(int $perPage = 15): LengthAwarePaginator
+    public function getPaginatedUsers(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        return $this->userRepository->paginate($perPage);
+        return $this->userRepository->paginate($perPage, $filters);
+    }
+
+    /**
+     * Update a user's role with self-target and last-admin guards (BIZ-08).
+     *
+     * @throws RuntimeException
+     */
+    public function updateUserRole(User $actor, User $target, string $role): User
+    {
+        if ($actor->id === $target->id) {
+            throw new \RuntimeException('You cannot change your own role.');
+        }
+
+        $demotingAdmin = $target->isAdmin() && $role !== 'admin';
+
+        if ($demotingAdmin && User::where('role', 'admin')->count() <= 1) {
+            throw new \RuntimeException('You cannot demote the last remaining admin.');
+        }
+
+        $this->userRepository->update($target, ['role' => $role]);
+
+        return $target->refresh();
     }
 
     /**
@@ -62,7 +83,7 @@ class UserService
     {
         // Business logic: add any cleanup operations here
         // e.g., delete related records, notify services, etc.
-        
+
         return $this->userRepository->delete($user);
     }
 
@@ -71,7 +92,7 @@ class UserService
      */
     public function isEmailAvailable(string $email, ?int $excludeUserId = null): bool
     {
-        return !$this->userRepository->emailExists($email, $excludeUserId);
+        return ! $this->userRepository->emailExists($email, $excludeUserId);
     }
 
     /**

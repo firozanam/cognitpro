@@ -49,11 +49,25 @@ class UserRepository implements UserRepositoryInterface
     }
 
     /**
-     * Get paginated users.
+     * Get paginated users, optionally filtered by search term and role.
      */
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(int $perPage = 15, array $filters = []): LengthAwarePaginator
     {
-        return User::paginate($perPage);
+        $query = User::query();
+
+        if (! empty($filters['role'])) {
+            $query->where('role', $filters['role']);
+        }
+
+        if (! empty($filters['search'])) {
+            $term = $filters['search'];
+            $query->where(function ($q) use ($term) {
+                $q->where('name', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%");
+            });
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     /**
