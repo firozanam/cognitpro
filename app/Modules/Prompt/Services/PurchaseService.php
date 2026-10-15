@@ -25,7 +25,7 @@ class PurchaseService
     /**
      * Platform fee percentage.
      */
-    protected const PLATFORM_FEE_PERCENTAGE = 15;
+    public const PLATFORM_FEE_PERCENTAGE = 15;
 
     public function __construct(
         PurchaseRepositoryInterface $purchaseRepository,

@@ -35,6 +35,7 @@ import { useState } from 'react';
 
 interface Props {
     prompt: CheckoutPrompt;
+    platform_fee_rate: number;
 }
 
 type CheckoutPrompt = Pick<
@@ -57,7 +58,7 @@ type CheckoutPrompt = Pick<
     seller: Seller;
 };
 
-export default function Checkout({ prompt }: Props) {
+export default function Checkout({ prompt, platform_fee_rate }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Marketplace',
@@ -93,7 +94,7 @@ export default function Checkout({ prompt }: Props) {
     };
 
     const price = getPrice();
-    const platformFee = price * 0.15;
+    const platformFee = price * platform_fee_rate;
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

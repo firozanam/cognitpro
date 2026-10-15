@@ -58,6 +58,7 @@ class PurchaseController extends Controller
 
         return Inertia::render('purchases/checkout', [
             'prompt' => $prompt,
+            'platform_fee_rate' => PurchaseService::PLATFORM_FEE_PERCENTAGE / 100,
         ]);
     }
 
