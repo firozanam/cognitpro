@@ -63,7 +63,7 @@ export default function CartIndex({ cartItems, total, count }: Props) {
         },
     ];
 
-    const [removingId, setRemovingingId] = useState<number | null>(null);
+    const [removingId, setRemovingId] = useState<number | null>(null);
     const [checkingOut, setCheckingOut] = useState(false);
 
     const formatCurrency = (amount: number) => {
@@ -74,9 +74,9 @@ export default function CartIndex({ cartItems, total, count }: Props) {
     };
 
     const handleRemoveItem = (cartId: number) => {
-        setRemovingingId(cartId);
+        setRemovingId(cartId);
         router.delete(`/cart/${cartId}`, {
-            onFinish: () => setRemovingingId(null),
+            onFinish: () => setRemovingId(null),
         });
     };
 

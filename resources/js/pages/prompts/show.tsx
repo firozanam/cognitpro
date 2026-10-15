@@ -103,7 +103,6 @@ export default function PromptShow({
     hasPurchased,
 }: Props) {
     const [copied, setCopied] = useState(false);
-    const [isPurchasing, setIsPurchasing] = useState(false);
     const { auth } = usePage<SharedData>().props ?? {};
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -436,12 +435,9 @@ export default function PromptShow({
                                             className="w-full"
                                             size="lg"
                                             onClick={handlePurchase}
-                                            disabled={isPurchasing}
                                         >
                                             <ShoppingCart className="mr-2 h-5 w-5" />
-                                            {isPurchasing
-                                                ? 'Processing...'
-                                                : 'Purchase Prompt'}
+                                            Purchase Prompt
                                         </Button>
                                         <Button
                                             variant="outline"

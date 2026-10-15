@@ -5,6 +5,7 @@ namespace Tests\Feature\Payment;
 use App\Modules\Payment\PaymentService;
 use App\Modules\Prompt\Models\Category;
 use App\Modules\Prompt\Models\Prompt;
+use App\Modules\Prompt\Services\PurchaseService;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -28,7 +29,7 @@ class ConfirmPaymentBindingTest extends TestCase
         parent::tearDown();
     }
 
-    protected function pendingPurchase(object $buyer, object $seller): Prompt
+    protected function paidPrompt(object $seller): Prompt
     {
         $category = Category::factory()->create();
 
@@ -58,9 +59,9 @@ class ConfirmPaymentBindingTest extends TestCase
 
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
-        $prompt = $this->pendingPurchase($buyer, $seller);
+        $prompt = $this->paidPrompt($seller);
 
-        $purchase = $this->app->make(\App\Modules\Prompt\Services\PurchaseService::class)
+        $purchase = $this->app->make(PurchaseService::class)
             ->initiatePurchase($buyer, $prompt);
 
         $this->mockIntent('succeeded', ['purchase_id' => (string) $purchase->id], 1000);
@@ -82,10 +83,10 @@ class ConfirmPaymentBindingTest extends TestCase
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
 
-        $promptA = $this->pendingPurchase($buyer, $seller);
-        $promptB = $this->pendingPurchase($buyer, $seller);
+        $promptA = $this->paidPrompt($seller);
+        $promptB = $this->paidPrompt($seller);
 
-        $purchaseService = $this->app->make(\App\Modules\Prompt\Services\PurchaseService::class);
+        $purchaseService = $this->app->make(PurchaseService::class);
         $purchaseA = $purchaseService->initiatePurchase($buyer, $promptA);
         $purchaseB = $purchaseService->initiatePurchase($buyer, $promptB);
 
@@ -103,9 +104,9 @@ class ConfirmPaymentBindingTest extends TestCase
     {
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
-        $prompt = $this->pendingPurchase($buyer, $seller);
+        $prompt = $this->paidPrompt($seller);
 
-        $purchase = $this->app->make(\App\Modules\Prompt\Services\PurchaseService::class)
+        $purchase = $this->app->make(PurchaseService::class)
             ->initiatePurchase($buyer, $prompt);
 
         $this->mockIntent('succeeded', ['purchase_id' => (string) $purchase->id], 100);
@@ -121,9 +122,9 @@ class ConfirmPaymentBindingTest extends TestCase
     {
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
-        $prompt = $this->pendingPurchase($buyer, $seller);
+        $prompt = $this->paidPrompt($seller);
 
-        $purchaseService = $this->app->make(\App\Modules\Prompt\Services\PurchaseService::class);
+        $purchaseService = $this->app->make(PurchaseService::class);
         $purchase = $purchaseService->initiatePurchase($buyer, $prompt);
         $purchaseService->completePurchase($purchase, 'stripe', 'pi_paid');
 

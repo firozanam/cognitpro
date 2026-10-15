@@ -4,6 +4,7 @@ namespace Tests\Feature\Cart;
 
 use App\Modules\Prompt\Models\Category;
 use App\Modules\Prompt\Models\Prompt;
+use App\Modules\Prompt\Models\Purchase;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -54,7 +55,7 @@ class CartCheckoutTest extends TestCase
         // Cart is emptied on checkout (STM-01)
         $this->assertDatabaseMissing('carts', ['user_id' => $buyer->id]);
 
-        $pendingPurchaseId = \App\Modules\Prompt\Models\Purchase::where('prompt_id', $paid->id)->value('id');
+        $pendingPurchaseId = Purchase::where('prompt_id', $paid->id)->value('id');
         $response->assertRedirect(route('payment.stripe.show', $pendingPurchaseId));
     }
 

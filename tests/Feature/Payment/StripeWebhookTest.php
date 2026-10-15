@@ -10,6 +10,7 @@ use App\Modules\User\Models\User;
 use App\Notifications\PurchaseConfirmationNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Testing\TestResponse;
 use Tests\TestCase;
 
 class StripeWebhookTest extends TestCase
@@ -39,7 +40,7 @@ class StripeWebhookTest extends TestCase
         return [$payload, $signature];
     }
 
-    protected function postWebhook(string $payload, string $signature)
+    protected function postWebhook(string $payload, string $signature): TestResponse
     {
         return $this->call('POST', '/stripe/webhook', [], [], [], [
             'HTTP_CONTENT_TYPE' => 'application/json',

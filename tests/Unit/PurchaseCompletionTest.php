@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Modules\Prompt\Models\Category;
 use App\Modules\Prompt\Models\Prompt;
+use App\Modules\Prompt\Models\Purchase;
 use App\Modules\Prompt\Services\PurchaseService;
 use App\Modules\User\Models\User;
 use App\Notifications\PurchaseConfirmationNotification;
@@ -16,7 +17,7 @@ class PurchaseCompletionTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected function newPurchase(): \App\Modules\Prompt\Models\Purchase
+    protected function newPurchase(): Purchase
     {
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
