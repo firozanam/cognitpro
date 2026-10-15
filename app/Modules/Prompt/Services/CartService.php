@@ -63,7 +63,7 @@ class CartService
 
         return [
             'items' => $items,
-            'total' => $total,
+            'total' => round($total, 2),
             'count' => $validItems,
         ];
     }

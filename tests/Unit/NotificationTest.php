@@ -8,13 +8,14 @@ use App\Notifications\PromptRejectedNotification;
 use App\Notifications\PurchaseConfirmationNotification;
 use App\Notifications\SellerSaleNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class NotificationTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
+    #[Test]
     public function purchase_confirmation_notification_has_correct_subject(): void
     {
         $user = User::factory()->create();
@@ -28,10 +29,10 @@ class NotificationTest extends TestCase
 
         $mail = $notification->toMail($user);
 
-        $this->assertEquals('Your Purchase Confirmation', $mail->subject);
+        $this->assertEquals('Purchase Confirmation - Order #ORD-123', $mail->subject);
     }
 
-    /** @test */
+    #[Test]
     public function purchase_confirmation_notification_contains_order_details(): void
     {
         $user = User::factory()->create(['name' => 'John Doe']);
@@ -51,7 +52,7 @@ class NotificationTest extends TestCase
         $this->assertStringContainsString('9.99', $rendered);
     }
 
-    /** @test */
+    #[Test]
     public function prompt_approved_notification_has_correct_subject(): void
     {
         $user = User::factory()->create();
@@ -68,7 +69,7 @@ class NotificationTest extends TestCase
         $this->assertEquals('Your Prompt Has Been Approved!', $mail->subject);
     }
 
-    /** @test */
+    #[Test]
     public function prompt_approved_notification_contains_prompt_details(): void
     {
         $user = User::factory()->create(['name' => 'Jane Doe']);
@@ -87,7 +88,7 @@ class NotificationTest extends TestCase
         $this->assertStringContainsString('19.99', $rendered);
     }
 
-    /** @test */
+    #[Test]
     public function prompt_rejected_notification_has_correct_subject(): void
     {
         $user = User::factory()->create();
@@ -103,7 +104,7 @@ class NotificationTest extends TestCase
         $this->assertEquals('Your Prompt Needs Revision', $mail->subject);
     }
 
-    /** @test */
+    #[Test]
     public function prompt_rejected_notification_contains_reason(): void
     {
         $user = User::factory()->create(['name' => 'Seller']);
@@ -121,7 +122,7 @@ class NotificationTest extends TestCase
         $this->assertStringContainsString('Please improve the description', $rendered);
     }
 
-    /** @test */
+    #[Test]
     public function seller_sale_notification_has_correct_subject(): void
     {
         $user = User::factory()->create();
@@ -139,7 +140,7 @@ class NotificationTest extends TestCase
         $this->assertEquals('You Made a Sale! 🎉', $mail->subject);
     }
 
-    /** @test */
+    #[Test]
     public function seller_sale_notification_contains_earnings(): void
     {
         $user = User::factory()->create(['name' => 'Seller']);
@@ -161,7 +162,7 @@ class NotificationTest extends TestCase
         $this->assertStringContainsString('ORD-456', $rendered);
     }
 
-    /** @test */
+    #[Test]
     public function notifications_can_be_serialized_to_array(): void
     {
         $user = User::factory()->create();
@@ -181,7 +182,7 @@ class NotificationTest extends TestCase
         $this->assertArrayHasKey('price', $array);
     }
 
-    /** @test */
+    #[Test]
     public function notifications_use_mail_channel(): void
     {
         $user = User::factory()->create();

@@ -11,6 +11,7 @@ use App\Modules\Prompt\Services\PurchaseService;
 use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CartServiceTest extends TestCase
@@ -41,7 +42,7 @@ class CartServiceTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_cart_items_for_user(): void
     {
         $userId = 1;
@@ -63,7 +64,7 @@ class CartServiceTest extends TestCase
         $this->assertCount(2, $result);
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_cart_count(): void
     {
         $userId = 1;
@@ -79,19 +80,19 @@ class CartServiceTest extends TestCase
         $this->assertEquals(5, $count);
     }
 
-    /** @test */
+    #[Test]
     public function it_adds_prompt_to_cart(): void
     {
-        $user = Mockery::mock(User::class);
+        $user = new User;
         $user->id = 1;
 
-        $prompt = Mockery::mock(Prompt::class);
+        $prompt = new Prompt;
         $prompt->id = 1;
         $prompt->seller_id = 2;
         $prompt->price = 9.99;
-        $prompt->shouldReceive('isApproved')->andReturn(true);
+        $prompt->status = 'approved';
 
-        $cart = Mockery::mock(Cart::class);
+        $cart = new Cart;
 
         $this->purchaseRepository
             ->shouldReceive('hasPurchased')
@@ -120,16 +121,16 @@ class CartServiceTest extends TestCase
         $this->assertInstanceOf(Cart::class, $result);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_adding_own_prompt(): void
     {
-        $user = Mockery::mock(User::class);
+        $user = new User;
         $user->id = 1;
 
-        $prompt = Mockery::mock(Prompt::class);
+        $prompt = new Prompt;
         $prompt->id = 1;
         $prompt->seller_id = 1; // Same as user
-        $prompt->shouldReceive('isApproved')->andReturn(true);
+        $prompt->status = 'approved';
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('You cannot add your own prompt to the cart.');
@@ -137,16 +138,16 @@ class CartServiceTest extends TestCase
         $this->cartService->addToCart($user, $prompt);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_adding_unapproved_prompt(): void
     {
-        $user = Mockery::mock(User::class);
+        $user = new User;
         $user->id = 1;
 
-        $prompt = Mockery::mock(Prompt::class);
+        $prompt = new Prompt;
         $prompt->id = 1;
         $prompt->seller_id = 2;
-        $prompt->shouldReceive('isApproved')->andReturn(false);
+        $prompt->status = 'draft';
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('This prompt is not available for purchase.');
@@ -154,16 +155,16 @@ class CartServiceTest extends TestCase
         $this->cartService->addToCart($user, $prompt);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_adding_already_purchased_prompt(): void
     {
-        $user = Mockery::mock(User::class);
+        $user = new User;
         $user->id = 1;
 
-        $prompt = Mockery::mock(Prompt::class);
+        $prompt = new Prompt;
         $prompt->id = 1;
         $prompt->seller_id = 2;
-        $prompt->shouldReceive('isApproved')->andReturn(true);
+        $prompt->status = 'approved';
 
         $this->purchaseRepository
             ->shouldReceive('hasPurchased')
@@ -177,16 +178,16 @@ class CartServiceTest extends TestCase
         $this->cartService->addToCart($user, $prompt);
     }
 
-    /** @test */
+    #[Test]
     public function it_prevents_adding_duplicate_items(): void
     {
-        $user = Mockery::mock(User::class);
+        $user = new User;
         $user->id = 1;
 
-        $prompt = Mockery::mock(Prompt::class);
+        $prompt = new Prompt;
         $prompt->id = 1;
         $prompt->seller_id = 2;
-        $prompt->shouldReceive('isApproved')->andReturn(true);
+        $prompt->status = 'approved';
 
         $this->purchaseRepository
             ->shouldReceive('hasPurchased')
@@ -206,7 +207,7 @@ class CartServiceTest extends TestCase
         $this->cartService->addToCart($user, $prompt);
     }
 
-    /** @test */
+    #[Test]
     public function it_removes_item_from_cart(): void
     {
         $userId = 1;
@@ -231,7 +232,7 @@ class CartServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_when_removing_nonexistent_item(): void
     {
         $userId = 1;
@@ -249,7 +250,7 @@ class CartServiceTest extends TestCase
         $this->cartService->removeFromCart($userId, $promptId);
     }
 
-    /** @test */
+    #[Test]
     public function it_clears_cart(): void
     {
         $userId = 1;
@@ -265,7 +266,7 @@ class CartServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /** @test */
+    #[Test]
     public function it_checks_if_prompt_is_in_cart(): void
     {
         $userId = 1;
@@ -282,24 +283,24 @@ class CartServiceTest extends TestCase
         $this->assertTrue($result);
     }
 
-    /** @test */
+    #[Test]
     public function it_gets_cart_summary(): void
     {
         $userId = 1;
 
-        $prompt1 = Mockery::mock(Prompt::class);
+        $prompt1 = new Prompt;
         $prompt1->price = 9.99;
-        $prompt1->shouldReceive('isApproved')->andReturn(true);
+        $prompt1->status = 'approved';
 
-        $prompt2 = Mockery::mock(Prompt::class);
+        $prompt2 = new Prompt;
         $prompt2->price = 19.99;
-        $prompt2->shouldReceive('isApproved')->andReturn(true);
+        $prompt2->status = 'approved';
 
-        $item1 = Mockery::mock(Cart::class);
-        $item1->prompt = $prompt1;
+        $item1 = new Cart;
+        $item1->setRelation('prompt', $prompt1);
 
-        $item2 = Mockery::mock(Cart::class);
-        $item2->prompt = $prompt2;
+        $item2 = new Cart;
+        $item2->setRelation('prompt', $prompt2);
 
         $items = new Collection([$item1, $item2]);
 
