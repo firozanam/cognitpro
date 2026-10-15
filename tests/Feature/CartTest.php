@@ -7,6 +7,8 @@ use App\Modules\Prompt\Models\Category;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class CartTest extends TestCase
@@ -36,40 +38,32 @@ class CartTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function guest_cannot_access_cart(): void
+    #[Test]
+    public function guest_is_redirected_from_cart(): void
     {
-        $response = $this->getJson('/api/cart');
-
-        $response->assertStatus(401);
+        $this->get('/cart')->assertRedirect('/login');
     }
 
-    /** @test */
-    public function user_can_view_empty_cart(): void
+    #[Test]
+    public function buyer_views_empty_cart(): void
     {
-        $response = $this->actingAs($this->buyer)
-            ->getJson('/api/cart');
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'data' => [],
-                'total' => 0,
-                'count' => 0,
-            ]);
+        $this->actingAs($this->buyer)->get('/cart')
+            ->assertOk()
+            ->assertInertia(function (AssertableInertia $page) {
+                $page->component('cart/index')
+                    ->has('cartItems', 0)
+                    ->where('total', 0)
+                    ->where('count', 0);
+            });
     }
 
-    /** @test */
-    public function user_can_add_item_to_cart(): void
+    #[Test]
+    public function buyer_can_add_prompt_to_cart(): void
     {
-        $response = $this->actingAs($this->buyer)
-            ->postJson('/api/cart/add', [
-                'prompt_id' => $this->prompt->id,
-            ]);
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'message' => 'Prompt added to cart',
-            ]);
+        $this->actingAs($this->buyer)
+            ->post("/cart/add/{$this->prompt->id}")
+            ->assertRedirect()
+            ->assertSessionHas('success');
 
         $this->assertDatabaseHas('carts', [
             'user_id' => $this->buyer->id,
@@ -77,19 +71,22 @@ class CartTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function user_cannot_add_own_prompt_to_cart(): void
+    #[Test]
+    public function seller_cannot_add_own_prompt_to_cart(): void
     {
-        $response = $this->actingAs($this->seller)
-            ->postJson('/api/cart/add', [
-                'prompt_id' => $this->prompt->id,
-            ]);
+        $this->actingAs($this->seller)
+            ->post("/cart/add/{$this->prompt->id}")
+            ->assertRedirect()
+            ->assertSessionHas('error');
 
-        $response->assertStatus(400);
+        $this->assertDatabaseMissing('carts', [
+            'user_id' => $this->seller->id,
+            'prompt_id' => $this->prompt->id,
+        ]);
     }
 
-    /** @test */
-    public function user_cannot_add_unapproved_prompt_to_cart(): void
+    #[Test]
+    public function buyer_cannot_add_unapproved_prompt_to_cart(): void
     {
         $draftPrompt = Prompt::factory()->create([
             'seller_id' => $this->seller->id,
@@ -97,80 +94,53 @@ class CartTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $response = $this->actingAs($this->buyer)
-            ->postJson('/api/cart/add', [
-                'prompt_id' => $draftPrompt->id,
-            ]);
-
-        $response->assertStatus(400);
-    }
-
-    /** @test */
-    public function user_cannot_add_duplicate_item_to_cart(): void
-    {
-        Cart::create([
-            'user_id' => $this->buyer->id,
-            'prompt_id' => $this->prompt->id,
-        ]);
-
-        $response = $this->actingAs($this->buyer)
-            ->postJson('/api/cart/add', [
-                'prompt_id' => $this->prompt->id,
-            ]);
-
-        $response->assertStatus(400);
-    }
-
-    /** @test */
-    public function user_can_remove_item_from_cart(): void
-    {
-        Cart::create([
-            'user_id' => $this->buyer->id,
-            'prompt_id' => $this->prompt->id,
-        ]);
-
-        $response = $this->actingAs($this->buyer)
-            ->deleteJson('/api/cart/remove', [
-                'prompt_id' => $this->prompt->id,
-            ]);
-
-        $response->assertStatus(200);
+        $this->actingAs($this->buyer)
+            ->post("/cart/add/{$draftPrompt->id}")
+            ->assertRedirect()
+            ->assertSessionHas('error');
 
         $this->assertDatabaseMissing('carts', [
             'user_id' => $this->buyer->id,
-            'prompt_id' => $this->prompt->id,
+            'prompt_id' => $draftPrompt->id,
         ]);
     }
 
-    /** @test */
-    public function user_can_clear_cart(): void
+    #[Test]
+    public function buyer_cannot_add_duplicate_cart_item(): void
     {
-        $prompt2 = Prompt::factory()->create([
-            'seller_id' => $this->seller->id,
-            'category_id' => $this->prompt->category_id,
-            'status' => 'approved',
-        ]);
-
         Cart::create([
             'user_id' => $this->buyer->id,
             'prompt_id' => $this->prompt->id,
         ]);
 
-        Cart::create([
-            'user_id' => $this->buyer->id,
-            'prompt_id' => $prompt2->id,
-        ]);
+        $this->actingAs($this->buyer)
+            ->post("/cart/add/{$this->prompt->id}")
+            ->assertRedirect()
+            ->assertSessionHas('error');
 
-        $response = $this->actingAs($this->buyer)
-            ->deleteJson('/api/cart/clear');
-
-        $response->assertStatus(200);
-
-        $this->assertEquals(0, Cart::where('user_id', $this->buyer->id)->count());
+        $this->assertSame(1, Cart::where('user_id', $this->buyer->id)->count());
     }
 
-    /** @test */
-    public function cart_returns_correct_total(): void
+    #[Test]
+    public function buyer_can_remove_cart_item(): void
+    {
+        $item = Cart::create([
+            'user_id' => $this->buyer->id,
+            'prompt_id' => $this->prompt->id,
+        ]);
+
+        $this->actingAs($this->buyer)
+            ->delete("/cart/{$item->id}")
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertDatabaseMissing('carts', [
+            'id' => $item->id,
+        ]);
+    }
+
+    #[Test]
+    public function buyer_can_clear_cart(): void
     {
         $prompt2 = Prompt::factory()->create([
             'seller_id' => $this->seller->id,
@@ -179,23 +149,47 @@ class CartTest extends TestCase
             'price' => 19.99,
         ]);
 
-        Cart::create([
-            'user_id' => $this->buyer->id,
-            'prompt_id' => $this->prompt->id,
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id]);
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $prompt2->id]);
+
+        $this->actingAs($this->buyer)
+            ->delete('/cart')
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertSame(0, Cart::where('user_id', $this->buyer->id)->count());
+    }
+
+    #[Test]
+    public function cart_count_endpoint_returns_item_count(): void
+    {
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id]);
+
+        $this->actingAs($this->buyer)
+            ->getJson('/cart/count')
+            ->assertOk()
+            ->assertJson(['count' => 1]);
+    }
+
+    #[Test]
+    public function cart_page_shows_total_across_items(): void
+    {
+        $prompt2 = Prompt::factory()->create([
+            'seller_id' => $this->seller->id,
+            'category_id' => $this->prompt->category_id,
+            'status' => 'approved',
+            'price' => 19.99,
         ]);
 
-        Cart::create([
-            'user_id' => $this->buyer->id,
-            'prompt_id' => $prompt2->id,
-        ]);
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id]);
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $prompt2->id]);
 
-        $response = $this->actingAs($this->buyer)
-            ->getJson('/api/cart');
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'total' => 29.98,
-                'count' => 2,
-            ]);
+        $this->actingAs($this->buyer)->get('/cart')
+            ->assertOk()
+            ->assertInertia(function (AssertableInertia $page) {
+                $page->component('cart/index')
+                    ->where('total', 29.98)
+                    ->where('count', 2);
+            });
     }
 }

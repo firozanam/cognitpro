@@ -6,6 +6,8 @@ use App\Modules\Prompt\Models\Category;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class AdminTest extends TestCase
@@ -27,109 +29,80 @@ class AdminTest extends TestCase
         $this->buyer = User::factory()->create(['role' => 'buyer']);
     }
 
-    /** @test */
-    public function guest_cannot_access_admin_dashboard(): void
+    #[Test]
+    public function guest_is_redirected_from_admin_dashboard(): void
     {
-        $response = $this->getJson('/admin/dashboard');
-
-        $response->assertStatus(401);
+        $this->get('/admin')->assertRedirect('/login');
     }
 
-    /** @test */
+    #[Test]
     public function non_admin_cannot_access_admin_dashboard(): void
     {
-        $response = $this->actingAs($this->buyer)
-            ->getJson('/admin/dashboard');
-
-        $response->assertStatus(403);
+        $this->actingAs($this->buyer)->get('/admin')->assertForbidden();
     }
 
-    /** @test */
-    public function admin_can_access_dashboard(): void
+    #[Test]
+    public function admin_dashboard_renders_with_stats_props(): void
     {
-        $response = $this->actingAs($this->admin)
-            ->getJson('/admin/dashboard');
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'total_users',
-                'total_sellers',
-                'total_prompts',
-                'total_sales',
-                'total_revenue',
-                'pending_prompts',
-                'recent_users',
-                'recent_purchases',
-            ]);
+        $this->actingAs($this->admin)->get('/admin')
+            ->assertOk()
+            ->assertInertia(function (AssertableInertia $page) {
+                $page->component('admin/dashboard')
+                    ->has('stats.total_users')
+                    ->has('stats.total_sellers')
+                    ->has('stats.total_prompts')
+                    ->has('stats.total_sales')
+                    ->has('stats.total_revenue')
+                    ->has('stats.pending_prompts')
+                    ->has('recentUsers')
+                    ->has('recentPurchases')
+                    ->has('pendingPrompts');
+            });
     }
 
-    /** @test */
-    public function admin_can_list_users(): void
+    #[Test]
+    public function admin_user_list_renders(): void
     {
-        $response = $this->actingAs($this->admin)
-            ->getJson('/admin/users');
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'data',
-                'current_page',
-                'per_page',
-                'total',
-            ]);
+        $this->actingAs($this->admin)->get('/admin/users')
+            ->assertOk()
+            ->assertInertia(function (AssertableInertia $page) {
+                $page->component('admin/users/index')
+                    ->has('users.data', 3);
+            });
     }
 
-    /** @test */
-    public function admin_can_view_user(): void
-    {
-        $response = $this->actingAs($this->admin)
-            ->getJson("/admin/users/{$this->seller->id}");
-
-        $response->assertStatus(200)
-            ->assertJson([
-                'id' => $this->seller->id,
-                'email' => $this->seller->email,
-            ]);
-    }
-
-    /** @test */
-    public function admin_can_update_user_role(): void
-    {
-        $response = $this->actingAs($this->admin)
-            ->putJson("/admin/users/{$this->buyer->id}", [
-                'role' => 'seller',
-            ]);
-
-        $response->assertStatus(200);
-
-        $this->assertDatabaseHas('users', [
-            'id' => $this->buyer->id,
-            'role' => 'seller',
-        ]);
-    }
-
-    /** @test */
+    #[Test]
     public function admin_can_ban_user(): void
     {
-        $response = $this->actingAs($this->admin)
-            ->postJson("/admin/users/{$this->seller->id}/ban");
+        $this->actingAs($this->admin)
+            ->post("/admin/users/{$this->seller->id}/ban")
+            ->assertRedirect();
 
-        $response->assertStatus(200);
-
-        $this->assertDatabaseHas('users', [
-            'id' => $this->seller->id,
-            'banned_at' => now(),
-        ]);
+        $this->assertNotNull($this->seller->fresh()->banned_at);
     }
 
-    /** @test */
+    #[Test]
+    public function banned_user_actually_gets_blocked(): void
+    {
+        // The ban must bite (BIZ-03): the session dies on the next request.
+        // A real session re-reads the user from the database, so refresh the
+        // in-memory instance actingAs would otherwise reuse.
+        $this->actingAs($this->admin)
+            ->post("/admin/users/{$this->seller->id}/ban");
+
+        $this->seller->refresh();
+
+        $this->actingAs($this->seller)->get('/dashboard')->assertRedirect('/login');
+    }
+
+    #[Test]
     public function admin_can_unban_user(): void
     {
         $this->seller->update(['banned_at' => now()]);
 
-        $response = $this->actingAs($this->admin)
-            ->postJson("/admin/users/{$this->seller->id}/unban");
-
-        $response->assertStatus(200);
+        $this->actingAs($this->admin)
+            ->post("/admin/users/{$this->seller->id}/unban")
+            ->assertRedirect();
 
         $this->assertDatabaseHas('users', [
             'id' => $this->seller->id,
@@ -137,8 +110,36 @@ class AdminTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function admin_can_list_pending_prompts(): void
+    #[Test]
+    public function admin_cannot_ban_another_admin(): void
+    {
+        $anotherAdmin = User::factory()->create(['role' => 'admin']);
+
+        $this->actingAs($this->admin)
+            ->post("/admin/users/{$anotherAdmin->id}/ban")
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $anotherAdmin->id,
+            'banned_at' => null,
+        ]);
+    }
+
+    #[Test]
+    public function admin_cannot_modify_own_role(): void
+    {
+        $this->actingAs($this->admin)
+            ->put("/admin/users/{$this->admin->id}/role", ['role' => 'buyer'])
+            ->assertSessionHas('error');
+
+        $this->assertDatabaseHas('users', [
+            'id' => $this->admin->id,
+            'role' => 'admin',
+        ]);
+    }
+
+    #[Test]
+    public function admin_moderation_list_renders_across_statuses(): void
     {
         $category = Category::factory()->create();
 
@@ -148,20 +149,16 @@ class AdminTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $response = $this->actingAs($this->admin)
-            ->getJson('/admin/prompts/pending');
-
-        $response->assertStatus(200)
-            ->assertJsonStructure([
-                'data',
-                'current_page',
-                'per_page',
-                'total',
-            ]);
+        $this->actingAs($this->admin)->get('/admin/prompts')
+            ->assertOk()
+            ->assertInertia(function (AssertableInertia $page) {
+                $page->component('admin/prompts/index')
+                    ->has('prompts.data', 1);
+            });
     }
 
-    /** @test */
-    public function admin_can_approve_prompt(): void
+    #[Test]
+    public function admin_can_reject_prompt_with_reason(): void
     {
         $category = Category::factory()->create();
 
@@ -171,34 +168,11 @@ class AdminTest extends TestCase
             'status' => 'pending',
         ]);
 
-        $response = $this->actingAs($this->admin)
-            ->postJson("/admin/prompts/{$prompt->id}/approve");
-
-        $response->assertStatus(200);
-
-        $this->assertDatabaseHas('prompts', [
-            'id' => $prompt->id,
-            'status' => 'approved',
-        ]);
-    }
-
-    /** @test */
-    public function admin_can_reject_prompt(): void
-    {
-        $category = Category::factory()->create();
-
-        $prompt = Prompt::factory()->create([
-            'seller_id' => $this->seller->id,
-            'category_id' => $category->id,
-            'status' => 'pending',
-        ]);
-
-        $response = $this->actingAs($this->admin)
-            ->postJson("/admin/prompts/{$prompt->id}/reject", [
+        $this->actingAs($this->admin)
+            ->post("/admin/prompts/{$prompt->id}/reject", [
                 'reason' => 'Does not meet quality standards',
-            ]);
-
-        $response->assertStatus(200);
+            ])
+            ->assertRedirect();
 
         $this->assertDatabaseHas('prompts', [
             'id' => $prompt->id,
@@ -207,8 +181,8 @@ class AdminTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function admin_can_feature_prompt(): void
+    #[Test]
+    public function admin_can_toggle_prompt_featured(): void
     {
         $category = Category::factory()->create();
 
@@ -219,36 +193,13 @@ class AdminTest extends TestCase
             'featured' => false,
         ]);
 
-        $response = $this->actingAs($this->admin)
-            ->postJson("/admin/prompts/{$prompt->id}/feature");
-
-        $response->assertStatus(200);
+        $this->actingAs($this->admin)
+            ->post("/admin/prompts/{$prompt->id}/featured")
+            ->assertRedirect();
 
         $this->assertDatabaseHas('prompts', [
             'id' => $prompt->id,
             'featured' => true,
         ]);
-    }
-
-    /** @test */
-    public function admin_cannot_modify_own_role(): void
-    {
-        $response = $this->actingAs($this->admin)
-            ->putJson("/admin/users/{$this->admin->id}", [
-                'role' => 'buyer',
-            ]);
-
-        $response->assertStatus(403);
-    }
-
-    /** @test */
-    public function admin_cannot_ban_another_admin(): void
-    {
-        $anotherAdmin = User::factory()->create(['role' => 'admin']);
-
-        $response = $this->actingAs($this->admin)
-            ->postJson("/admin/users/{$anotherAdmin->id}/ban");
-
-        $response->assertStatus(403);
     }
 }
