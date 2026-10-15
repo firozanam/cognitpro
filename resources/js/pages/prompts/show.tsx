@@ -10,7 +10,9 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
+import { formatDate, formatPromptPrice } from '@/lib/format';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type Prompt } from '@/types/prompt';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -24,70 +26,6 @@ import {
     Tag as TagIcon,
 } from 'lucide-react';
 import { useState } from 'react';
-
-interface Category {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Tag {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Seller {
-    id: number;
-    name: string;
-    email: string;
-    profile?: {
-        avatar: string | null;
-        bio: string | null;
-        seller_verified: boolean;
-        total_sales: number;
-    };
-}
-
-interface Review {
-    id: number;
-    rating: number;
-    title: string | null;
-    content: string | null;
-    helpful_count: number;
-    created_at: string;
-    user: {
-        id: number;
-        name: string;
-    };
-    seller_response: string | null;
-    seller_responded_at: string | null;
-}
-
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    description: string;
-    content: string;
-    price: number;
-    pricing_model: 'fixed' | 'pay_what_you_want' | 'free';
-    min_price: number | null;
-    ai_model: string;
-    version: number;
-    rating: number;
-    rating_count: number;
-    views_count: number;
-    purchases_count: number;
-    featured: boolean;
-    status: string;
-    created_at: string;
-    updated_at: string;
-    category: Category;
-    tags: Tag[];
-    seller: Seller;
-    reviews: Review[];
-}
 
 interface Props {
     prompt: Prompt;
@@ -118,27 +56,8 @@ export default function PromptShow({
         },
     ];
 
-    const formatPrice = (
-        price: number | null | undefined,
-        pricingModel: string,
-    ) => {
-        const numericPrice = typeof price === 'number' ? price : 0;
-        if (pricingModel === 'free') return 'Free';
-        if (pricingModel === 'pay_what_you_want')
-            return `From $${numericPrice.toFixed(2)}`;
-        return `$${numericPrice.toFixed(2)}`;
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
-
     const copyToClipboard = () => {
-        navigator.clipboard.writeText(prompt.content);
+        navigator.clipboard.writeText(prompt.content ?? '');
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -306,9 +225,9 @@ export default function PromptShow({
                                 </CardDescription>
                             </CardHeader>
                             <CardContent>
-                                {prompt.reviews.length > 0 ? (
+                                {(prompt.reviews ?? []).length > 0 ? (
                                     <div className="space-y-6">
-                                        {prompt.reviews
+                                        {(prompt.reviews ?? [])
                                             .slice(0, 5)
                                             .map((review) => (
                                                 <div
@@ -400,10 +319,7 @@ export default function PromptShow({
                             <CardContent className="pt-6">
                                 <div className="mb-6 text-center">
                                     <p className="text-4xl font-bold">
-                                        {formatPrice(
-                                            prompt.price,
-                                            prompt.pricing_model,
-                                        )}
+                                        {formatPromptPrice(prompt)}
                                     </p>
                                     {prompt.pricing_model ===
                                         'pay_what_you_want' &&

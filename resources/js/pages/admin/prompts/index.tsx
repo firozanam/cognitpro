@@ -36,6 +36,12 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
+import {
+    type Paginated,
+    type PricingModel,
+    type Prompt,
+    type PromptStatus,
+} from '@/types/prompt';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     Check,
@@ -51,35 +57,19 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    description: string;
-    status: 'pending' | 'approved' | 'rejected';
-    pricing_model: 'fixed' | 'pay_what_you_want' | 'free';
-    price: number;
-    seller: {
-        id: number;
-        name: string;
-        email: string;
-    };
-    category: {
-        id: number;
-        name: string;
-    };
-    created_at: string;
-    rejection_reason?: string;
-}
+type ModerationPrompt = Pick<
+    Prompt,
+    'id' | 'title' | 'slug' | 'description' | 'price' | 'created_at'
+> & {
+    status: PromptStatus;
+    pricing_model: PricingModel;
+    seller: { id: number; name: string; email: string };
+    category: { id: number; name: string };
+    rejection_reason?: string | null;
+};
 
 interface Props {
-    prompts: {
-        data: Prompt[];
-        current_page: number;
-        last_page: number;
-        total: number;
-        per_page: number;
-    };
+    prompts: Paginated<ModerationPrompt>;
     filters?: {
         status?: string;
         search?: string;
@@ -101,7 +91,8 @@ export default function AdminPromptsIndex({ prompts, filters }: Props) {
     const [searchTerm, setSearchTerm] = useState(filters?.search || '');
     const [statusFilter, setStatusFilter] = useState(filters?.status || '');
     const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
-    const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null);
+    const [selectedPrompt, setSelectedPrompt] =
+        useState<ModerationPrompt | null>(null);
     const [rejectionReason, setRejectionReason] = useState('');
 
     const getStatusBadge = (status: string) => {

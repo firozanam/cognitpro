@@ -4,7 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency, formatDate } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import {
+    type Category,
+    type Prompt,
+    type Seller,
+    type Tag as TagType,
+} from '@/types/prompt';
 import { Head, Link } from '@inertiajs/react';
 import {
     Calendar,
@@ -19,47 +26,21 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-interface Category {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Tag {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Seller {
-    id: number;
-    name: string;
-    profile?: {
-        avatar: string | null;
-        bio: string | null;
-        seller_verified: boolean;
-        total_sales: number;
-    };
-}
-
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    description: string;
-    content: string;
-    ai_model: string;
-    category: Category;
-    tags: Tag[];
-    seller: Seller;
-}
-
 interface Review {
     id: number;
     rating: number;
     title: string;
     content: string;
 }
+
+type PurchasePrompt = Pick<
+    Prompt,
+    'id' | 'title' | 'slug' | 'description' | 'content' | 'ai_model'
+> & {
+    category: Category;
+    tags: TagType[];
+    seller: Seller;
+};
 
 interface Purchase {
     id: number;
@@ -70,7 +51,7 @@ interface Purchase {
     status: string;
     payment_method: string;
     purchased_at: string | null;
-    prompt: Prompt;
+    prompt: PurchasePrompt;
     review?: Review | null;
 }
 
@@ -93,29 +74,8 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
 
     const [copied, setCopied] = useState(false);
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
-
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) {
-            return 'Pending';
-        }
-
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit',
-        });
-    };
-
     const handleCopyContent = () => {
-        navigator.clipboard.writeText(purchase.prompt.content);
+        navigator.clipboard.writeText(purchase.prompt.content ?? '');
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
     };
@@ -168,7 +128,10 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                         </div>
                         <p className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="h-4 w-4" />
-                            Purchased on {formatDate(purchase.purchased_at)}
+                            Purchased on{' '}
+                            {formatDate(purchase.purchased_at, {
+                                withTime: true,
+                            })}
                         </p>
                     </div>
                     <div className="flex gap-2">

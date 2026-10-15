@@ -11,7 +11,14 @@ import {
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import {
+    type Category,
+    type Prompt,
+    type Seller,
+    type Tag,
+} from '@/types/prompt';
 import { Head, useForm } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -26,49 +33,29 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-interface Category {
-    id: number;
-    name: string;
-    slug: string;
+interface Props {
+    prompt: CheckoutPrompt;
 }
 
-interface Tag {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Seller {
-    id: number;
-    name: string;
-    profile?: {
-        bio?: string;
-        seller_verified?: boolean;
-        total_sales?: number;
-    };
-}
-
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    description: string;
-    content: string;
-    ai_model: string;
-    price: number;
-    pricing_model: string;
-    min_price?: number;
-    rating: number;
-    rating_count: number;
-    purchases_count: number;
+type CheckoutPrompt = Pick<
+    Prompt,
+    | 'id'
+    | 'title'
+    | 'slug'
+    | 'description'
+    | 'content'
+    | 'ai_model'
+    | 'price'
+    | 'pricing_model'
+    | 'min_price'
+    | 'rating'
+    | 'rating_count'
+    | 'purchases_count'
+> & {
     category: Category;
     tags: Tag[];
     seller: Seller;
-}
-
-interface Props {
-    prompt: Prompt;
-}
+};
 
 export default function Checkout({ prompt }: Props) {
     const breadcrumbs: BreadcrumbItem[] = [
@@ -99,17 +86,10 @@ export default function Checkout({ prompt }: Props) {
                 : parseFloat(customPrice) || 0,
     });
 
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
-
     const getPrice = () => {
         if (prompt.pricing_model === 'free') return 0;
-        if (prompt.pricing_model === 'fixed') return prompt.price;
-        return parseFloat(customPrice) || prompt.min_price || 0;
+        if (prompt.pricing_model === 'fixed') return Number(prompt.price);
+        return parseFloat(customPrice) || Number(prompt.min_price ?? 0);
     };
 
     const price = getPrice();
@@ -126,7 +106,8 @@ export default function Checkout({ prompt }: Props) {
         if (prompt.pricing_model === 'fixed') return true;
         const enteredPrice = parseFloat(customPrice);
         if (isNaN(enteredPrice)) return false;
-        if (prompt.min_price && enteredPrice < prompt.min_price) return false;
+        if (prompt.min_price && enteredPrice < Number(prompt.min_price))
+            return false;
         return enteredPrice >= 0;
     };
 
@@ -228,7 +209,9 @@ export default function Checkout({ prompt }: Props) {
                                         </div>
                                     ) : prompt.pricing_model === 'fixed' ? (
                                         <div className="text-3xl font-bold">
-                                            {formatCurrency(prompt.price)}
+                                            {formatCurrency(
+                                                Number(prompt.price),
+                                            )}
                                         </div>
                                     ) : (
                                         <div className="space-y-3">
@@ -236,7 +219,7 @@ export default function Checkout({ prompt }: Props) {
                                                 This prompt uses "Pay What You
                                                 Want" pricing.
                                                 {prompt.min_price &&
-                                                    ` Minimum: ${formatCurrency(prompt.min_price)}`}
+                                                    ` Minimum: ${formatCurrency(Number(prompt.min_price ?? 0))}`}
                                             </p>
                                             <div className="flex items-center gap-2">
                                                 <DollarSign className="h-5 w-5 text-muted-foreground" />
@@ -256,12 +239,16 @@ export default function Checkout({ prompt }: Props) {
                                             </div>
                                             {prompt.min_price &&
                                                 parseFloat(customPrice) <
-                                                    prompt.min_price && (
+                                                    Number(
+                                                        prompt.min_price,
+                                                    ) && (
                                                     <p className="flex items-center gap-1 text-sm text-destructive">
                                                         <AlertCircle className="h-4 w-4" />
                                                         Minimum price is{' '}
                                                         {formatCurrency(
-                                                            prompt.min_price,
+                                                            Number(
+                                                                prompt.min_price,
+                                                            ),
                                                         )}
                                                     </p>
                                                 )}

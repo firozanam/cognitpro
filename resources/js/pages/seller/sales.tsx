@@ -9,7 +9,9 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency, formatDate } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Prompt } from '@/types/prompt';
 import { Head, Link } from '@inertiajs/react';
 import {
     Calendar,
@@ -20,12 +22,6 @@ import {
     ShoppingBag,
     TrendingUp,
 } from 'lucide-react';
-
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-}
 
 interface Buyer {
     id: number;
@@ -42,7 +38,7 @@ interface Sale {
     status: string;
     payment_method: string;
     purchased_at: string | null;
-    prompt: Prompt;
+    prompt: Pick<Prompt, 'id' | 'title' | 'slug'>;
     buyer: Buyer;
 }
 
@@ -81,25 +77,6 @@ export default function SellerSales({ sales, stats }: Props) {
             href: '/seller/sales',
         },
     ];
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
-
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) {
-            return 'Pending';
-        }
-
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        });
-    };
 
     const getStatusBadge = (status: string) => {
         const statusConfig: Record<

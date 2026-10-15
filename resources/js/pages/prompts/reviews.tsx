@@ -1,15 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatDate } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Prompt } from '@/types/prompt';
 import { Head, Link, router } from '@inertiajs/react';
 import { ArrowLeft, Star, ThumbsUp } from 'lucide-react';
-
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-}
 
 interface Review {
     id: number;
@@ -23,7 +19,7 @@ interface Review {
 }
 
 interface Props {
-    prompt: Prompt;
+    prompt: Pick<Prompt, 'id' | 'title' | 'slug'>;
     reviews: {
         data: Review[];
         current_page: number;
@@ -34,14 +30,6 @@ interface Props {
         average: number;
         distribution: Record<string, number>;
     };
-}
-
-function formatDate(date: string) {
-    return new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
 }
 
 export default function PromptReviews({ prompt, reviews, stats }: Props) {

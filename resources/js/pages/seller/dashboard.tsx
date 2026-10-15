@@ -8,7 +8,9 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Paginated, type Prompt } from '@/types/prompt';
 import { Head, Link } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -24,19 +26,6 @@ import {
     XCircle,
 } from 'lucide-react';
 
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    status: string;
-    price: number;
-    views_count: number;
-    purchases_count: number;
-    rating: number;
-    rating_count: number;
-    created_at: string;
-}
-
 interface Stats {
     total_earnings: number;
     total_sales: number;
@@ -47,12 +36,20 @@ interface Stats {
 }
 
 interface Props {
-    prompts: {
-        data: Prompt[];
-        current_page: number;
-        last_page: number;
-        total: number;
-    };
+    prompts: Paginated<
+        Pick<
+            Prompt,
+            | 'id'
+            | 'title'
+            | 'slug'
+            | 'price'
+            | 'views_count'
+            | 'purchases_count'
+            | 'rating'
+            | 'rating_count'
+            | 'created_at'
+        > & { status: string }
+    >;
     stats: Stats;
 }
 
@@ -63,13 +60,6 @@ export default function SellerDashboard({ prompts, stats }: Props) {
             href: '/seller/dashboard',
         },
     ];
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
 
     const getStatusBadge = (status: string) => {
         const statusConfig: Record<

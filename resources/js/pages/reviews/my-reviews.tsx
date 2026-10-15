@@ -1,40 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatDate } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Paginated, type Review } from '@/types/prompt';
 import { Head, Link, router } from '@inertiajs/react';
 import { ChevronLeft, ChevronRight, Pencil, Star, Trash2 } from 'lucide-react';
 
-interface Review {
-    id: number;
-    rating: number;
-    title: string | null;
-    content: string | null;
-    helpful_count: number;
-    created_at: string;
-    prompt: {
-        id: number;
-        title: string;
-        slug: string;
-        seller: { id: number; name: string };
-    };
-}
+// The my-reviews route always eager-loads prompt and seller
+type ReviewWithPrompt = Review & { prompt: NonNullable<Review['prompt']> };
 
 interface Props {
-    reviews: {
-        data: Review[];
-        current_page: number;
-        last_page: number;
-        total: number;
-    };
-}
-
-function formatDate(date: string) {
-    return new Date(date).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-    });
+    reviews: Paginated<ReviewWithPrompt>;
 }
 
 export default function MyReviews({ reviews }: Props) {

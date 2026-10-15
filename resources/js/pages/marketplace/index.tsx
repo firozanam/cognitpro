@@ -17,7 +17,9 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import { formatPromptPrice } from '@/lib/format';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type Paginated, type Prompt } from '@/types/prompt';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     Eye,
@@ -33,60 +35,12 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-interface Category {
+interface CategoryNode {
     id: number;
     name: string;
     slug: string;
     icon: string | null;
-    children?: Category[];
-}
-
-interface Tag {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Seller {
-    id: number;
-    name: string;
-    profile?: {
-        avatar: string | null;
-        seller_verified: boolean;
-    };
-}
-
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    description: string;
-    price: number;
-    pricing_model: 'fixed' | 'pay_what_you_want' | 'free';
-    ai_model: string;
-    rating: number;
-    rating_count: number;
-    views_count: number;
-    purchases_count: number;
-    featured: boolean;
-    category: Category;
-    tags: Tag[];
-    seller: Seller;
-    created_at: string;
-}
-
-interface PaginatedPrompts {
-    data: Prompt[];
-    current_page: number;
-    last_page: number;
-    per_page: number;
-    total: number;
-    links: {
-        first: string;
-        last: string;
-        prev: string | null;
-        next: string | null;
-    };
+    children?: CategoryNode[];
 }
 
 interface AiModel {
@@ -95,8 +49,8 @@ interface AiModel {
 }
 
 interface Props {
-    prompts: PaginatedPrompts;
-    categories: Category[];
+    prompts: Paginated<Prompt>;
+    categories: CategoryNode[];
     filters: {
         category_id?: string;
         ai_model?: string;
@@ -293,17 +247,6 @@ export default function MarketplaceIndex({
         router.get('/marketplace');
     };
 
-    const formatPrice = (
-        price: number | null | undefined,
-        pricingModel: string,
-    ) => {
-        const numericPrice = typeof price === 'number' ? price : 0;
-        if (pricingModel === 'free') return 'Free';
-        if (pricingModel === 'pay_what_you_want')
-            return `From $${numericPrice.toFixed(2)}`;
-        return `$${numericPrice.toFixed(2)}`;
-    };
-
     const renderStars = (rating: number | null | undefined) => {
         const numericRating = typeof rating === 'number' ? rating : 0;
         return (
@@ -366,7 +309,7 @@ export default function MarketplaceIndex({
             <CardFooter className="flex items-center justify-between border-t pt-4">
                 <div className="flex flex-col">
                     <span className="text-lg font-bold text-primary">
-                        {formatPrice(prompt.price, prompt.pricing_model)}
+                        {formatPromptPrice(prompt)}
                     </span>
                     <div className="flex items-center gap-3 text-muted-foreground">
                         {renderStars(prompt.rating)}

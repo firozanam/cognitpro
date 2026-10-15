@@ -2,7 +2,9 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency, formatDate } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Prompt, type Seller } from '@/types/prompt';
 import { Head, Link } from '@inertiajs/react';
 import {
     Calendar,
@@ -14,18 +16,6 @@ import {
     Star,
 } from 'lucide-react';
 
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    ai_model: string;
-}
-
-interface Seller {
-    id: number;
-    name: string;
-}
-
 interface Purchase {
     id: number;
     order_number: string;
@@ -35,7 +25,9 @@ interface Purchase {
     status: string;
     payment_method: string;
     purchased_at: string | null;
-    prompt: Prompt & { seller: Seller };
+    prompt: Pick<Prompt, 'id' | 'title' | 'slug' | 'ai_model'> & {
+        seller: Pick<Seller, 'name'>;
+    };
     review?: {
         id: number;
         rating: number;
@@ -66,25 +58,6 @@ export default function PurchasesIndex({ purchases }: Props) {
             href: '/purchases',
         },
     ];
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
-
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) {
-            return 'Pending';
-        }
-
-        return new Date(dateString).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-        });
-    };
 
     const getStatusBadge = (status: string) => {
         const statusConfig: Record<

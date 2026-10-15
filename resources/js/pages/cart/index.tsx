@@ -9,7 +9,9 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Prompt } from '@/types/prompt';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     ArrowRight,
@@ -23,30 +25,26 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    description: string;
-    ai_model: string;
-    price: number;
-    pricing_model: string;
-    rating: number;
-    rating_count: number;
-    seller: {
-        id: number;
-        name: string;
-    };
-    category: {
-        id: number;
-        name: string;
-    };
-}
+type CartPrompt = Pick<
+    Prompt,
+    | 'id'
+    | 'title'
+    | 'slug'
+    | 'description'
+    | 'ai_model'
+    | 'price'
+    | 'pricing_model'
+    | 'rating'
+    | 'rating_count'
+> & {
+    seller: { id: number; name: string };
+    category: { id: number; name: string };
+};
 
 interface CartItem {
     id: number;
     price: number;
-    prompt: Prompt;
+    prompt: CartPrompt;
 }
 
 interface Props {
@@ -65,13 +63,6 @@ export default function CartIndex({ cartItems, total, count }: Props) {
 
     const [removingId, setRemovingId] = useState<number | null>(null);
     const [checkingOut, setCheckingOut] = useState(false);
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
 
     const handleRemoveItem = (cartId: number) => {
         setRemovingId(cartId);
@@ -155,7 +146,10 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                                                     </div>
                                                     <p className="text-xl font-bold text-green-600">
                                                         {formatCurrency(
-                                                            item.prompt.price,
+                                                            Number(
+                                                                item.prompt
+                                                                    .price,
+                                                            ),
                                                         )}
                                                     </p>
                                                 </div>

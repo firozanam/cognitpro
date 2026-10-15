@@ -8,7 +8,9 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency, formatDate } from '@/lib/format';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+import { type Prompt, type Seller } from '@/types/prompt';
 import { Head, Link, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
@@ -24,23 +26,15 @@ import {
     TrendingUp,
 } from 'lucide-react';
 
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    ai_model: string;
-    seller: {
-        name: string;
-    };
-}
-
 interface Purchase {
     id: number;
     order_number: string;
     price: number;
     status: string;
     purchased_at: string | null;
-    prompt: Prompt;
+    prompt: Pick<Prompt, 'id' | 'title' | 'slug' | 'ai_model'> & {
+        seller: Pick<Seller, 'name'>;
+    };
 }
 
 interface Sale {
@@ -105,24 +99,6 @@ export default function Dashboard({
             href: '/dashboard',
         },
     ];
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
-
-    const formatDate = (dateString: string | null) => {
-        if (!dateString) {
-            return 'Pending';
-        }
-
-        return new Date(dateString).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-        });
-    };
 
     const getStatusBadge = (status: string) => {
         const variants: Record<

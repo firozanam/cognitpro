@@ -3,7 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
+import { formatPromptPrice } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Paginated, type Prompt } from '@/types/prompt';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     ChevronLeft,
@@ -15,55 +17,9 @@ import {
 } from 'lucide-react';
 import { FormEvent, useState } from 'react';
 
-interface Category {
-    id: number;
-    name: string;
-    slug: string;
-}
-
-interface Seller {
-    id: number;
-    name: string;
-}
-
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    description: string;
-    price: number;
-    pricing_model: 'fixed' | 'pay_what_you_want' | 'free';
-    ai_model: string;
-    rating: number;
-    rating_count: number;
-    views_count: number;
-    purchases_count: number;
-    featured: boolean;
-    category: Category;
-    tags: { id: number; name: string; slug: string }[];
-    seller: Seller;
-}
-
-interface PaginatedPrompts {
-    data: Prompt[];
-    current_page: number;
-    last_page: number;
-    total: number;
-}
-
 interface Props {
-    prompts: PaginatedPrompts;
+    prompts: Paginated<Prompt>;
     searchTerm: string;
-}
-
-function formatPrice(prompt: Prompt) {
-    if (prompt.pricing_model === 'free') {
-        return 'Free';
-    }
-    if (prompt.pricing_model === 'pay_what_you_want') {
-        return 'Pay what you want';
-    }
-    return `$${Number(prompt.price).toFixed(2)}`;
 }
 
 export default function MarketplaceSearch({ prompts, searchTerm }: Props) {
@@ -136,7 +92,7 @@ export default function MarketplaceSearch({ prompts, searchTerm }: Props) {
                                                 </p>
                                             </div>
                                             <div className="text-lg font-bold whitespace-nowrap">
-                                                {formatPrice(prompt)}
+                                                {formatPromptPrice(prompt)}
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">

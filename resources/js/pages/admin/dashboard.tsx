@@ -8,7 +8,9 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency, formatDate } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Prompt } from '@/types/prompt';
 import { Head, Link, router } from '@inertiajs/react';
 import {
     AlertCircle,
@@ -26,16 +28,6 @@ interface User {
     name: string;
     email: string;
     role: string;
-    created_at: string;
-}
-
-interface Prompt {
-    id: number;
-    title: string;
-    status: string;
-    seller: {
-        name: string;
-    };
     created_at: string;
 }
 
@@ -58,11 +50,16 @@ interface Stats {
     total_revenue: number;
 }
 
+type AdminPrompt = Pick<Prompt, 'id' | 'title' | 'status' | 'created_at'> & {
+    status: string;
+    seller: { name: string };
+};
+
 interface Props {
     stats: Stats;
     recentUsers: User[];
     recentPurchases: Purchase[];
-    pendingPrompts: Prompt[];
+    pendingPrompts: AdminPrompt[];
 }
 
 export default function AdminDashboard({
@@ -77,20 +74,6 @@ export default function AdminDashboard({
             href: '/admin',
         },
     ];
-
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleDateString('en-US', {
-            month: 'short',
-            day: 'numeric',
-        });
-    };
 
     const statCards = [
         {

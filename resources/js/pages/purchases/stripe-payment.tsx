@@ -8,7 +8,9 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import { formatCurrency } from '@/lib/format';
 import { type BreadcrumbItem } from '@/types';
+import { type Prompt } from '@/types/prompt';
 import { Head } from '@inertiajs/react';
 import {
     Elements,
@@ -28,16 +30,6 @@ import {
 } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
-interface Prompt {
-    id: number;
-    title: string;
-    slug: string;
-    seller: {
-        id: number;
-        name: string;
-    };
-}
-
 interface Purchase {
     id: number;
     order_number: string;
@@ -45,7 +37,9 @@ interface Purchase {
     platform_fee: number;
     seller_earnings: number;
     status: string;
-    prompt: Prompt;
+    prompt: Pick<Prompt, 'id' | 'title' | 'slug'> & {
+        seller: { id: number; name: string };
+    };
 }
 
 interface Props {
@@ -54,12 +48,6 @@ interface Props {
     clientSecret?: string | null;
     intentId?: string | null;
 }
-
-const formatCurrency = (amount: number) =>
-    new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'USD',
-    }).format(amount);
 
 function PaymentForm({
     purchase,
