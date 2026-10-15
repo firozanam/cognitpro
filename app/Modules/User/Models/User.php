@@ -108,6 +108,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
+     * Check if the user is banned.
+     */
+    public function isBanned(): bool
+    {
+        return $this->banned_at !== null;
+    }
+
+    /**
      * Check if user is an admin.
      */
     public function isAdmin(): bool
