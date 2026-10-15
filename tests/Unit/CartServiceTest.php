@@ -7,6 +7,7 @@ use App\Modules\Prompt\Contracts\PurchaseRepositoryInterface;
 use App\Modules\Prompt\Models\Cart;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\Prompt\Services\CartService;
+use App\Modules\Prompt\Services\PurchaseService;
 use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 use Mockery;
@@ -29,7 +30,8 @@ class CartServiceTest extends TestCase
         
         $this->cartService = new CartService(
             $this->cartRepository,
-            $this->purchaseRepository
+            $this->purchaseRepository,
+            $this->app->make(PurchaseService::class)
         );
     }
 

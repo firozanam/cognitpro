@@ -14,13 +14,16 @@ class CartService
 {
     protected CartRepositoryInterface $cartRepository;
     protected PurchaseRepositoryInterface $purchaseRepository;
+    protected PurchaseService $purchaseService;
 
     public function __construct(
         CartRepositoryInterface $cartRepository,
-        PurchaseRepositoryInterface $purchaseRepository
+        PurchaseRepositoryInterface $purchaseRepository,
+        PurchaseService $purchaseService
     ) {
         $this->cartRepository = $cartRepository;
         $this->purchaseRepository = $purchaseRepository;
+        $this->purchaseService = $purchaseService;
     }
 
     /**
@@ -181,5 +184,41 @@ class CartService
             'items' => collect($validItems),
             'total' => $total,
         ];
+    }
+
+    /**
+     * Check out the cart (STM-01): validate, purchase every valid item —
+     * free items complete immediately, paid items stay pending for the
+     * Stripe flow — then empty the cart. Returns [completed, pending].
+     */
+    public function checkout(User $user): array
+    {
+        $validation = $this->validateCart($user->id);
+
+        if ($validation['items']->isEmpty()) {
+            throw new Exception(implode(' ', $validation['errors']) ?: 'Your cart is empty.');
+        }
+
+        $completed = collect();
+        $pending = collect();
+
+        foreach ($validation['items'] as $item) {
+            $purchase = $this->purchaseService->initiatePurchase($user, $item->prompt);
+
+            if ($item->prompt->isFree()) {
+                $this->purchaseService->completePurchase(
+                    $purchase,
+                    'free',
+                    'free_' . $purchase->order_number
+                );
+                $completed->push($purchase);
+            } else {
+                $pending->push($purchase);
+            }
+        }
+
+        $this->clearCart($user->id);
+
+        return [$completed, $pending];
     }
 }

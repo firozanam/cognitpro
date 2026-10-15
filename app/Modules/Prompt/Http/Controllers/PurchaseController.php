@@ -97,8 +97,11 @@ class PurchaseController extends Controller
 
     /**
      * Display the payment page for a pending purchase.
+     *
+     * Consolidated onto the Stripe Payment Element page — the legacy fake
+     * card form is gone (BIZ-01).
      */
-    public function payment(Request $request, Purchase $purchase): Response|RedirectResponse
+    public function payment(Request $request, Purchase $purchase): RedirectResponse
     {
         // Ensure user owns this purchase
         if ($purchase->buyer_id !== $request->user()->id) {
@@ -110,11 +113,7 @@ class PurchaseController extends Controller
             return redirect()->route('purchases.show', $purchase->id);
         }
 
-        $purchase->load(['prompt', 'prompt.seller']);
-
-        return Inertia::render('purchases/payment', [
-            'purchase' => $purchase,
-        ]);
+        return redirect()->route('payment.stripe.show', $purchase->id);
     }
 
     /**

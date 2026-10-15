@@ -1,25 +1,31 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState } from 'react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-    Star, 
-    ShoppingCart, 
-    Eye, 
-    Heart, 
-    Share2, 
-    Copy, 
-    Check, 
-    Clock,
-    Tag as TagIcon,
-    AlertCircle,
-    ChevronLeft
-} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, router, usePage } from '@inertiajs/react';
+import {
+    AlertCircle,
+    Check,
+    ChevronLeft,
+    Clock,
+    Copy,
+    Eye,
+    Heart,
+    Share2,
+    ShoppingCart,
+    Star,
+    Tag as TagIcon,
+} from 'lucide-react';
+import { useState } from 'react';
 
 interface Category {
     id: number;
@@ -91,7 +97,11 @@ interface Props {
     hasPurchased: boolean;
 }
 
-export default function PromptShow({ prompt, showContent, hasPurchased }: Props) {
+export default function PromptShow({
+    prompt,
+    showContent,
+    hasPurchased,
+}: Props) {
     const [copied, setCopied] = useState(false);
     const [isPurchasing, setIsPurchasing] = useState(false);
     const { auth } = usePage<SharedData>().props ?? {};
@@ -111,10 +121,14 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
         },
     ];
 
-    const formatPrice = (price: number | null | undefined, pricingModel: string) => {
+    const formatPrice = (
+        price: number | null | undefined,
+        pricingModel: string,
+    ) => {
         const numericPrice = typeof price === 'number' ? price : 0;
         if (pricingModel === 'free') return 'Free';
-        if (pricingModel === 'pay_what_you_want') return `From $${numericPrice.toFixed(2)}`;
+        if (pricingModel === 'pay_what_you_want')
+            return `From $${numericPrice.toFixed(2)}`;
         return `$${numericPrice.toFixed(2)}`;
     };
 
@@ -137,14 +151,17 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
             router.visit('/login');
             return;
         }
-        
-        setIsPurchasing(true);
-        router.post('/purchases', {
-            prompt_id: prompt.id,
-            price: prompt.price,
-        }, {
-            onFinish: () => setIsPurchasing(false),
-        });
+
+        router.visit(`/checkout/${prompt.id}`);
+    };
+
+    const handleAddToCart = () => {
+        if (!auth?.user) {
+            router.visit('/login');
+            return;
+        }
+
+        router.post(`/cart/add/${prompt.id}`);
     };
 
     const renderStars = (rating: number, size: 'sm' | 'md' = 'sm') => {
@@ -170,26 +187,30 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={prompt.title} />
-            
+
             <div className="container mx-auto px-6 py-8">
                 {/* Back Button */}
                 <Link
                     href="/marketplace"
-                    className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
+                    className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
                 >
-                    <ChevronLeft className="h-4 w-4 mr-1" />
+                    <ChevronLeft className="mr-1 h-4 w-4" />
                     Back to Marketplace
                 </Link>
 
                 <div className="grid gap-8 lg:grid-cols-3">
                     {/* Main Content */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="space-y-6 lg:col-span-2">
                         {/* Header */}
                         <div>
-                            <div className="flex items-start justify-between gap-4 mb-4">
+                            <div className="mb-4 flex items-start justify-between gap-4">
                                 <div className="flex flex-wrap gap-2">
-                                    <Badge variant="outline">{prompt.ai_model}</Badge>
-                                    <Badge variant="secondary">{prompt.category.name}</Badge>
+                                    <Badge variant="outline">
+                                        {prompt.ai_model}
+                                    </Badge>
+                                    <Badge variant="secondary">
+                                        {prompt.category.name}
+                                    </Badge>
                                     {prompt.featured && (
                                         <Badge className="bg-gradient-to-r from-amber-500 to-orange-500">
                                             Featured
@@ -205,11 +226,11 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                                     </Button>
                                 </div>
                             </div>
-                            
-                            <h1 className="text-3xl font-bold tracking-tight mb-4">
+
+                            <h1 className="mb-4 text-3xl font-bold tracking-tight">
                                 {prompt.title}
                             </h1>
-                            
+
                             <p className="text-lg text-muted-foreground">
                                 {prompt.description}
                             </p>
@@ -218,13 +239,16 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                         {/* Tags */}
                         {prompt.tags.length > 0 && (
                             <div className="flex flex-wrap gap-2">
-                                <TagIcon className="h-4 w-4 text-muted-foreground self-center" />
+                                <TagIcon className="h-4 w-4 self-center text-muted-foreground" />
                                 {prompt.tags.map((tag) => (
                                     <Link
                                         key={tag.id}
                                         href={`/marketplace?tag=${tag.slug}`}
                                     >
-                                        <Badge variant="outline" className="hover:bg-accent">
+                                        <Badge
+                                            variant="outline"
+                                            className="hover:bg-accent"
+                                        >
                                             {tag.name}
                                         </Badge>
                                     </Link>
@@ -245,12 +269,12 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                                         >
                                             {copied ? (
                                                 <>
-                                                    <Check className="h-4 w-4 mr-2" />
+                                                    <Check className="mr-2 h-4 w-4" />
                                                     Copied!
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Copy className="h-4 w-4 mr-2" />
+                                                    <Copy className="mr-2 h-4 w-4" />
                                                     Copy
                                                 </>
                                             )}
@@ -260,19 +284,20 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                             </CardHeader>
                             <CardContent>
                                 {showContent ? (
-                                    <pre className="whitespace-pre-wrap rounded-lg bg-muted p-4 text-sm font-mono overflow-x-auto">
+                                    <pre className="overflow-x-auto rounded-lg bg-muted p-4 font-mono text-sm whitespace-pre-wrap">
                                         {prompt.content}
                                     </pre>
                                 ) : (
                                     <div className="relative">
-                                        <pre className="whitespace-pre-wrap rounded-lg bg-muted p-4 text-sm font-mono overflow-hidden blur-sm max-h-48">
+                                        <pre className="max-h-48 overflow-hidden rounded-lg bg-muted p-4 font-mono text-sm whitespace-pre-wrap blur-sm">
                                             {prompt.content}
                                         </pre>
                                         <div className="absolute inset-0 flex items-center justify-center bg-background/80">
                                             <div className="text-center">
-                                                <AlertCircle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                                                <p className="text-muted-foreground mb-2">
-                                                    Purchase to view the full prompt
+                                                <AlertCircle className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
+                                                <p className="mb-2 text-muted-foreground">
+                                                    Purchase to view the full
+                                                    prompt
                                                 </p>
                                             </div>
                                         </div>
@@ -284,7 +309,9 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                         {/* Reviews Section */}
                         <Card>
                             <CardHeader>
-                                <CardTitle>Reviews ({prompt.rating_count})</CardTitle>
+                                <CardTitle>
+                                    Reviews ({prompt.rating_count})
+                                </CardTitle>
                                 <CardDescription>
                                     What buyers are saying about this prompt
                                 </CardDescription>
@@ -292,54 +319,84 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                             <CardContent>
                                 {prompt.reviews.length > 0 ? (
                                     <div className="space-y-6">
-                                        {prompt.reviews.slice(0, 5).map((review) => (
-                                            <div key={review.id} className="space-y-3">
-                                                <div className="flex items-start justify-between">
-                                                    <div className="flex items-center gap-3">
-                                                        <Avatar className="h-8 w-8">
-                                                            <AvatarFallback>
-                                                                {review.user.name.charAt(0)}
-                                                            </AvatarFallback>
-                                                        </Avatar>
-                                                        <div>
-                                                            <p className="font-medium">{review.user.name}</p>
-                                                            <div className="flex items-center gap-2">
-                                                                {renderStars(review.rating)}
-                                                                <span className="text-xs text-muted-foreground">
-                                                                    {formatDate(review.created_at)}
-                                                                </span>
+                                        {prompt.reviews
+                                            .slice(0, 5)
+                                            .map((review) => (
+                                                <div
+                                                    key={review.id}
+                                                    className="space-y-3"
+                                                >
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center gap-3">
+                                                            <Avatar className="h-8 w-8">
+                                                                <AvatarFallback>
+                                                                    {review.user.name.charAt(
+                                                                        0,
+                                                                    )}
+                                                                </AvatarFallback>
+                                                            </Avatar>
+                                                            <div>
+                                                                <p className="font-medium">
+                                                                    {
+                                                                        review
+                                                                            .user
+                                                                            .name
+                                                                    }
+                                                                </p>
+                                                                <div className="flex items-center gap-2">
+                                                                    {renderStars(
+                                                                        review.rating,
+                                                                    )}
+                                                                    <span className="text-xs text-muted-foreground">
+                                                                        {formatDate(
+                                                                            review.created_at,
+                                                                        )}
+                                                                    </span>
+                                                                </div>
                                                             </div>
                                                         </div>
+                                                        <div className="flex items-center gap-1 text-muted-foreground">
+                                                            <span className="text-xs">
+                                                                {
+                                                                    review.helpful_count
+                                                                }
+                                                            </span>
+                                                            <span className="text-xs">
+                                                                helpful
+                                                            </span>
+                                                        </div>
                                                     </div>
-                                                    <div className="flex items-center gap-1 text-muted-foreground">
-                                                        <span className="text-xs">{review.helpful_count}</span>
-                                                        <span className="text-xs">helpful</span>
-                                                    </div>
+                                                    {review.title && (
+                                                        <p className="font-medium">
+                                                            {review.title}
+                                                        </p>
+                                                    )}
+                                                    {review.content && (
+                                                        <p className="text-muted-foreground">
+                                                            {review.content}
+                                                        </p>
+                                                    )}
+                                                    {review.seller_response && (
+                                                        <div className="ml-6 rounded-lg bg-muted p-3">
+                                                            <p className="mb-1 text-sm font-medium">
+                                                                Seller Response
+                                                            </p>
+                                                            <p className="text-sm text-muted-foreground">
+                                                                {
+                                                                    review.seller_response
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                                    <Separator />
                                                 </div>
-                                                {review.title && (
-                                                    <p className="font-medium">{review.title}</p>
-                                                )}
-                                                {review.content && (
-                                                    <p className="text-muted-foreground">{review.content}</p>
-                                                )}
-                                                {review.seller_response && (
-                                                    <div className="ml-6 p-3 bg-muted rounded-lg">
-                                                        <p className="text-sm font-medium mb-1">
-                                                            Seller Response
-                                                        </p>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            {review.seller_response}
-                                                        </p>
-                                                    </div>
-                                                )}
-                                                <Separator />
-                                            </div>
-                                        ))}
+                                            ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-8">
+                                    <div className="py-8 text-center">
                                         <p className="text-muted-foreground">
-                                            No reviews yet. Be the first to review!
+                                            No reviews yet. Be the first to
+                                            review!
                                         </p>
                                     </div>
                                 )}
@@ -352,36 +409,63 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                         {/* Purchase Card */}
                         <Card>
                             <CardContent className="pt-6">
-                                <div className="text-center mb-6">
+                                <div className="mb-6 text-center">
                                     <p className="text-4xl font-bold">
-                                        {formatPrice(prompt.price, prompt.pricing_model)}
+                                        {formatPrice(
+                                            prompt.price,
+                                            prompt.pricing_model,
+                                        )}
                                     </p>
-                                    {prompt.pricing_model === 'pay_what_you_want' && prompt.min_price && (
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                            Minimum: ${(typeof prompt.min_price === 'number' ? prompt.min_price : 0).toFixed(2)}
-                                        </p>
-                                    )}
+                                    {prompt.pricing_model ===
+                                        'pay_what_you_want' &&
+                                        prompt.min_price && (
+                                            <p className="mt-1 text-sm text-muted-foreground">
+                                                Minimum: $
+                                                {(typeof prompt.min_price ===
+                                                'number'
+                                                    ? prompt.min_price
+                                                    : 0
+                                                ).toFixed(2)}
+                                            </p>
+                                        )}
                                 </div>
 
                                 {!hasPurchased && !isOwner && (
-                                    <Button
-                                        className="w-full"
-                                        size="lg"
-                                        onClick={handlePurchase}
-                                        disabled={isPurchasing}
-                                    >
-                                        <ShoppingCart className="h-5 w-5 mr-2" />
-                                        {isPurchasing ? 'Processing...' : 'Purchase Prompt'}
-                                    </Button>
+                                    <div className="space-y-2">
+                                        <Button
+                                            className="w-full"
+                                            size="lg"
+                                            onClick={handlePurchase}
+                                            disabled={isPurchasing}
+                                        >
+                                            <ShoppingCart className="mr-2 h-5 w-5" />
+                                            {isPurchasing
+                                                ? 'Processing...'
+                                                : 'Purchase Prompt'}
+                                        </Button>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={handleAddToCart}
+                                        >
+                                            Add to Cart
+                                        </Button>
+                                    </div>
                                 )}
 
                                 {hasPurchased && (
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-center gap-2 text-green-600">
                                             <Check className="h-5 w-5" />
-                                            <span className="font-medium">Purchased</span>
+                                            <span className="font-medium">
+                                                Purchased
+                                            </span>
                                         </div>
-                                        <Button variant="outline" className="w-full" asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full"
+                                            asChild
+                                        >
                                             <Link href="/purchases">
                                                 View in My Purchases
                                             </Link>
@@ -393,10 +477,18 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                                     <div className="space-y-3">
                                         <div className="flex items-center justify-center gap-2 text-primary">
                                             <Check className="h-5 w-5" />
-                                            <span className="font-medium">Your Prompt</span>
+                                            <span className="font-medium">
+                                                Your Prompt
+                                            </span>
                                         </div>
-                                        <Button variant="outline" className="w-full" asChild>
-                                            <Link href={`/prompts/${prompt.id}/edit`}>
+                                        <Button
+                                            variant="outline"
+                                            className="w-full"
+                                            asChild
+                                        >
+                                            <Link
+                                                href={`/prompts/${prompt.id}/edit`}
+                                            >
                                                 Edit Prompt
                                             </Link>
                                         </Button>
@@ -410,36 +502,48 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                             <CardContent className="pt-6">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="text-center">
-                                        <div className="flex items-center justify-center gap-1 mb-1">
+                                        <div className="mb-1 flex items-center justify-center gap-1">
                                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                            <span className="text-xl font-bold">{(typeof prompt.rating === 'number' ? prompt.rating : 0).toFixed(1)}</span>
+                                            <span className="text-xl font-bold">
+                                                {(typeof prompt.rating ===
+                                                'number'
+                                                    ? prompt.rating
+                                                    : 0
+                                                ).toFixed(1)}
+                                            </span>
                                         </div>
                                         <p className="text-xs text-muted-foreground">
                                             {prompt.rating_count} reviews
                                         </p>
                                     </div>
                                     <div className="text-center">
-                                        <div className="flex items-center justify-center gap-1 mb-1">
+                                        <div className="mb-1 flex items-center justify-center gap-1">
                                             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-xl font-bold">{prompt.purchases_count}</span>
+                                            <span className="text-xl font-bold">
+                                                {prompt.purchases_count}
+                                            </span>
                                         </div>
                                         <p className="text-xs text-muted-foreground">
                                             purchases
                                         </p>
                                     </div>
                                     <div className="text-center">
-                                        <div className="flex items-center justify-center gap-1 mb-1">
+                                        <div className="mb-1 flex items-center justify-center gap-1">
                                             <Eye className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-xl font-bold">{prompt.views_count}</span>
+                                            <span className="text-xl font-bold">
+                                                {prompt.views_count}
+                                            </span>
                                         </div>
                                         <p className="text-xs text-muted-foreground">
                                             views
                                         </p>
                                     </div>
                                     <div className="text-center">
-                                        <div className="flex items-center justify-center gap-1 mb-1">
+                                        <div className="mb-1 flex items-center justify-center gap-1">
                                             <Clock className="h-4 w-4 text-muted-foreground" />
-                                            <span className="text-xl font-bold">{prompt.version}</span>
+                                            <span className="text-xl font-bold">
+                                                {prompt.version}
+                                            </span>
                                         </div>
                                         <p className="text-xs text-muted-foreground">
                                             version
@@ -452,35 +556,48 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                         {/* Seller Card */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-sm">About the Seller</CardTitle>
+                                <CardTitle className="text-sm">
+                                    About the Seller
+                                </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <Link
                                     href={`/sellers/${prompt.seller.id}`}
-                                    className="flex items-center gap-3 mb-4"
+                                    className="mb-4 flex items-center gap-3"
                                 >
                                     <Avatar className="h-12 w-12">
-                                        <AvatarImage src={prompt.seller.profile?.avatar || undefined} />
+                                        <AvatarImage
+                                            src={
+                                                prompt.seller.profile?.avatar ||
+                                                undefined
+                                            }
+                                        />
                                         <AvatarFallback>
                                             {prompt.seller.name.charAt(0)}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <p className="font-medium flex items-center gap-2">
+                                        <p className="flex items-center gap-2 font-medium">
                                             {prompt.seller.name}
-                                            {prompt.seller.profile?.seller_verified && (
-                                                <Badge variant="outline" className="text-xs">
+                                            {prompt.seller.profile
+                                                ?.seller_verified && (
+                                                <Badge
+                                                    variant="outline"
+                                                    className="text-xs"
+                                                >
                                                     Verified
                                                 </Badge>
                                             )}
                                         </p>
                                         <p className="text-sm text-muted-foreground">
-                                            {prompt.seller.profile?.total_sales || 0} sales
+                                            {prompt.seller.profile
+                                                ?.total_sales || 0}{' '}
+                                            sales
                                         </p>
                                     </div>
                                 </Link>
                                 {prompt.seller.profile?.bio && (
-                                    <p className="text-sm text-muted-foreground line-clamp-3">
+                                    <p className="line-clamp-3 text-sm text-muted-foreground">
                                         {prompt.seller.profile.bio}
                                     </p>
                                 )}
@@ -490,23 +607,33 @@ export default function PromptShow({ prompt, showContent, hasPurchased }: Props)
                         {/* Details Card */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-sm">Details</CardTitle>
+                                <CardTitle className="text-sm">
+                                    Details
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-3 text-sm">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Published</span>
+                                    <span className="text-muted-foreground">
+                                        Published
+                                    </span>
                                     <span>{formatDate(prompt.created_at)}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Updated</span>
+                                    <span className="text-muted-foreground">
+                                        Updated
+                                    </span>
                                     <span>{formatDate(prompt.updated_at)}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">AI Model</span>
+                                    <span className="text-muted-foreground">
+                                        AI Model
+                                    </span>
                                     <span>{prompt.ai_model}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Category</span>
+                                    <span className="text-muted-foreground">
+                                        Category
+                                    </span>
                                     <Link
                                         href={`/marketplace?category=${prompt.category.id}`}
                                         className="hover:text-primary"

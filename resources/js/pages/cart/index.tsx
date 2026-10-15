@@ -1,20 +1,26 @@
-import { Head, Link, router } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
 import {
-    ShoppingCart,
-    Trash2,
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
+import {
+    ArrowRight,
+    CheckCircle,
     CreditCard,
     Shield,
-    CheckCircle,
-    Star,
+    ShoppingCart,
     Sparkles,
-    ArrowRight,
+    Star,
+    Trash2,
 } from 'lucide-react';
-import { type BreadcrumbItem } from '@/types';
 import { useState } from 'react';
 
 interface Prompt {
@@ -58,6 +64,7 @@ export default function CartIndex({ cartItems, total, count }: Props) {
     ];
 
     const [removingId, setRemovingingId] = useState<number | null>(null);
+    const [checkingOut, setCheckingOut] = useState(false);
 
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -79,6 +86,17 @@ export default function CartIndex({ cartItems, total, count }: Props) {
         }
     };
 
+    const handleCheckout = () => {
+        setCheckingOut(true);
+        router.post(
+            '/cart/checkout',
+            {},
+            {
+                onFinish: () => setCheckingOut(false),
+            },
+        );
+    };
+
     const platformFee = total * 0.15;
     const grandTotal = total;
 
@@ -90,17 +108,19 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight flex items-center gap-3">
+                        <h1 className="flex items-center gap-3 text-2xl font-bold tracking-tight">
                             <ShoppingCart className="h-6 w-6" />
                             Shopping Cart
                         </h1>
                         <p className="text-muted-foreground">
-                            {count === 0 ? 'Your cart is empty' : `${count} item${count !== 1 ? 's' : ''} in your cart`}
+                            {count === 0
+                                ? 'Your cart is empty'
+                                : `${count} item${count !== 1 ? 's' : ''} in your cart`}
                         </p>
                     </div>
                     {count > 0 && (
                         <Button variant="outline" onClick={handleClearCart}>
-                            <Trash2 className="h-4 w-4 mr-2" />
+                            <Trash2 className="mr-2 h-4 w-4" />
                             Clear Cart
                         </Button>
                     )}
@@ -109,12 +129,12 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                 {cartItems.length > 0 ? (
                     <div className="grid gap-4 lg:grid-cols-3">
                         {/* Cart Items */}
-                        <div className="lg:col-span-2 space-y-4">
+                        <div className="space-y-4 lg:col-span-2">
                             {cartItems.map((item) => (
                                 <Card key={item.id}>
                                     <CardContent className="p-6">
                                         <div className="flex gap-4">
-                                            <div className="p-4 bg-primary/10 rounded-lg">
+                                            <div className="rounded-lg bg-primary/10 p-4">
                                                 <Sparkles className="h-8 w-8 text-primary" />
                                             </div>
                                             <div className="flex-1">
@@ -122,45 +142,80 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                                                     <div>
                                                         <Link
                                                             href={`/prompts/${item.prompt.slug}`}
-                                                            className="font-semibold text-lg hover:text-primary"
+                                                            className="text-lg font-semibold hover:text-primary"
                                                         >
                                                             {item.prompt.title}
                                                         </Link>
-                                                        <p className="text-sm text-muted-foreground line-clamp-2 mt-1">
-                                                            {item.prompt.description}
+                                                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                                                            {
+                                                                item.prompt
+                                                                    .description
+                                                            }
                                                         </p>
                                                     </div>
                                                     <p className="text-xl font-bold text-green-600">
-                                                        {formatCurrency(item.prompt.price)}
+                                                        {formatCurrency(
+                                                            item.prompt.price,
+                                                        )}
                                                     </p>
                                                 </div>
 
-                                                <div className="flex flex-wrap items-center gap-3 mt-3">
-                                                    <Badge variant="secondary">{item.prompt.ai_model}</Badge>
-                                                    <Badge variant="outline">{item.prompt.category.name}</Badge>
-                                                    {item.prompt.rating_count > 0 && (
+                                                <div className="mt-3 flex flex-wrap items-center gap-3">
+                                                    <Badge variant="secondary">
+                                                        {item.prompt.ai_model}
+                                                    </Badge>
+                                                    <Badge variant="outline">
+                                                        {
+                                                            item.prompt.category
+                                                                .name
+                                                        }
+                                                    </Badge>
+                                                    {item.prompt.rating_count >
+                                                        0 && (
                                                         <div className="flex items-center gap-1 text-sm">
                                                             <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                            <span>{item.prompt.rating.toFixed(1)}</span>
+                                                            <span>
+                                                                {item.prompt.rating.toFixed(
+                                                                    1,
+                                                                )}
+                                                            </span>
                                                             <span className="text-muted-foreground">
-                                                                ({item.prompt.rating_count})
+                                                                (
+                                                                {
+                                                                    item.prompt
+                                                                        .rating_count
+                                                                }
+                                                                )
                                                             </span>
                                                         </div>
                                                     )}
                                                 </div>
 
-                                                <div className="flex items-center justify-between mt-4">
+                                                <div className="mt-4 flex items-center justify-between">
                                                     <p className="text-sm text-muted-foreground">
-                                                        by <span className="font-medium">{item.prompt.seller.name}</span>
+                                                        by{' '}
+                                                        <span className="font-medium">
+                                                            {
+                                                                item.prompt
+                                                                    .seller.name
+                                                            }
+                                                        </span>
                                                     </p>
                                                     <Button
                                                         variant="ghost"
                                                         size="sm"
                                                         className="text-destructive hover:text-destructive"
-                                                        onClick={() => handleRemoveItem(item.id)}
-                                                        disabled={removingId === item.id}
+                                                        onClick={() =>
+                                                            handleRemoveItem(
+                                                                item.id,
+                                                            )
+                                                        }
+                                                        disabled={
+                                                            removingId ===
+                                                            item.id
+                                                        }
                                                     >
-                                                        <Trash2 className="h-4 w-4 mr-1" />
+                                                        <Trash2 className="mr-1 h-4 w-4" />
                                                         Remove
                                                     </Button>
                                                 </div>
@@ -179,30 +234,45 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                                 </CardHeader>
                                 <CardContent className="space-y-4">
                                     <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Subtotal ({count} items)</span>
+                                        <span className="text-muted-foreground">
+                                            Subtotal ({count} items)
+                                        </span>
                                         <span>{formatCurrency(total)}</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
-                                        <span className="text-muted-foreground">Platform fee</span>
+                                        <span className="text-muted-foreground">
+                                            Platform fee
+                                        </span>
                                         <span className="text-muted-foreground">
                                             {formatCurrency(platformFee)}
                                         </span>
                                     </div>
                                     <Separator />
-                                    <div className="flex justify-between font-semibold text-lg">
+                                    <div className="flex justify-between text-lg font-semibold">
                                         <span>Total</span>
-                                        <span className="text-green-600">{formatCurrency(grandTotal)}</span>
+                                        <span className="text-green-600">
+                                            {formatCurrency(grandTotal)}
+                                        </span>
                                     </div>
 
-                                    <Button className="w-full" size="lg" asChild>
-                                        <Link href="/checkout/cart">
-                                            <CreditCard className="h-4 w-4 mr-2" />
-                                            Proceed to Checkout
-                                            <ArrowRight className="h-4 w-4 ml-2" />
-                                        </Link>
+                                    <Button
+                                        className="w-full"
+                                        size="lg"
+                                        onClick={handleCheckout}
+                                        disabled={checkingOut}
+                                    >
+                                        <CreditCard className="mr-2 h-4 w-4" />
+                                        {checkingOut
+                                            ? 'Processing...'
+                                            : 'Proceed to Checkout'}
+                                        <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
 
-                                    <Button variant="outline" className="w-full" asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="w-full"
+                                        asChild
+                                    >
                                         <Link href="/marketplace">
                                             Continue Shopping
                                         </Link>
@@ -219,7 +289,9 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                             {/* What you'll get */}
                             <Card className="mt-4">
                                 <CardHeader>
-                                    <CardTitle className="text-base">What You'll Get</CardTitle>
+                                    <CardTitle className="text-base">
+                                        What You'll Get
+                                    </CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <ul className="space-y-2">
@@ -247,14 +319,18 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                 ) : (
                     <Card>
                         <CardContent className="py-16 text-center">
-                            <ShoppingCart className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                            <h3 className="text-xl font-semibold mb-2">Your cart is empty</h3>
-                            <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                                Looks like you haven't added any prompts to your cart yet. Browse the marketplace to find prompts that suit your needs.
+                            <ShoppingCart className="mx-auto mb-4 h-16 w-16 text-muted-foreground" />
+                            <h3 className="mb-2 text-xl font-semibold">
+                                Your cart is empty
+                            </h3>
+                            <p className="mx-auto mb-6 max-w-md text-muted-foreground">
+                                Looks like you haven't added any prompts to your
+                                cart yet. Browse the marketplace to find prompts
+                                that suit your needs.
                             </p>
                             <Button asChild>
                                 <Link href="/marketplace">
-                                    <Sparkles className="h-4 w-4 mr-2" />
+                                    <Sparkles className="mr-2 h-4 w-4" />
                                     Browse Marketplace
                                 </Link>
                             </Button>

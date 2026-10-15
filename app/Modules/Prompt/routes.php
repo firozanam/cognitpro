@@ -30,6 +30,7 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
     // Cart routes
     Route::get('cart', [CartController::class, 'index'])->name('cart.index');
     Route::post('cart/add/{prompt}', [CartController::class, 'add'])->name('cart.add');
+    Route::post('cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
     Route::delete('cart/{cartId}', [CartController::class, 'remove'])->name('cart.remove');
     Route::delete('cart', [CartController::class, 'clear'])->name('cart.clear');
     Route::get('cart/count', [CartController::class, 'count'])->name('cart.count');

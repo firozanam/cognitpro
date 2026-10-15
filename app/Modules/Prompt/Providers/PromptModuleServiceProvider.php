@@ -53,7 +53,8 @@ class PromptModuleServiceProvider extends ServiceProvider
         $this->app->bind(CartService::class, function ($app) {
             return new CartService(
                 $app->make(CartRepositoryInterface::class),
-                $app->make(PurchaseRepositoryInterface::class)
+                $app->make(PurchaseRepositoryInterface::class),
+                $app->make(PurchaseService::class)
             );
         });
     }

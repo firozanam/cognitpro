@@ -100,6 +100,26 @@ class CartController extends Controller
     }
 
     /**
+     * Check out the cart: free items complete immediately, paid items
+     * continue to the Stripe payment page (STM-01).
+     */
+    public function checkout(Request $request): RedirectResponse
+    {
+        try {
+            [$completed, $pending] = $this->cartService->checkout($request->user());
+        } catch (\Exception $e) {
+            return redirect()->route('cart.index')->with('error', $e->getMessage());
+        }
+
+        if ($pending->isNotEmpty()) {
+            return redirect()->route('payment.stripe.show', $pending->first()->id)
+                ->with('info', 'Checkout started — complete payment for your paid items.');
+        }
+
+        return redirect()->route('purchases.index')->with('success', 'Checkout complete!');
+    }
+
+    /**
      * Get cart count for header.
      */
     public function count(Request $request): array
