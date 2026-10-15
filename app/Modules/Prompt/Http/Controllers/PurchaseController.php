@@ -140,6 +140,11 @@ class PurchaseController extends Controller
             'review',
         ]);
 
+        // A completed purchase delivers the prompt body (BIZ-04)
+        if ($purchase->isCompleted()) {
+            $purchase->prompt->makeVisible('content');
+        }
+
         return Inertia::render('purchases/show', [
             'purchase' => $purchase,
             'can_review' => $isBuyer && !$purchase->hasReview(),

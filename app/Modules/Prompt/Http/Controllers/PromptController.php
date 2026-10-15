@@ -97,6 +97,11 @@ class PromptController extends Controller
         // Only show content to owner or purchasers
         $showContent = $hasPurchased || $prompt->seller_id === $request->user()?->id;
 
+        // Deliver the purchased body only to entitled viewers (BIZ-04)
+        if ($showContent) {
+            $prompt->makeVisible('content');
+        }
+
         return Inertia::render('prompts/show', [
             'prompt' => $prompt,
             'showContent' => $showContent,
