@@ -56,6 +56,7 @@ class CartRepository implements CartRepositoryInterface
     public function update(Cart $cart, array $data): Cart
     {
         $cart->update($data);
+
         return $cart->fresh();
     }
 

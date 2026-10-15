@@ -27,7 +27,7 @@ class CartServiceTest extends TestCase
 
         $this->cartRepository = Mockery::mock(CartRepositoryInterface::class);
         $this->purchaseRepository = Mockery::mock(PurchaseRepositoryInterface::class);
-        
+
         $this->cartService = new CartService(
             $this->cartRepository,
             $this->purchaseRepository,

@@ -38,14 +38,14 @@ class PromptRejectedNotification extends Notification implements ShouldQueue
     {
         $mail = (new MailMessage)
             ->subject('Your Prompt Needs Revision')
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello '.$notifiable->name.',')
             ->line('Your prompt submission requires some changes before it can be approved.')
             ->line('**Prompt Details:**')
-            ->line('Title: ' . $this->promptData['title']);
+            ->line('Title: '.$this->promptData['title']);
 
-        if (!empty($this->promptData['rejection_reason'])) {
+        if (! empty($this->promptData['rejection_reason'])) {
             $mail->line('**Reason:**')
-                 ->line($this->promptData['rejection_reason']);
+                ->line($this->promptData['rejection_reason']);
         }
 
         return $mail

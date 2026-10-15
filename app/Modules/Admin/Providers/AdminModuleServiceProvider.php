@@ -20,6 +20,6 @@ class AdminModuleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load module routes
-        $this->loadRoutesFrom(__DIR__ . '/../routes.php');
+        $this->loadRoutesFrom(__DIR__.'/../routes.php');
     }
 }

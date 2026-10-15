@@ -141,7 +141,7 @@ class AdminTest extends TestCase
     public function admin_can_list_pending_prompts(): void
     {
         $category = Category::factory()->create();
-        
+
         Prompt::factory()->create([
             'seller_id' => $this->seller->id,
             'category_id' => $category->id,
@@ -164,7 +164,7 @@ class AdminTest extends TestCase
     public function admin_can_approve_prompt(): void
     {
         $category = Category::factory()->create();
-        
+
         $prompt = Prompt::factory()->create([
             'seller_id' => $this->seller->id,
             'category_id' => $category->id,
@@ -186,7 +186,7 @@ class AdminTest extends TestCase
     public function admin_can_reject_prompt(): void
     {
         $category = Category::factory()->create();
-        
+
         $prompt = Prompt::factory()->create([
             'seller_id' => $this->seller->id,
             'category_id' => $category->id,
@@ -211,7 +211,7 @@ class AdminTest extends TestCase
     public function admin_can_feature_prompt(): void
     {
         $category = Category::factory()->create();
-        
+
         $prompt = Prompt::factory()->create([
             'seller_id' => $this->seller->id,
             'category_id' => $category->id,

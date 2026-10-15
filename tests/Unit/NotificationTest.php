@@ -2,11 +2,11 @@
 
 namespace Tests\Unit;
 
-use App\Notifications\PurchaseConfirmationNotification;
+use App\Modules\User\Models\User;
 use App\Notifications\PromptApprovedNotification;
 use App\Notifications\PromptRejectedNotification;
+use App\Notifications\PurchaseConfirmationNotification;
 use App\Notifications\SellerSaleNotification;
-use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,7 +18,7 @@ class NotificationTest extends TestCase
     public function purchase_confirmation_notification_has_correct_subject(): void
     {
         $user = User::factory()->create();
-        
+
         $notification = new PurchaseConfirmationNotification([
             'purchase_id' => 1,
             'order_number' => 'ORD-123',
@@ -35,7 +35,7 @@ class NotificationTest extends TestCase
     public function purchase_confirmation_notification_contains_order_details(): void
     {
         $user = User::factory()->create(['name' => 'John Doe']);
-        
+
         $notification = new PurchaseConfirmationNotification([
             'purchase_id' => 1,
             'order_number' => 'ORD-123',
@@ -55,7 +55,7 @@ class NotificationTest extends TestCase
     public function prompt_approved_notification_has_correct_subject(): void
     {
         $user = User::factory()->create();
-        
+
         $notification = new PromptApprovedNotification([
             'id' => 1,
             'title' => 'Test Prompt',
@@ -72,7 +72,7 @@ class NotificationTest extends TestCase
     public function prompt_approved_notification_contains_prompt_details(): void
     {
         $user = User::factory()->create(['name' => 'Jane Doe']);
-        
+
         $notification = new PromptApprovedNotification([
             'id' => 1,
             'title' => 'My Awesome Prompt',
@@ -91,7 +91,7 @@ class NotificationTest extends TestCase
     public function prompt_rejected_notification_has_correct_subject(): void
     {
         $user = User::factory()->create();
-        
+
         $notification = new PromptRejectedNotification([
             'id' => 1,
             'title' => 'Test Prompt',
@@ -107,7 +107,7 @@ class NotificationTest extends TestCase
     public function prompt_rejected_notification_contains_reason(): void
     {
         $user = User::factory()->create(['name' => 'Seller']);
-        
+
         $notification = new PromptRejectedNotification([
             'id' => 1,
             'title' => 'Test Prompt',
@@ -125,7 +125,7 @@ class NotificationTest extends TestCase
     public function seller_sale_notification_has_correct_subject(): void
     {
         $user = User::factory()->create();
-        
+
         $notification = new SellerSaleNotification([
             'purchase_id' => 1,
             'prompt_title' => 'Test Prompt',
@@ -143,7 +143,7 @@ class NotificationTest extends TestCase
     public function seller_sale_notification_contains_earnings(): void
     {
         $user = User::factory()->create(['name' => 'Seller']);
-        
+
         $notification = new SellerSaleNotification([
             'purchase_id' => 1,
             'prompt_title' => 'Premium Prompt',
@@ -165,7 +165,7 @@ class NotificationTest extends TestCase
     public function notifications_can_be_serialized_to_array(): void
     {
         $user = User::factory()->create();
-        
+
         $purchaseNotification = new PurchaseConfirmationNotification([
             'purchase_id' => 1,
             'order_number' => 'ORD-123',
@@ -185,7 +185,7 @@ class NotificationTest extends TestCase
     public function notifications_use_mail_channel(): void
     {
         $user = User::factory()->create();
-        
+
         $notifications = [
             new PurchaseConfirmationNotification([
                 'purchase_id' => 1,

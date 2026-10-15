@@ -2,23 +2,24 @@
 
 namespace App\Modules\Prompt\Services;
 
-use App\Modules\Prompt\Contracts\PurchaseRepositoryInterface;
 use App\Modules\Prompt\Contracts\PromptRepositoryInterface;
-use App\Modules\Prompt\Models\Purchase;
+use App\Modules\Prompt\Contracts\PurchaseRepositoryInterface;
 use App\Modules\Prompt\Models\Prompt;
+use App\Modules\Prompt\Models\Purchase;
 use App\Modules\User\Models\User;
 use App\Notifications\PurchaseConfirmationNotification;
 use App\Notifications\SellerSaleNotification;
+use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class PurchaseService
 {
     protected PurchaseRepositoryInterface $purchaseRepository;
+
     protected PromptRepositoryInterface $promptRepository;
 
     /**
@@ -90,7 +91,7 @@ class PurchaseService
         }
 
         // Validate prompt is available
-        if (!$prompt->isApproved()) {
+        if (! $prompt->isApproved()) {
             throw new Exception('This prompt is not available for purchase.');
         }
 
@@ -140,7 +141,7 @@ class PurchaseService
      */
     protected function resetForRetry(Purchase $purchase, float $price, float $platformFee, float $sellerEarnings): Purchase
     {
-        if (!$purchase->isPending()) {
+        if (! $purchase->isPending()) {
             $this->purchaseRepository->update($purchase, [
                 'price' => $price,
                 'platform_fee' => $platformFee,
@@ -170,7 +171,7 @@ class PurchaseService
 
             // Already processed by a concurrent confirm or webhook — no counters, no duplicate notifications.
             // 'failed' is accepted: a retried payment that succeeded completes the purchase (decline-retry flow).
-            if (!in_array($fresh->status, ['pending', 'failed'], true)) {
+            if (! in_array($fresh->status, ['pending', 'failed'], true)) {
                 DB::rollBack();
 
                 return $fresh;
@@ -225,7 +226,7 @@ class PurchaseService
     /**
      * Fail a purchase.
      */
-    public function failPurchase(Purchase $purchase, string $reason = null): Purchase
+    public function failPurchase(Purchase $purchase, ?string $reason = null): Purchase
     {
         $this->purchaseRepository->update($purchase, [
             'status' => 'failed',
@@ -243,7 +244,7 @@ class PurchaseService
     /**
      * Refund a purchase.
      */
-    public function refundPurchase(Purchase $purchase, string $reason = null): Purchase
+    public function refundPurchase(Purchase $purchase, ?string $reason = null): Purchase
     {
         DB::beginTransaction();
         try {
@@ -340,6 +341,7 @@ class PurchaseService
             if ($prompt->min_price && $customPrice < $prompt->min_price) {
                 throw new Exception("Minimum price is \${$prompt->min_price}.");
             }
+
             return round($customPrice, 2);
         }
 

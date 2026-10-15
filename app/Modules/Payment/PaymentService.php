@@ -4,14 +4,16 @@ namespace App\Modules\Payment;
 
 use App\Modules\Prompt\Models\Purchase;
 use Illuminate\Support\Facades\Log;
-use Stripe\Stripe;
-use Stripe\PaymentIntent;
 use Stripe\Exception\ApiErrorException;
+use Stripe\PaymentIntent;
+use Stripe\Stripe;
 
 class PaymentService
 {
     protected ?string $secretKey;
+
     protected ?string $publishableKey;
+
     protected string $currency;
 
     public function __construct()
@@ -30,7 +32,7 @@ class PaymentService
      */
     public function isConfigured(): bool
     {
-        return !empty($this->secretKey) && !empty($this->publishableKey);
+        return ! empty($this->secretKey) && ! empty($this->publishableKey);
     }
 
     /**
@@ -55,7 +57,7 @@ class PaymentService
      */
     public function createPaymentIntent(Purchase $purchase): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             throw new \Exception('Payment processing is not configured.');
         }
 
@@ -101,7 +103,7 @@ class PaymentService
      */
     public function confirmPaymentIntent(string $intentId): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             throw new \Exception('Payment processing is not configured.');
         }
 
@@ -142,9 +144,11 @@ class PaymentService
             ];
         } catch (\UnexpectedValueException $e) {
             Log::warning('Invalid webhook payload', ['error' => $e->getMessage()]);
+
             return null;
         } catch (\Stripe\Exception\SignatureVerificationException $e) {
             Log::warning('Invalid webhook signature', ['error' => $e->getMessage()]);
+
             return null;
         }
     }
@@ -154,11 +158,11 @@ class PaymentService
      */
     public function processRefund(Purchase $purchase, ?int $amount = null): array
     {
-        if (!$this->isConfigured()) {
+        if (! $this->isConfigured()) {
             throw new \Exception('Payment processing is not configured.');
         }
 
-        if (!$purchase->payment_id) {
+        if (! $purchase->payment_id) {
             throw new \Exception('No payment found for this purchase.');
         }
 

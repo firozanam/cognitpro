@@ -65,9 +65,9 @@ class PromptModuleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load module routes
-        $this->loadRoutesFrom(__DIR__ . '/../routes.php');
+        $this->loadRoutesFrom(__DIR__.'/../routes.php');
 
         // Load migrations
-        $this->loadMigrationsFrom(__DIR__ . '/../../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../../../database/migrations');
     }
 }

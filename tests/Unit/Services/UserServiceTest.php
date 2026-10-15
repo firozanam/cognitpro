@@ -13,6 +13,7 @@ class UserServiceTest extends TestCase
     use RefreshDatabase;
 
     private UserService $userService;
+
     private UserRepositoryInterface $userRepository;
 
     protected function setUp(): void

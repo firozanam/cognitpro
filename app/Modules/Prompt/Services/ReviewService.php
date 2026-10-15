@@ -2,20 +2,21 @@
 
 namespace App\Modules\Prompt\Services;
 
-use App\Modules\Prompt\Contracts\ReviewRepositoryInterface;
 use App\Modules\Prompt\Contracts\PurchaseRepositoryInterface;
-use App\Modules\Prompt\Models\Review;
+use App\Modules\Prompt\Contracts\ReviewRepositoryInterface;
 use App\Modules\Prompt\Models\Purchase;
+use App\Modules\Prompt\Models\Review;
 use App\Modules\User\Models\User;
+use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class ReviewService
 {
     protected ReviewRepositoryInterface $reviewRepository;
+
     protected PurchaseRepositoryInterface $purchaseRepository;
 
     public function __construct(
@@ -61,7 +62,7 @@ class ReviewService
         }
 
         // Verify the purchase is completed
-        if (!$purchase->isCompleted()) {
+        if (! $purchase->isCompleted()) {
             throw new Exception('You can only review completed purchases.');
         }
 
@@ -148,14 +149,14 @@ class ReviewService
     public function deleteReview(Review $review, User $user): bool
     {
         // Verify ownership
-        if ($review->user_id !== $user->id && !$user->isAdmin()) {
+        if ($review->user_id !== $user->id && ! $user->isAdmin()) {
             throw new Exception('You can only delete your own reviews.');
         }
 
         DB::beginTransaction();
         try {
             $prompt = $review->prompt;
-            
+
             $deleted = $this->reviewRepository->delete($review);
 
             // Recalculate prompt rating
@@ -210,6 +211,7 @@ class ReviewService
     public function markAsHelpful(Review $review): Review
     {
         $review->incrementHelpfulCount();
+
         return $review->refresh();
     }
 

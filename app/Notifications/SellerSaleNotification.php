@@ -38,13 +38,13 @@ class SellerSaleNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('You Made a Sale! 🎉')
-            ->greeting('Congratulations ' . $notifiable->name . '!')
+            ->greeting('Congratulations '.$notifiable->name.'!')
             ->line('Great news! Someone just purchased your prompt.')
             ->line('**Sale Details:**')
-            ->line('Prompt: ' . $this->saleData['prompt_title'])
-            ->line('Sale Price: $' . number_format($this->saleData['price'], 2))
-            ->line('Your Earnings: $' . number_format($this->saleData['seller_earnings'], 2))
-            ->line('Order Number: ' . $this->saleData['order_number'])
+            ->line('Prompt: '.$this->saleData['prompt_title'])
+            ->line('Sale Price: $'.number_format($this->saleData['price'], 2))
+            ->line('Your Earnings: $'.number_format($this->saleData['seller_earnings'], 2))
+            ->line('Order Number: '.$this->saleData['order_number'])
             ->action('View Sales', route('seller.sales'))
             ->line('Keep up the great work! Your earnings will be available for payout once they reach the minimum threshold.')
             ->line('Thank you for selling on CognitPro!');

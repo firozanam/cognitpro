@@ -3,10 +3,7 @@
 namespace Tests\Unit;
 
 use App\Modules\Payment\PaymentService;
-use App\Modules\Prompt\Models\Category;
-use App\Modules\Prompt\Models\Prompt;
 use App\Modules\Prompt\Models\Purchase;
-use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
 use Tests\TestCase;
@@ -26,7 +23,7 @@ class PaymentServiceTest extends TestCase
         config(['services.stripe.key' => 'pk_test_123']);
         config(['cashier.currency' => 'usd']);
 
-        $this->paymentService = new PaymentService();
+        $this->paymentService = new PaymentService;
     }
 
     protected function tearDown(): void
@@ -47,7 +44,7 @@ class PaymentServiceTest extends TestCase
         config(['services.stripe.secret' => null]);
         config(['services.stripe.key' => null]);
 
-        $service = new PaymentService();
+        $service = new PaymentService;
 
         $this->assertFalse($service->isConfigured());
     }
@@ -65,7 +62,7 @@ class PaymentServiceTest extends TestCase
     {
         config(['services.stripe.secret' => null]);
 
-        $service = new PaymentService();
+        $service = new PaymentService;
 
         $purchase = Mockery::mock(Purchase::class);
 
@@ -80,7 +77,7 @@ class PaymentServiceTest extends TestCase
     {
         config(['services.stripe.secret' => null]);
 
-        $service = new PaymentService();
+        $service = new PaymentService;
 
         $this->expectException(\Exception::class);
         $this->expectExceptionMessage('Payment processing is not configured.');
@@ -93,7 +90,7 @@ class PaymentServiceTest extends TestCase
     {
         config(['services.stripe.secret' => null]);
 
-        $service = new PaymentService();
+        $service = new PaymentService;
 
         $purchase = Mockery::mock(Purchase::class);
 

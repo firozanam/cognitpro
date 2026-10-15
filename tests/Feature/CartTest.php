@@ -25,9 +25,9 @@ class CartTest extends TestCase
 
         $this->seller = User::factory()->create(['role' => 'seller']);
         $this->buyer = User::factory()->create(['role' => 'buyer']);
-        
+
         $category = Category::factory()->create();
-        
+
         $this->prompt = Prompt::factory()->create([
             'seller_id' => $this->seller->id,
             'category_id' => $category->id,

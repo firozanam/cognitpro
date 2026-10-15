@@ -7,14 +7,16 @@ use App\Modules\Prompt\Contracts\PurchaseRepositoryInterface;
 use App\Modules\Prompt\Models\Cart;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\User\Models\User;
+use Exception;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use Exception;
 
 class CartService
 {
     protected CartRepositoryInterface $cartRepository;
+
     protected PurchaseRepositoryInterface $purchaseRepository;
+
     protected PurchaseService $purchaseService;
 
     public function __construct(
@@ -72,7 +74,7 @@ class CartService
     public function addToCart(User $user, Prompt $prompt): Cart
     {
         // Validate prompt can be added
-        if (!$prompt->isApproved()) {
+        if (! $prompt->isApproved()) {
             throw new Exception('This prompt is not available for purchase.');
         }
 
@@ -111,7 +113,7 @@ class CartService
     {
         $cartItem = $this->cartRepository->findByUserAndPrompt($userId, $promptId);
 
-        if (!$cartItem) {
+        if (! $cartItem) {
             throw new Exception('Item not found in cart.');
         }
 
@@ -125,7 +127,7 @@ class CartService
     {
         $cartItem = $this->cartRepository->find($cartId);
 
-        if (!$cartItem || $cartItem->user_id !== $userId) {
+        if (! $cartItem || $cartItem->user_id !== $userId) {
             throw new Exception('Cart item not found.');
         }
 
@@ -162,15 +164,17 @@ class CartService
             $prompt = $item->prompt;
 
             // Check if prompt still exists and is approved
-            if (!$prompt) {
-                $errors[] = "A prompt in your cart is no longer available.";
+            if (! $prompt) {
+                $errors[] = 'A prompt in your cart is no longer available.';
                 $this->cartRepository->delete($item);
+
                 continue;
             }
 
-            if (!$prompt->isApproved()) {
+            if (! $prompt->isApproved()) {
                 $errors[] = "\"{$prompt->title}\" is no longer available for purchase.";
                 $this->cartRepository->delete($item);
+
                 continue;
             }
 
@@ -178,6 +182,7 @@ class CartService
             if ($this->purchaseRepository->hasPurchased($userId, $prompt->id)) {
                 $errors[] = "You already own \"{$prompt->title}\".";
                 $this->cartRepository->delete($item);
+
                 continue;
             }
 
@@ -219,7 +224,7 @@ class CartService
                     $this->purchaseService->completePurchase(
                         $purchase,
                         'free',
-                        'free_' . $purchase->order_number
+                        'free_'.$purchase->order_number
                     );
                     $completed->push($purchase);
                 } else {

@@ -38,11 +38,11 @@ class PromptApprovedNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Your Prompt Has Been Approved!')
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->greeting('Hello '.$notifiable->name.',')
             ->line('Great news! Your prompt has been approved and is now live on CognitPro.')
             ->line('**Prompt Details:**')
-            ->line('Title: ' . $this->promptData['title'])
-            ->line('Price: $' . number_format($this->promptData['price'], 2))
+            ->line('Title: '.$this->promptData['title'])
+            ->line('Price: $'.number_format($this->promptData['price'], 2))
             ->action('View Prompt', route('prompts.show', $this->promptData['slug']))
             ->line('Your prompt is now visible to buyers worldwide. Good luck with your sales!')
             ->line('Thank you for being part of CognitPro!');

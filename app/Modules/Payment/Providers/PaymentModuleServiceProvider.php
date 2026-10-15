@@ -13,7 +13,7 @@ class PaymentModuleServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(PaymentService::class, function ($app) {
-            return new PaymentService();
+            return new PaymentService;
         });
     }
 
@@ -23,6 +23,6 @@ class PaymentModuleServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Load module routes
-        $this->loadRoutesFrom(__DIR__ . '/../routes.php');
+        $this->loadRoutesFrom(__DIR__.'/../routes.php');
     }
 }

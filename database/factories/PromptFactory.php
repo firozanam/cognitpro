@@ -2,9 +2,7 @@
 
 namespace Database\Factories;
 
-use App\Modules\Prompt\Models\Category;
 use App\Modules\Prompt\Models\Prompt;
-use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 

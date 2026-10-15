@@ -27,9 +27,9 @@ class PaymentTest extends TestCase
 
         $this->seller = User::factory()->create(['role' => 'seller']);
         $this->buyer = User::factory()->create(['role' => 'buyer']);
-        
+
         $category = Category::factory()->create();
-        
+
         $this->prompt = Prompt::factory()->create([
             'seller_id' => $this->seller->id,
             'category_id' => $category->id,
@@ -86,7 +86,7 @@ class PaymentTest extends TestCase
     public function user_cannot_create_payment_intent_for_other_users_purchase(): void
     {
         $otherBuyer = User::factory()->create(['role' => 'buyer']);
-        
+
         $purchase = Purchase::factory()->create([
             'buyer_id' => $otherBuyer->id,
             'prompt_id' => $this->prompt->id,
@@ -178,7 +178,7 @@ class PaymentTest extends TestCase
             ]);
 
         $response->assertStatus(200);
-        
+
         $this->assertDatabaseHas('purchases', [
             'id' => $purchase->id,
             'status' => 'completed',

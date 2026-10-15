@@ -6,15 +6,16 @@ use App\Http\Controllers\Controller;
 use App\Modules\Payment\PaymentService;
 use App\Modules\Prompt\Models\Purchase;
 use App\Modules\Prompt\Services\PurchaseService;
-use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class PaymentController extends Controller
 {
     protected PaymentService $paymentService;
+
     protected PurchaseService $purchaseService;
 
     public function __construct(PaymentService $paymentService, PurchaseService $purchaseService)
@@ -96,7 +97,7 @@ class PaymentController extends Controller
                 throw new \Exception('This purchase was completed by a different payment.');
             }
 
-            if (!$purchase->isPending() && !$purchase->isFailed()) {
+            if (! $purchase->isPending() && ! $purchase->isFailed()) {
                 throw new \Exception('This purchase is not awaiting payment.');
             }
 
@@ -147,13 +148,13 @@ class PaymentController extends Controller
     public function webhook(Request $request): JsonResponse
     {
         $secret = config('services.stripe.webhook_secret');
-        
+
         $payload = $request->getContent();
         $signature = $request->header('Stripe-Signature');
 
         $event = $this->paymentService->verifyWebhookSignature($payload, $signature, $secret);
 
-        if (!$event) {
+        if (! $event) {
             return response()->json(['error' => 'Invalid signature'], 400);
         }
 
@@ -177,7 +178,7 @@ class PaymentController extends Controller
     {
         $purchaseId = $paymentIntent['metadata']['purchase_id'] ?? null;
 
-        if (!$purchaseId) {
+        if (! $purchaseId) {
             return;
         }
 
@@ -185,7 +186,7 @@ class PaymentController extends Controller
 
         // Pending purchases complete; failed ones complete too when the
         // buyer's retry succeeded (decline-retry flow).
-        if (!$purchase || (!$purchase->isPending() && !$purchase->isFailed())) {
+        if (! $purchase || (! $purchase->isPending() && ! $purchase->isFailed())) {
             return;
         }
 
@@ -203,13 +204,13 @@ class PaymentController extends Controller
     {
         $purchaseId = $paymentIntent['metadata']['purchase_id'] ?? null;
 
-        if (!$purchaseId) {
+        if (! $purchaseId) {
             return;
         }
 
         $purchase = Purchase::find($purchaseId);
 
-        if (!$purchase) {
+        if (! $purchase) {
             return;
         }
 

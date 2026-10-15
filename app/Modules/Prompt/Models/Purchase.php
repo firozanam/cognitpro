@@ -149,7 +149,7 @@ class Purchase extends Model
      */
     public static function generateOrderNumber(): string
     {
-        return 'ORD-' . strtoupper(Str::random(10)) . '-' . time();
+        return 'ORD-'.strtoupper(Str::random(10)).'-'.time();
     }
 
     /**

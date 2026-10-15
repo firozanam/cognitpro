@@ -7,8 +7,8 @@ use App\Modules\Prompt\Models\Prompt;
 use App\Modules\Prompt\Models\Purchase;
 use App\Modules\Prompt\Models\Review;
 use App\Modules\Prompt\Services\ReviewService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 

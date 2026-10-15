@@ -6,7 +6,6 @@ use App\Modules\Prompt\Contracts\PurchaseRepositoryInterface;
 use App\Modules\Prompt\Models\Purchase;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 class PurchaseRepository implements PurchaseRepositoryInterface
 {

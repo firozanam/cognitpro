@@ -13,7 +13,9 @@ use Inertia\Response;
 class AdminDashboardController extends Controller
 {
     protected UserService $userService;
+
     protected PromptService $promptService;
+
     protected PurchaseService $purchaseService;
 
     public function __construct(

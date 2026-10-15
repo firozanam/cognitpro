@@ -37,13 +37,13 @@ class PurchaseConfirmationNotification extends Notification implements ShouldQue
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->subject('Purchase Confirmation - Order #' . $this->purchaseData['order_number'])
-            ->greeting('Hello ' . $notifiable->name . ',')
+            ->subject('Purchase Confirmation - Order #'.$this->purchaseData['order_number'])
+            ->greeting('Hello '.$notifiable->name.',')
             ->line('Thank you for your purchase! Your order has been confirmed.')
             ->line('**Order Details:**')
-            ->line('Order Number: ' . $this->purchaseData['order_number'])
-            ->line('Prompt: ' . $this->purchaseData['prompt_title'])
-            ->line('Amount: $' . number_format($this->purchaseData['price'], 2))
+            ->line('Order Number: '.$this->purchaseData['order_number'])
+            ->line('Prompt: '.$this->purchaseData['prompt_title'])
+            ->line('Amount: $'.number_format($this->purchaseData['price'], 2))
             ->action('View Purchase', route('purchases.show', $this->purchaseData['purchase_id']))
             ->line('You now have full access to the prompt content.')
             ->line('Thank you for using CognitPro!');
