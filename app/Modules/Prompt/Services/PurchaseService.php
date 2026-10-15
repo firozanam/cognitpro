@@ -10,6 +10,7 @@ use App\Modules\User\Models\User;
 use App\Notifications\PurchaseConfirmationNotification;
 use App\Notifications\SellerSaleNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -100,20 +101,59 @@ class PurchaseService
         $platformFee = round($price * (self::PLATFORM_FEE_PERCENTAGE / 100), 2);
         $sellerEarnings = round($price - $platformFee, 2);
 
-        // Create pending purchase
-        $purchase = $this->purchaseRepository->create([
-            'buyer_id' => $buyer->id,
-            'prompt_id' => $prompt->id,
-            'price' => $price,
-            'platform_fee' => $platformFee,
-            'seller_earnings' => $sellerEarnings,
-            'status' => 'pending',
-            'payment_method' => null,
-            'payment_id' => null,
-            'purchased_at' => null,
-        ]);
+        // Reuse an existing row for this buyer+prompt (DB-02): the pair is
+        // unique in the database, so retries reuse instead of stacking.
+        $existing = Purchase::query()
+            ->where('buyer_id', $buyer->id)
+            ->where('prompt_id', $prompt->id)
+            ->first();
 
-        return $purchase;
+        if ($existing) {
+            return $this->resetForRetry($existing, $price, $platformFee, $sellerEarnings);
+        }
+
+        try {
+            return $this->purchaseRepository->create([
+                'buyer_id' => $buyer->id,
+                'prompt_id' => $prompt->id,
+                'price' => $price,
+                'platform_fee' => $platformFee,
+                'seller_earnings' => $sellerEarnings,
+                'status' => 'pending',
+                'payment_method' => null,
+                'payment_id' => null,
+                'purchased_at' => null,
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            // A concurrent request won the race — reuse its row.
+            $winner = Purchase::query()
+                ->where('buyer_id', $buyer->id)
+                ->where('prompt_id', $prompt->id)
+                ->firstOrFail();
+
+            return $this->resetForRetry($winner, $price, $platformFee, $sellerEarnings);
+        }
+    }
+
+    /**
+     * Reset a non-completed purchase row for a new attempt (DB-02 reuse path).
+     */
+    protected function resetForRetry(Purchase $purchase, float $price, float $platformFee, float $sellerEarnings): Purchase
+    {
+        if (!$purchase->isPending()) {
+            $this->purchaseRepository->update($purchase, [
+                'price' => $price,
+                'platform_fee' => $platformFee,
+                'seller_earnings' => $sellerEarnings,
+                'status' => 'pending',
+                'payment_method' => null,
+                'payment_id' => null,
+                'purchased_at' => null,
+                'refunded_at' => null,
+            ]);
+        }
+
+        return $purchase->refresh();
     }
 
     /**
