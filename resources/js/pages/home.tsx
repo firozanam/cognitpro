@@ -597,7 +597,7 @@ export default function Home({
                                     </li>
                                     <li>
                                         <Link
-                                            href="/marketplace?sort=popular"
+                                            href="/marketplace?sort_by=popular"
                                             className="transition-colors hover:text-foreground"
                                         >
                                             Popular
@@ -605,7 +605,7 @@ export default function Home({
                                     </li>
                                     <li>
                                         <Link
-                                            href="/marketplace?sort=new"
+                                            href="/marketplace?sort_by=created_at"
                                             className="transition-colors hover:text-foreground"
                                         >
                                             New Arrivals

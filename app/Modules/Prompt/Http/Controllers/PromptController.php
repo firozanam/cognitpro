@@ -24,7 +24,7 @@ class PromptController extends Controller
      */
     public function index(Request $request): Response
     {
-        $filters = $request->only(['category_id', 'ai_model', 'pricing_model', 'min_price', 'max_price', 'sort_by', 'sort_order', 'search']);
+        $filters = $request->only(['category_id', 'ai_model', 'pricing_model', 'min_price', 'max_price', 'sort_by', 'sort_order', 'search', 'featured']);
 
         $prompts = $this->promptService->getPrompts(
             perPage: $request->input('per_page', 15),

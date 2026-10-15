@@ -39,6 +39,14 @@ class PromptRepository implements PromptRepositoryInterface
             $query->where('price', '<=', $filters['max_price']);
         }
 
+        if (! empty($filters['search'])) {
+            $query->search($filters['search']);
+        }
+
+        if (! empty($filters['featured'])) {
+            $query->featured();
+        }
+
         // Apply sorting
         $sortBy = $filters['sort_by'] ?? 'created_at';
         $sortOrder = $filters['sort_order'] ?? 'desc';
