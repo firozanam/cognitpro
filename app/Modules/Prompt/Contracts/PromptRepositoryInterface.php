@@ -14,6 +14,12 @@ interface PromptRepositoryInterface
     public function getAllPaginated(int $perPage = 15, array $filters = []): LengthAwarePaginator;
 
     /**
+     * Get prompts for moderation across all statuses, honoring
+     * status and search filters (BIZ-02).
+     */
+    public function getForModeration(int $perPage = 15, array $filters = []): LengthAwarePaginator;
+
+    /**
      * Get prompt by ID.
      */
     public function findById(int $id): ?Prompt;

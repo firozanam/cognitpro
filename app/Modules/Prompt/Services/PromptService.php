@@ -27,6 +27,14 @@ class PromptService
     }
 
     /**
+     * Get prompts for moderation across all statuses.
+     */
+    public function getPromptsForModeration(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    {
+        return $this->promptRepository->getForModeration($perPage, $filters);
+    }
+
+    /**
      * Get a prompt by ID.
      */
     public function getPromptById(int $id): ?Prompt
@@ -99,7 +107,7 @@ class PromptService
             $prompt = $this->promptRepository->create($data);
 
             // Sync tags
-            if (!empty($tags)) {
+            if (! empty($tags)) {
                 $tagIds = $this->getOrCreateTagIds($tags);
                 $this->promptRepository->syncTags($prompt, $tagIds);
             }
@@ -157,7 +165,7 @@ class PromptService
      */
     public function submitForApproval(Prompt $prompt): Prompt
     {
-        if (!$prompt->isDraft()) {
+        if (! $prompt->isDraft()) {
             throw new \Exception('Only draft prompts can be submitted for approval.');
         }
 
@@ -217,7 +225,7 @@ class PromptService
     public function toggleFeatured(Prompt $prompt): Prompt
     {
         return $this->promptRepository->update($prompt, [
-            'featured' => !$prompt->featured,
+            'featured' => ! $prompt->featured,
         ]);
     }
 
@@ -260,7 +268,7 @@ class PromptService
         }
 
         while ($query->exists()) {
-            $slug = $originalSlug . '-' . $count++;
+            $slug = $originalSlug.'-'.$count++;
             $query = Prompt::where('slug', $slug);
             if ($excludeId) {
                 $query->where('id', '!=', $excludeId);

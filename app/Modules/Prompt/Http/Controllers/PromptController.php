@@ -25,7 +25,7 @@ class PromptController extends Controller
     public function index(Request $request): Response
     {
         $filters = $request->only(['category_id', 'ai_model', 'pricing_model', 'min_price', 'max_price', 'sort_by', 'sort_order', 'search']);
-        
+
         $prompts = $this->promptService->getPrompts(
             perPage: $request->input('per_page', 15),
             filters: $filters
@@ -61,7 +61,7 @@ class PromptController extends Controller
     {
         $data = $request->validated();
         $data['seller_id'] = $request->user()->id;
-        $data['status'] = 'draft';
+        $data['status'] = $data['status'] ?? 'draft';
 
         $prompt = $this->promptService->createPrompt($data);
 
@@ -76,12 +76,12 @@ class PromptController extends Controller
     {
         $prompt = $this->promptService->getPromptBySlug($slug);
 
-        if (!$prompt) {
+        if (! $prompt) {
             abort(404);
         }
 
         // Only show approved prompts to non-owners
-        if (!$prompt->isApproved() && $prompt->seller_id !== $request->user()?->id) {
+        if (! $prompt->isApproved() && $prompt->seller_id !== $request->user()?->id) {
             abort(404);
         }
 
@@ -161,6 +161,7 @@ class PromptController extends Controller
 
         try {
             $this->promptService->submitForApproval($prompt);
+
             return back()->with('success', 'Prompt submitted for approval.');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
@@ -173,7 +174,7 @@ class PromptController extends Controller
     public function search(Request $request): Response
     {
         $term = $request->input('q', '');
-        
+
         $prompts = $this->promptService->searchPrompts(
             term: $term,
             perPage: $request->input('per_page', 15)

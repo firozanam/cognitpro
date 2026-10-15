@@ -3,7 +3,6 @@
 namespace App\Modules\Prompt\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
 class PromptStoreRequest extends FormRequest
 {
@@ -33,6 +32,7 @@ class PromptStoreRequest extends FormRequest
             'min_price' => ['required_if:pricing_model,pay_what_you_want', 'numeric', 'min:0', 'max:9999.99'],
             'tags' => ['nullable', 'array', 'max:10'],
             'tags.*' => ['string', 'max:100'],
+            'status' => ['nullable', 'in:draft,pending'],
         ];
     }
 

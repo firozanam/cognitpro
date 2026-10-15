@@ -4,8 +4,8 @@ namespace App\Modules\Admin\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Modules\Prompt\Services\PromptService;
-use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -24,13 +24,8 @@ class AdminPromptController extends Controller
     public function index(Request $request): Response
     {
         $filters = $request->only(['status', 'search']);
-        
-        // Default to showing all prompts if no status filter
-        if (!isset($filters['status'])) {
-            $filters['status'] = null; // Show all
-        }
-        
-        $prompts = $this->promptService->getPrompts(15, $filters);
+
+        $prompts = $this->promptService->getPromptsForModeration(15, $filters);
 
         return Inertia::render('admin/prompts/index', [
             'prompts' => $prompts,
@@ -45,7 +40,7 @@ class AdminPromptController extends Controller
     {
         $prompt = $this->promptService->getPromptById($id);
 
-        if (!$prompt) {
+        if (! $prompt) {
             return back()->with('error', 'Prompt not found.');
         }
 
@@ -65,7 +60,7 @@ class AdminPromptController extends Controller
 
         $prompt = $this->promptService->getPromptById($id);
 
-        if (!$prompt) {
+        if (! $prompt) {
             return back()->with('error', 'Prompt not found.');
         }
 
@@ -81,13 +76,14 @@ class AdminPromptController extends Controller
     {
         $prompt = $this->promptService->getPromptById($id);
 
-        if (!$prompt) {
+        if (! $prompt) {
             return back()->with('error', 'Prompt not found.');
         }
 
         $this->promptService->toggleFeatured($prompt);
 
         $status = $prompt->featured ? 'unfeatured' : 'featured';
+
         return back()->with('success', "Prompt {$status} successfully.");
     }
 }

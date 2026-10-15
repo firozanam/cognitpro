@@ -6,7 +6,6 @@ use App\Modules\Prompt\Contracts\PromptRepositoryInterface;
 use App\Modules\Prompt\Models\Prompt;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
 
 class PromptRepository implements PromptRepositoryInterface
 {
@@ -20,23 +19,23 @@ class PromptRepository implements PromptRepositoryInterface
             ->approved();
 
         // Apply filters
-        if (!empty($filters['category_id'])) {
+        if (! empty($filters['category_id'])) {
             $query->byCategory($filters['category_id']);
         }
 
-        if (!empty($filters['ai_model'])) {
+        if (! empty($filters['ai_model'])) {
             $query->byModel($filters['ai_model']);
         }
 
-        if (!empty($filters['pricing_model'])) {
+        if (! empty($filters['pricing_model'])) {
             $query->where('pricing_model', $filters['pricing_model']);
         }
 
-        if (!empty($filters['min_price'])) {
+        if (! empty($filters['min_price'])) {
             $query->where('price', '>=', $filters['min_price']);
         }
 
-        if (!empty($filters['max_price'])) {
+        if (! empty($filters['max_price'])) {
             $query->where('price', '<=', $filters['max_price']);
         }
 
@@ -53,6 +52,25 @@ class PromptRepository implements PromptRepositoryInterface
         };
 
         return $query->paginate($perPage);
+    }
+
+    /**
+     * Get prompts for moderation: every status, with status/search filters.
+     */
+    public function getForModeration(int $perPage = 15, array $filters = []): LengthAwarePaginator
+    {
+        $query = Prompt::query()
+            ->with(['category', 'tags', 'seller.profile']);
+
+        if (! empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (! empty($filters['search'])) {
+            $query->search($filters['search']);
+        }
+
+        return $query->orderBy('created_at', 'desc')->paginate($perPage);
     }
 
     /**
@@ -148,6 +166,7 @@ class PromptRepository implements PromptRepositoryInterface
     public function update(Prompt $prompt, array $data): Prompt
     {
         $prompt->update($data);
+
         return $prompt->fresh();
     }
 

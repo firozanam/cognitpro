@@ -1,4 +1,4 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import AppLayout from '@/layouts/app-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -206,10 +206,13 @@ export default function AdminDashboard({ stats, recentUsers, recentPurchases, pe
                                                 </p>
                                             </div>
                                             <div className="flex gap-2">
-                                                <Button size="sm" variant="outline" asChild>
-                                                    <Link href={`/admin/prompts/${prompt.id}/approve`}>
-                                                        <CheckCircle className="h-4 w-4" />
-                                                    </Link>
+                                                <Button
+                                                    size="sm"
+                                                    variant="outline"
+                                                    title="Approve"
+                                                    onClick={() => router.post(`/admin/prompts/${prompt.id}/approve`)}
+                                                >
+                                                    <CheckCircle className="h-4 w-4" />
                                                 </Button>
                                             </div>
                                         </div>

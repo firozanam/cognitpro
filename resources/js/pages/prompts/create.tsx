@@ -153,7 +153,7 @@ export default function PromptCreate({ categories, aiModels }: Props) {
                     </Button>
                 </div>
 
-                <form onSubmit={(e) => handleSubmit(e, true)} className="space-y-8">
+                <form onSubmit={(e) => handleSubmit(e)} className="space-y-8">
                     {/* Basic Information */}
                     <Card>
                         <CardHeader>
