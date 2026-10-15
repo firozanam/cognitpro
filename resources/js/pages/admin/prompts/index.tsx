@@ -99,7 +99,7 @@ export default function AdminPromptsIndex({ prompts, filters }: Props) {
         switch (status) {
             case 'approved':
                 return (
-                    <Badge variant="default" className="bg-green-500">
+                    <Badge variant="default" className="bg-success/10">
                         Approved
                     </Badge>
                 );
@@ -216,7 +216,7 @@ export default function AdminPromptsIndex({ prompts, filters }: Props) {
                             <CardTitle className="text-sm font-medium">
                                 Pending Review
                             </CardTitle>
-                            <Clock className="h-4 w-4 text-orange-500" />
+                            <Clock className="h-4 w-4 text-chart-4" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
@@ -233,7 +233,7 @@ export default function AdminPromptsIndex({ prompts, filters }: Props) {
                             <CardTitle className="text-sm font-medium">
                                 Approved
                             </CardTitle>
-                            <Check className="h-4 w-4 text-green-500" />
+                            <Check className="h-4 w-4 text-success" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
@@ -405,7 +405,7 @@ export default function AdminPromptsIndex({ prompts, filters }: Props) {
                                                                             prompt.id,
                                                                         )
                                                                     }
-                                                                    className="text-green-600"
+                                                                    className="text-success"
                                                                 >
                                                                     <Check className="mr-2 h-4 w-4" />
                                                                     Approve
@@ -419,7 +419,7 @@ export default function AdminPromptsIndex({ prompts, filters }: Props) {
                                                                             true,
                                                                         );
                                                                     }}
-                                                                    className="text-red-600"
+                                                                    className="text-destructive"
                                                                 >
                                                                     <X className="mr-2 h-4 w-4" />
                                                                     Reject

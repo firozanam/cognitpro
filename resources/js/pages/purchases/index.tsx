@@ -67,10 +67,10 @@ export default function PurchasesIndex({ purchases }: Props) {
                 color: string;
             }
         > = {
-            pending: { variant: 'outline', color: 'text-yellow-600' },
-            completed: { variant: 'default', color: 'text-green-600' },
-            refunded: { variant: 'destructive', color: 'text-red-600' },
-            disputed: { variant: 'secondary', color: 'text-orange-600' },
+            pending: { variant: 'outline', color: 'text-warning' },
+            completed: { variant: 'default', color: 'text-success' },
+            refunded: { variant: 'destructive', color: 'text-destructive' },
+            disputed: { variant: 'secondary', color: 'text-chart-4' },
         };
 
         const config = statusConfig[status] || statusConfig.pending;
@@ -166,7 +166,7 @@ export default function PurchasesIndex({ purchases }: Props) {
                                                         </div>
                                                         {purchase.review && (
                                                             <div className="mt-2 flex items-center gap-1">
-                                                                <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                                                <Star className="h-4 w-4 fill-warning text-warning" />
                                                                 <span className="text-sm font-medium">
                                                                     Your rating:{' '}
                                                                     {
@@ -184,7 +184,7 @@ export default function PurchasesIndex({ purchases }: Props) {
 
                                             <div className="flex flex-col items-end gap-2">
                                                 <div className="text-right">
-                                                    <p className="text-2xl font-bold text-green-600">
+                                                    <p className="text-2xl font-bold text-success">
                                                         {formatCurrency(
                                                             purchase.price,
                                                         )}

@@ -81,7 +81,7 @@ export default function AdminDashboard({
             value: stats.total_users.toLocaleString(),
             icon: Users,
             description: `${stats.total_sellers} sellers`,
-            color: 'text-blue-600',
+            color: 'text-info',
             href: '/admin/users',
         },
         {
@@ -89,7 +89,7 @@ export default function AdminDashboard({
             value: stats.total_prompts.toLocaleString(),
             icon: FileText,
             description: `${stats.pending_prompts} pending review`,
-            color: 'text-purple-600',
+            color: 'text-chart-5',
             href: '/admin/prompts',
         },
         {
@@ -97,7 +97,7 @@ export default function AdminDashboard({
             value: stats.total_sales.toLocaleString(),
             icon: ShoppingCart,
             description: 'Completed orders',
-            color: 'text-green-600',
+            color: 'text-success',
             href: null,
         },
         {
@@ -105,7 +105,7 @@ export default function AdminDashboard({
             value: formatCurrency(stats.total_revenue),
             icon: DollarSign,
             description: 'Platform earnings',
-            color: 'text-yellow-600',
+            color: 'text-warning',
             href: null,
         },
     ];
@@ -192,7 +192,7 @@ export default function AdminDashboard({
                             <div className="flex items-center justify-between">
                                 <div>
                                     <CardTitle className="flex items-center gap-2">
-                                        <AlertCircle className="h-5 w-5 text-yellow-500" />
+                                        <AlertCircle className="h-5 w-5 text-warning" />
                                         Pending Prompts
                                     </CardTitle>
                                     <CardDescription>
@@ -258,7 +258,7 @@ export default function AdminDashboard({
                             <div className="flex items-center justify-between">
                                 <div>
                                     <CardTitle className="flex items-center gap-2">
-                                        <Users className="h-5 w-5 text-blue-500" />
+                                        <Users className="h-5 w-5 text-info" />
                                         Recent Users
                                     </CardTitle>
                                     <CardDescription>
@@ -321,7 +321,7 @@ export default function AdminDashboard({
                     <Card className="lg:col-span-2">
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5 text-green-500" />
+                                <TrendingUp className="h-5 w-5 text-success" />
                                 Recent Sales
                             </CardTitle>
                             <CardDescription>
@@ -360,7 +360,7 @@ export default function AdminDashboard({
                                                     <td className="px-4 py-3">
                                                         {purchase.buyer.name}
                                                     </td>
-                                                    <td className="px-4 py-3 font-medium text-green-600">
+                                                    <td className="px-4 py-3 font-medium text-success">
                                                         {formatCurrency(
                                                             purchase.price,
                                                         )}

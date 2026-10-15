@@ -152,7 +152,7 @@ export default function Checkout({ prompt }: Props) {
                                             </Badge>
                                             {prompt.rating_count > 0 && (
                                                 <div className="flex items-center gap-1 text-sm">
-                                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                                    <Star className="h-4 w-4 fill-warning text-warning" />
                                                     <span>
                                                         {prompt.rating.toFixed(
                                                             1,
@@ -201,7 +201,7 @@ export default function Checkout({ prompt }: Props) {
                                         Pricing
                                     </h4>
                                     {prompt.pricing_model === 'free' ? (
-                                        <div className="flex items-center gap-2 text-green-600">
+                                        <div className="flex items-center gap-2 text-success">
                                             <CheckCircle className="h-5 w-5" />
                                             <span className="text-lg font-semibold">
                                                 Free
@@ -285,7 +285,7 @@ export default function Checkout({ prompt }: Props) {
                                 <Separator />
                                 <div className="flex justify-between text-lg font-semibold">
                                     <span>Total</span>
-                                    <span className="text-green-600">
+                                    <span className="text-success">
                                         {formatCurrency(price)}
                                     </span>
                                 </div>
@@ -341,19 +341,19 @@ export default function Checkout({ prompt }: Props) {
                             <CardContent>
                                 <ul className="space-y-2">
                                     <li className="flex items-center gap-2 text-sm">
-                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                        <CheckCircle className="h-4 w-4 text-success" />
                                         Full access to the prompt content
                                     </li>
                                     <li className="flex items-center gap-2 text-sm">
-                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                        <CheckCircle className="h-4 w-4 text-success" />
                                         Lifetime access
                                     </li>
                                     <li className="flex items-center gap-2 text-sm">
-                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                        <CheckCircle className="h-4 w-4 text-success" />
                                         Any future updates
                                     </li>
                                     <li className="flex items-center gap-2 text-sm">
-                                        <CheckCircle className="h-4 w-4 text-green-500" />
+                                        <CheckCircle className="h-4 w-4 text-success" />
                                         Ability to leave a review
                                     </li>
                                 </ul>

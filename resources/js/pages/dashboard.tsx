@@ -157,10 +157,10 @@ export default function Dashboard({
                                 <CardTitle className="text-sm font-medium">
                                     Total Purchases
                                 </CardTitle>
-                                <Package className="h-4 w-4 text-blue-600" />
+                                <Package className="h-4 w-4 text-info" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-blue-600">
+                                <div className="text-2xl font-bold text-info">
                                     {stats.total_purchases}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
@@ -173,10 +173,10 @@ export default function Dashboard({
                                 <CardTitle className="text-sm font-medium">
                                     Total Spent
                                 </CardTitle>
-                                <DollarSign className="h-4 w-4 text-green-600" />
+                                <DollarSign className="h-4 w-4 text-success" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-green-600">
+                                <div className="text-2xl font-bold text-success">
                                     {formatCurrency(stats.total_spent)}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
@@ -190,10 +190,10 @@ export default function Dashboard({
                                     <CardTitle className="text-sm font-medium">
                                         Cart Items
                                     </CardTitle>
-                                    <ShoppingCart className="h-4 w-4 text-purple-600" />
+                                    <ShoppingCart className="h-4 w-4 text-chart-5" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-purple-600">
+                                    <div className="text-2xl font-bold text-chart-5">
                                         {stats.cart_items}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
@@ -208,10 +208,10 @@ export default function Dashboard({
                                     <CardTitle className="text-sm font-medium">
                                         Explore
                                     </CardTitle>
-                                    <Sparkles className="h-4 w-4 text-yellow-600" />
+                                    <Sparkles className="h-4 w-4 text-warning" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-yellow-600">
+                                    <div className="text-2xl font-bold text-warning">
                                         Browse
                                     </div>
                                     <p className="text-xs text-muted-foreground">
@@ -232,10 +232,10 @@ export default function Dashboard({
                                     <CardTitle className="text-sm font-medium">
                                         Total Sales
                                     </CardTitle>
-                                    <ShoppingBag className="h-4 w-4 text-blue-600" />
+                                    <ShoppingBag className="h-4 w-4 text-info" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-blue-600">
+                                    <div className="text-2xl font-bold text-info">
                                         {stats.total_sales}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
@@ -250,10 +250,10 @@ export default function Dashboard({
                                     <CardTitle className="text-sm font-medium">
                                         Total Earnings
                                     </CardTitle>
-                                    <DollarSign className="h-4 w-4 text-green-600" />
+                                    <DollarSign className="h-4 w-4 text-success" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-green-600">
+                                    <div className="text-2xl font-bold text-success">
                                         {formatCurrency(stats.total_earnings)}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
@@ -268,10 +268,10 @@ export default function Dashboard({
                                     <CardTitle className="text-sm font-medium">
                                         My Prompts
                                     </CardTitle>
-                                    <FileText className="h-4 w-4 text-purple-600" />
+                                    <FileText className="h-4 w-4 text-chart-5" />
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="text-2xl font-bold text-purple-600">
+                                    <div className="text-2xl font-bold text-chart-5">
                                         {stats.total_prompts}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
@@ -285,10 +285,10 @@ export default function Dashboard({
                                 <CardTitle className="text-sm font-medium">
                                     Total Views
                                 </CardTitle>
-                                <Eye className="h-4 w-4 text-orange-600" />
+                                <Eye className="h-4 w-4 text-chart-4" />
                             </CardHeader>
                             <CardContent>
-                                <div className="text-2xl font-bold text-orange-600">
+                                <div className="text-2xl font-bold text-chart-4">
                                     {stats.total_views.toLocaleString()}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
@@ -308,7 +308,7 @@ export default function Dashboard({
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <CardTitle className="flex items-center gap-2">
-                                            <Package className="h-5 w-5 text-blue-500" />
+                                            <Package className="h-5 w-5 text-info" />
                                             Recent Purchases
                                         </CardTitle>
                                         <CardDescription>
@@ -351,7 +351,7 @@ export default function Dashboard({
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-semibold text-green-600">
+                                                    <span className="font-semibold text-success">
                                                         {formatCurrency(
                                                             purchase.price,
                                                         )}
@@ -390,7 +390,7 @@ export default function Dashboard({
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <CardTitle className="flex items-center gap-2">
-                                            <TrendingUp className="h-5 w-5 text-green-500" />
+                                            <TrendingUp className="h-5 w-5 text-success" />
                                             Recent Sales
                                         </CardTitle>
                                         <CardDescription>
@@ -428,7 +428,7 @@ export default function Dashboard({
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
-                                                    <span className="font-semibold text-green-600">
+                                                    <span className="font-semibold text-success">
                                                         +
                                                         {formatCurrency(
                                                             sale.seller_earnings,
@@ -465,7 +465,7 @@ export default function Dashboard({
                                 <div className="flex items-center justify-between">
                                     <div>
                                         <CardTitle className="flex items-center gap-2">
-                                            <FileText className="h-5 w-5 text-purple-500" />
+                                            <FileText className="h-5 w-5 text-chart-5" />
                                             My Prompts
                                         </CardTitle>
                                         <CardDescription>
@@ -551,7 +551,7 @@ export default function Dashboard({
                                                             {prompt.rating_count >
                                                             0 ? (
                                                                 <div className="flex items-center gap-1">
-                                                                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                                                    <Star className="h-4 w-4 fill-warning text-warning" />
                                                                     {prompt.rating.toFixed(
                                                                         1,
                                                                     )}
@@ -588,7 +588,7 @@ export default function Dashboard({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Sparkles className="h-5 w-5 text-yellow-500" />
+                                    <Sparkles className="h-5 w-5 text-warning" />
                                     Quick Actions
                                 </CardTitle>
                                 <CardDescription>

@@ -88,13 +88,13 @@ export default function AdminUsersIndex({ users, filters }: Props) {
         switch (role) {
             case 'admin':
                 return (
-                    <Badge variant="default" className="bg-purple-500">
+                    <Badge variant="default" className="bg-chart-5 text-white">
                         Admin
                     </Badge>
                 );
             case 'seller':
                 return (
-                    <Badge variant="default" className="bg-blue-500">
+                    <Badge variant="default" className="bg-info text-white">
                         Seller
                     </Badge>
                 );
@@ -184,7 +184,7 @@ export default function AdminUsersIndex({ users, filters }: Props) {
                             <CardTitle className="text-sm font-medium">
                                 Admins
                             </CardTitle>
-                            <Shield className="h-4 w-4 text-purple-500" />
+                            <Shield className="h-4 w-4 text-chart-5" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
@@ -200,7 +200,7 @@ export default function AdminUsersIndex({ users, filters }: Props) {
                             <CardTitle className="text-sm font-medium">
                                 Sellers
                             </CardTitle>
-                            <UserCog className="h-4 w-4 text-blue-500" />
+                            <UserCog className="h-4 w-4 text-info" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
@@ -217,7 +217,7 @@ export default function AdminUsersIndex({ users, filters }: Props) {
                             <CardTitle className="text-sm font-medium">
                                 Buyers
                             </CardTitle>
-                            <Users className="h-4 w-4 text-green-500" />
+                            <Users className="h-4 w-4 text-success" />
                         </CardHeader>
                         <CardContent>
                             <div className="text-2xl font-bold">
@@ -326,14 +326,14 @@ export default function AdminUsersIndex({ users, filters }: Props) {
                                             </TableCell>
                                             <TableCell>
                                                 {user.email_verified_at ? (
-                                                    <div className="flex items-center gap-1 text-green-600">
+                                                    <div className="flex items-center gap-1 text-success">
                                                         <CheckCircle className="h-4 w-4" />
                                                         <span className="text-sm">
                                                             Verified
                                                         </span>
                                                     </div>
                                                 ) : (
-                                                    <div className="flex items-center gap-1 text-yellow-600">
+                                                    <div className="flex items-center gap-1 text-warning">
                                                         <XCircle className="h-4 w-4" />
                                                         <span className="text-sm">
                                                             Unverified
@@ -349,7 +349,7 @@ export default function AdminUsersIndex({ users, filters }: Props) {
                                                 ) : (
                                                     <Badge
                                                         variant="outline"
-                                                        className="border-green-600 text-green-600"
+                                                        className="border-success text-success"
                                                     >
                                                         Active
                                                     </Badge>
@@ -447,7 +447,7 @@ export default function AdminUsersIndex({ users, filters }: Props) {
                                                                         true,
                                                                     )
                                                                 }
-                                                                className="text-green-600"
+                                                                className="text-success"
                                                             >
                                                                 <CheckCircle className="mr-2 h-4 w-4" />
                                                                 Unban User
@@ -460,7 +460,7 @@ export default function AdminUsersIndex({ users, filters }: Props) {
                                                                         false,
                                                                     )
                                                                 }
-                                                                className="text-red-600"
+                                                                className="text-destructive"
                                                             >
                                                                 <Ban className="mr-2 h-4 w-4" />
                                                                 Ban User

@@ -141,7 +141,7 @@ function PaymentForm({
             <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                     <span className="font-medium">Total</span>
-                    <span className="text-2xl font-bold text-green-600">
+                    <span className="text-2xl font-bold text-success">
                         {formatCurrency(purchase.price)}
                     </span>
                 </div>

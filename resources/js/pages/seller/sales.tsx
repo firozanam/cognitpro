@@ -86,7 +86,7 @@ export default function SellerSales({ sales, stats }: Props) {
                 color: string;
             }
         > = {
-            pending: { variant: 'outline', color: 'text-yellow-600' },
+            pending: { variant: 'outline', color: 'text-warning' },
             completed: { variant: 'default', color: '' },
             refunded: { variant: 'destructive', color: '' },
             disputed: { variant: 'secondary', color: '' },
@@ -116,21 +116,21 @@ export default function SellerSales({ sales, stats }: Props) {
             value: stats.total_sales.toString(),
             icon: ShoppingBag,
             description: 'All-time sales',
-            color: 'text-blue-600',
+            color: 'text-info',
         },
         {
             title: 'Total Earnings',
             value: formatCurrency(stats.total_earnings),
             icon: DollarSign,
             description: 'After platform fees',
-            color: 'text-green-600',
+            color: 'text-success',
         },
         {
             title: 'Average Order',
             value: formatCurrency(stats.average_order_value),
             icon: TrendingUp,
             description: 'Per sale average',
-            color: 'text-purple-600',
+            color: 'text-chart-5',
         },
     ];
 
@@ -288,7 +288,7 @@ export default function SellerSales({ sales, stats }: Props) {
                                                         </span>
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        <span className="font-medium text-green-600">
+                                                        <span className="font-medium text-success">
                                                             {formatCurrency(
                                                                 sale.seller_earnings,
                                                             )}

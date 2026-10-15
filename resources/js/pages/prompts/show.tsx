@@ -89,7 +89,7 @@ export default function PromptShow({
                         key={star}
                         className={`${starSize} ${
                             star <= Math.round(rating)
-                                ? 'fill-yellow-400 text-yellow-400'
+                                ? 'fill-warning text-warning'
                                 : 'fill-none text-muted-foreground'
                         }`}
                     />
@@ -357,7 +357,7 @@ export default function PromptShow({
 
                                 {hasPurchased && (
                                     <div className="space-y-3">
-                                        <div className="flex items-center justify-center gap-2 text-green-600">
+                                        <div className="flex items-center justify-center gap-2 text-success">
                                             <Check className="h-5 w-5" />
                                             <span className="font-medium">
                                                 Purchased
@@ -405,7 +405,7 @@ export default function PromptShow({
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="text-center">
                                         <div className="mb-1 flex items-center justify-center gap-1">
-                                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                            <Star className="h-4 w-4 fill-warning text-warning" />
                                             <span className="text-xl font-bold">
                                                 {(typeof prompt.rating ===
                                                 'number'

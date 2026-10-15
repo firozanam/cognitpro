@@ -52,11 +52,11 @@ export default function Home({
     const { auth = { user: null } } = usePage<SharedData>().props;
 
     const aiModels = [
-        { name: 'ChatGPT', icon: Bot, color: 'text-green-500' },
-        { name: 'Midjourney', icon: Palette, color: 'text-purple-500' },
-        { name: 'DALL-E', icon: Sparkles, color: 'text-blue-500' },
-        { name: 'Claude', icon: MessageSquare, color: 'text-orange-500' },
-        { name: 'Stable Diffusion', icon: Palette, color: 'text-pink-500' },
+        { name: 'ChatGPT', icon: Bot, color: 'text-success' },
+        { name: 'Midjourney', icon: Palette, color: 'text-chart-5' },
+        { name: 'DALL-E', icon: Sparkles, color: 'text-info' },
+        { name: 'Claude', icon: MessageSquare, color: 'text-chart-4' },
+        { name: 'Stable Diffusion', icon: Palette, color: 'text-chart-5' },
         { name: 'GitHub Copilot', icon: Code, color: 'text-gray-500' },
     ];
 
@@ -174,7 +174,7 @@ export default function Home({
                 <section className="relative overflow-hidden">
                     {/* Background gradient */}
                     <div className="absolute inset-0 -z-10">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-purple-500/5" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-chart-5/5" />
                         <div className="absolute top-0 left-1/2 h-[800px] w-[800px] -translate-x-1/2 rounded-full bg-primary/10 opacity-20 blur-3xl" />
                     </div>
 
@@ -190,7 +190,7 @@ export default function Home({
 
                             <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                                 Discover Premium{' '}
-                                <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent">
+                                <span className="bg-gradient-to-r from-primary to-chart-5 bg-clip-text text-transparent">
                                     AI Prompts
                                 </span>
                             </h1>
@@ -491,7 +491,7 @@ export default function Home({
                                                 (_, j) => (
                                                     <Star
                                                         key={j}
-                                                        className="h-4 w-4 fill-yellow-400 text-yellow-400"
+                                                        className="h-4 w-4 fill-warning text-warning"
                                                     />
                                                 ),
                                             )}
@@ -522,7 +522,7 @@ export default function Home({
                 {/* CTA Section */}
                 <section className="py-20 md:py-28">
                     <div className="container mx-auto px-4">
-                        <div className="mx-auto max-w-4xl rounded-2xl bg-gradient-to-r from-primary to-purple-600 p-8 text-center text-white md:p-16">
+                        <div className="mx-auto max-w-4xl rounded-2xl bg-gradient-to-r from-primary to-chart-5 p-8 text-center text-white md:p-16">
                             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
                                 Ready to Start?
                             </h2>

@@ -88,7 +88,7 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                 color: string;
             }
         > = {
-            pending: { variant: 'outline', color: 'text-yellow-600' },
+            pending: { variant: 'outline', color: 'text-warning' },
             completed: { variant: 'default', color: '' },
             refunded: { variant: 'destructive', color: '' },
             disputed: { variant: 'secondary', color: '' },
@@ -252,7 +252,7 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                                                     className={`h-5 w-5 ${
                                                         star <=
                                                         purchase.review!.rating
-                                                            ? 'fill-yellow-400 text-yellow-400'
+                                                            ? 'fill-warning text-warning'
                                                             : 'text-muted-foreground'
                                                     }`}
                                                 />
@@ -322,7 +322,7 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                                 <Separator />
                                 <div className="flex justify-between font-semibold">
                                     <span>Total</span>
-                                    <span className="text-green-600">
+                                    <span className="text-success">
                                         {formatCurrency(purchase.price)}
                                     </span>
                                 </div>

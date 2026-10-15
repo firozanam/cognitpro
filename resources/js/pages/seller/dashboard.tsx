@@ -103,21 +103,21 @@ export default function SellerDashboard({ prompts, stats }: Props) {
             value: formatCurrency(stats.total_earnings),
             icon: DollarSign,
             description: 'Lifetime earnings',
-            color: 'text-green-600',
+            color: 'text-success',
         },
         {
             title: 'Total Sales',
             value: stats.total_sales.toString(),
             icon: ShoppingBag,
             description: 'Prompts sold',
-            color: 'text-blue-600',
+            color: 'text-info',
         },
         {
             title: 'Total Views',
             value: stats.total_views.toLocaleString(),
             icon: Eye,
             description: 'All-time views',
-            color: 'text-purple-600',
+            color: 'text-chart-5',
         },
         {
             title: 'Average Rating',
@@ -128,7 +128,7 @@ export default function SellerDashboard({ prompts, stats }: Props) {
                     : 'N/A',
             icon: Star,
             description: 'Based on reviews',
-            color: 'text-yellow-600',
+            color: 'text-warning',
         },
     ];
 
@@ -181,17 +181,17 @@ export default function SellerDashboard({ prompts, stats }: Props) {
 
                 {/* Pending Payout Alert */}
                 {stats.pending_payout > 0 && (
-                    <Card className="mb-8 border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950">
+                    <Card className="mb-8 border-success bg-success/10 dark:border-success dark:bg-success/10">
                         <CardContent className="flex items-center justify-between py-4">
                             <div className="flex items-center gap-4">
-                                <div className="rounded-full bg-green-100 p-2 dark:bg-green-900">
-                                    <TrendingUp className="h-5 w-5 text-green-600" />
+                                <div className="rounded-full bg-success/10 p-2 dark:bg-success/10">
+                                    <TrendingUp className="h-5 w-5 text-success" />
                                 </div>
                                 <div>
-                                    <p className="font-medium text-green-800 dark:text-green-200">
+                                    <p className="font-medium text-success dark:text-success">
                                         Pending Payout Available
                                     </p>
-                                    <p className="text-sm text-green-600 dark:text-green-400">
+                                    <p className="text-sm text-success dark:text-success">
                                         {formatCurrency(stats.pending_payout)}{' '}
                                         ready for withdrawal
                                     </p>
@@ -199,7 +199,7 @@ export default function SellerDashboard({ prompts, stats }: Props) {
                             </div>
                             <Button
                                 variant="outline"
-                                className="border-green-600 text-green-600 hover:bg-green-100"
+                                className="border-success text-success hover:bg-success/10"
                             >
                                 Request Payout
                             </Button>
@@ -289,7 +289,7 @@ export default function SellerDashboard({ prompts, stats }: Props) {
                                                 <td className="px-4 py-3">
                                                     {prompt.rating_count > 0 ? (
                                                         <div className="flex items-center gap-1">
-                                                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                                            <Star className="h-4 w-4 fill-warning text-warning" />
                                                             {(typeof prompt.rating ===
                                                             'number'
                                                                 ? prompt.rating

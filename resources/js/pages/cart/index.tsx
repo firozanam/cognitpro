@@ -144,7 +144,7 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                                                             }
                                                         </p>
                                                     </div>
-                                                    <p className="text-xl font-bold text-green-600">
+                                                    <p className="text-xl font-bold text-success">
                                                         {formatCurrency(
                                                             Number(
                                                                 item.prompt
@@ -167,7 +167,7 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                                                     {item.prompt.rating_count >
                                                         0 && (
                                                         <div className="flex items-center gap-1 text-sm">
-                                                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                                                            <Star className="h-4 w-4 fill-warning text-warning" />
                                                             <span>
                                                                 {item.prompt.rating.toFixed(
                                                                     1,
@@ -244,7 +244,7 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                                     <Separator />
                                     <div className="flex justify-between text-lg font-semibold">
                                         <span>Total</span>
-                                        <span className="text-green-600">
+                                        <span className="text-success">
                                             {formatCurrency(grandTotal)}
                                         </span>
                                     </div>
@@ -290,19 +290,19 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                                 <CardContent>
                                     <ul className="space-y-2">
                                         <li className="flex items-center gap-2 text-sm">
-                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                            <CheckCircle className="h-4 w-4 text-success" />
                                             Full access to prompt content
                                         </li>
                                         <li className="flex items-center gap-2 text-sm">
-                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                            <CheckCircle className="h-4 w-4 text-success" />
                                             Lifetime access
                                         </li>
                                         <li className="flex items-center gap-2 text-sm">
-                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                            <CheckCircle className="h-4 w-4 text-success" />
                                             Future updates included
                                         </li>
                                         <li className="flex items-center gap-2 text-sm">
-                                            <CheckCircle className="h-4 w-4 text-green-500" />
+                                            <CheckCircle className="h-4 w-4 text-success" />
                                             Ability to leave reviews
                                         </li>
                                     </ul>
