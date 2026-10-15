@@ -11,14 +11,20 @@ class UsersTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
+     *
+     * Demo and test accounts exist only for local development and
+     * the test suite; passwords can be overridden through the env
+     * (SEC-08).
      */
     public function run(): void
     {
+        $password = env('SEED_ADMIN_PASSWORD', 'password');
+
         // Create admin user
         $admin = User::factory()->admin()->create([
             'name' => 'Admin User',
             'email' => 'admin@cognitpro.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make($password),
             'email_verified_at' => now(),
         ]);
 
@@ -73,7 +79,7 @@ class UsersTableSeeder extends Seeder
         $testSeller = User::factory()->seller()->create([
             'name' => 'Test Seller',
             'email' => 'seller@test.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make(env('SEED_SELLER_PASSWORD', 'password')),
         ]);
         UserProfile::factory()->verifiedSeller()->create([
             'user_id' => $testSeller->id,
@@ -82,7 +88,7 @@ class UsersTableSeeder extends Seeder
         $testBuyer = User::factory()->buyer()->create([
             'name' => 'Test Buyer',
             'email' => 'buyer@test.com',
-            'password' => Hash::make('password'),
+            'password' => Hash::make(env('SEED_BUYER_PASSWORD', 'password')),
         ]);
         UserProfile::factory()->create([
             'user_id' => $testBuyer->id,

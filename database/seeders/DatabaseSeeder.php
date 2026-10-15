@@ -10,41 +10,41 @@ class DatabaseSeeder extends Seeder
     /**
      * Seed the application's database.
      *
-     * The order of seeders is important due to foreign key relationships:
-     * 1. UsersTableSeeder - Creates users (admins, sellers, buyers)
-     * 2. CategorySeeder - Creates categories (no dependencies)
-     * 3. TagSeeder - Creates tags (no dependencies)
-     * 4. MarketplaceSeeder - Creates prompts, purchases, reviews (depends on users, categories, tags)
+     * The demo dataset ships known credentials, so it never runs in
+     * production (SEC-08). For a clean slate use
+     * `php artisan migrate:fresh --seed` — plain `db:seed` appends.
+     *
+     * Order matters due to foreign keys:
+     * 1. UsersTableSeeder - users (admins, sellers, buyers)
+     * 2. CategorySeeder / TagSeeder - no dependencies
+     * 3. MarketplaceSeeder - prompts, purchases, reviews
      */
     public function run(): void
     {
+        if (app()->environment('production')) {
+            $this->command->warn('Demo seeding refused: known credentials must not exist in production.');
+
+            return;
+        }
+
         $this->command->info('Starting database seeding...');
         $this->command->newLine();
-
-        // Check if we should run a fresh seed or just add to existing data
-        $fresh = $this->command->confirm('Do you want to fresh migrate before seeding?', false);
-
-        if ($fresh) {
-            $this->command->call('migrate:fresh');
-            $this->command->newLine();
-        }
 
         // 1. Seed users first (required for foreign keys)
         $this->command->info('=== Seeding Users ===');
         $this->call(UsersTableSeeder::class);
         $this->command->newLine();
 
-        // 2. Seed categories (no dependencies)
+        // 2. Seed categories and tags (no dependencies)
         $this->command->info('=== Seeding Categories ===');
         $this->call(CategorySeeder::class);
         $this->command->newLine();
 
-        // 3. Seed tags (no dependencies)
         $this->command->info('=== Seeding Tags ===');
         $this->call(TagSeeder::class);
         $this->command->newLine();
 
-        // 4. Seed marketplace data (prompts, purchases, reviews)
+        // 3. Seed marketplace data (prompts, purchases, reviews)
         $this->command->info('=== Seeding Marketplace ===');
         $this->call(MarketplaceSeeder::class);
         $this->command->newLine();
@@ -63,9 +63,9 @@ class DatabaseSeeder extends Seeder
         );
 
         $this->command->newLine();
-        $this->command->info('Test Accounts:');
-        $this->command->info('  Admin: admin@cognitpro.com / password');
-        $this->command->info('  Seller: seller@test.com / password');
-        $this->command->info('  Buyer: buyer@test.com / password');
+        $this->command->info('Test Accounts (local only — override via SEED_*_PASSWORD):');
+        $this->command->info('  Admin: admin@cognitpro.com / '.env('SEED_ADMIN_PASSWORD', 'password'));
+        $this->command->info('  Seller: seller@test.com / '.env('SEED_SELLER_PASSWORD', 'password'));
+        $this->command->info('  Buyer: buyer@test.com / '.env('SEED_BUYER_PASSWORD', 'password'));
     }
 }
