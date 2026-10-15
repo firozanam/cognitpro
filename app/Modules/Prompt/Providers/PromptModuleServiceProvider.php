@@ -2,6 +2,7 @@
 
 namespace App\Modules\Prompt\Providers;
 
+use App\Modules\Prompt\Console\Commands\ExpireStalePurchases;
 use App\Modules\Prompt\Contracts\CartRepositoryInterface;
 use App\Modules\Prompt\Contracts\PromptRepositoryInterface;
 use App\Modules\Prompt\Contracts\PurchaseRepositoryInterface;
@@ -66,6 +67,9 @@ class PromptModuleServiceProvider extends ServiceProvider
     {
         // Load module routes
         $this->loadRoutesFrom(__DIR__.'/../routes.php');
+
+        // Register module console commands
+        $this->commands(ExpireStalePurchases::class);
 
         // Load migrations
         $this->loadMigrationsFrom(__DIR__.'/../../../database/migrations');
