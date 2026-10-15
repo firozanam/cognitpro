@@ -169,7 +169,8 @@ class PurchaseService
             $fresh = Purchase::query()->whereKey($purchase->getKey())->lockForUpdate()->firstOrFail();
 
             // Already processed by a concurrent confirm or webhook — no counters, no duplicate notifications.
-            if ($fresh->status !== 'pending') {
+            // 'failed' is accepted: a retried payment that succeeded completes the purchase (decline-retry flow).
+            if (!in_array($fresh->status, ['pending', 'failed'], true)) {
                 DB::rollBack();
 
                 return $fresh;

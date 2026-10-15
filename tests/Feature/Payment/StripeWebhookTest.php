@@ -157,4 +157,31 @@ class StripeWebhookTest extends TestCase
 
         $this->assertDatabaseHas('purchases', ['id' => $purchase->id, 'status' => 'pending']);
     }
+
+    public function test_succeeded_webhook_completes_a_failed_purchase_retry(): void
+    {
+        Notification::fake();
+
+        $purchase = $this->pendingPurchase();
+        $this->app->make(PurchaseService::class)->failPurchase($purchase, 'card_declined');
+
+        [$payload, $signature] = $this->signedEvent([
+            'id' => 'evt_test_4',
+            'type' => 'payment_intent.succeeded',
+            'data' => ['object' => [
+                'id' => 'pi_test_4',
+                'amount' => 1000,
+                'metadata' => ['purchase_id' => (string) $purchase->id],
+            ]],
+        ]);
+
+        $this->postWebhook($payload, $signature)->assertOk();
+
+        // The retried payment captured funds — the purchase must complete.
+        $this->assertDatabaseHas('purchases', [
+            'id' => $purchase->id,
+            'status' => 'completed',
+            'payment_id' => 'pi_test_4',
+        ]);
+    }
 }

@@ -8,6 +8,7 @@ use App\Modules\Prompt\Models\Cart;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\User\Models\User;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Exception;
 
 class CartService
@@ -73,6 +74,12 @@ class CartService
         // Validate prompt can be added
         if (!$prompt->isApproved()) {
             throw new Exception('This prompt is not available for purchase.');
+        }
+
+        // Pay-what-you-want needs a custom price, which the cart cannot
+        // collect — it must be purchased from the prompt page.
+        if ($prompt->isPayWhatYouWant()) {
+            throw new Exception('Pay-what-you-want prompts are purchased directly from the prompt page.');
         }
 
         // Check if user is the seller
@@ -202,22 +209,26 @@ class CartService
         $completed = collect();
         $pending = collect();
 
-        foreach ($validation['items'] as $item) {
-            $purchase = $this->purchaseService->initiatePurchase($user, $item->prompt);
+        // Atomic: every item is purchased or none is — a mid-loop failure
+        // must not leave half a cart checked out.
+        DB::transaction(function () use ($user, $validation, &$completed, &$pending) {
+            foreach ($validation['items'] as $item) {
+                $purchase = $this->purchaseService->initiatePurchase($user, $item->prompt);
 
-            if ($item->prompt->isFree()) {
-                $this->purchaseService->completePurchase(
-                    $purchase,
-                    'free',
-                    'free_' . $purchase->order_number
-                );
-                $completed->push($purchase);
-            } else {
-                $pending->push($purchase);
+                if ($item->prompt->isFree()) {
+                    $this->purchaseService->completePurchase(
+                        $purchase,
+                        'free',
+                        'free_' . $purchase->order_number
+                    );
+                    $completed->push($purchase);
+                } else {
+                    $pending->push($purchase);
+                }
             }
-        }
 
-        $this->clearCart($user->id);
+            $this->clearCart($user->id);
+        });
 
         return [$completed, $pending];
     }

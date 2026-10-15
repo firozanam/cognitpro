@@ -78,16 +78,26 @@ class PaymentController extends Controller
 
             // Bind the intent to this purchase (RTE-01): a succeeded intent for
             // another purchase or another amount must never complete this one.
-            if (!$purchase->isPending()) {
-                throw new \Exception('This purchase is not awaiting payment.');
-            }
-
             if ((string) ($intent['metadata']['purchase_id'] ?? '') !== (string) $purchase->id) {
                 throw new \Exception('Payment does not belong to this purchase.');
             }
 
             if ((int) $intent['amount'] !== $this->paymentService->toCents((float) $purchase->price)) {
                 throw new \Exception('Payment amount does not match this purchase.');
+            }
+
+            // The webhook may have completed this purchase first (it fires the
+            // moment the intent succeeds) — report success for the same intent.
+            if ($purchase->isCompleted()) {
+                if ($purchase->payment_id === $request->payment_intent_id) {
+                    return $this->confirmSuccessResponse($request, $purchase);
+                }
+
+                throw new \Exception('This purchase was completed by a different payment.');
+            }
+
+            if (!$purchase->isPending() && !$purchase->isFailed()) {
+                throw new \Exception('This purchase is not awaiting payment.');
             }
 
             if ($intent['status'] === 'succeeded') {
@@ -98,15 +108,7 @@ class PaymentController extends Controller
                     $request->payment_intent_id
                 );
 
-                if ($request->wantsJson()) {
-                    return response()->json([
-                        'success' => true,
-                        'redirect' => route('purchases.show', $purchase->id),
-                    ]);
-                }
-
-                return redirect()->route('purchases.show', $purchase->id)
-                    ->with('success', 'Payment successful! You now have access to this prompt.');
+                return $this->confirmSuccessResponse($request, $purchase);
             }
 
             throw new \Exception('Payment not completed. Please try again.');
@@ -120,6 +122,23 @@ class PaymentController extends Controller
 
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    /**
+     * Success payload for a confirmed payment (shared by the fresh-confirm
+     * and webhook-won-the-race paths).
+     */
+    protected function confirmSuccessResponse(Request $request, Purchase $purchase): JsonResponse|RedirectResponse
+    {
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'redirect' => route('purchases.show', $purchase->id),
+            ]);
+        }
+
+        return redirect()->route('purchases.show', $purchase->id)
+            ->with('success', 'Payment successful! You now have access to this prompt.');
     }
 
     /**
@@ -164,7 +183,9 @@ class PaymentController extends Controller
 
         $purchase = Purchase::find($purchaseId);
 
-        if (!$purchase || $purchase->isCompleted()) {
+        // Pending purchases complete; failed ones complete too when the
+        // buyer's retry succeeded (decline-retry flow).
+        if (!$purchase || (!$purchase->isPending() && !$purchase->isFailed())) {
             return;
         }
 

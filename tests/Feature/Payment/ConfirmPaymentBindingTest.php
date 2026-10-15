@@ -118,7 +118,7 @@ class ConfirmPaymentBindingTest extends TestCase
         $this->assertDatabaseHas('purchases', ['id' => $purchase->id, 'status' => 'pending']);
     }
 
-    public function test_confirm_rejects_purchase_that_is_not_pending(): void
+    public function test_confirm_rejects_completed_purchase_presenting_a_different_intent(): void
     {
         $buyer = User::factory()->create();
         $seller = User::factory()->create();
@@ -128,10 +128,34 @@ class ConfirmPaymentBindingTest extends TestCase
         $purchase = $purchaseService->initiatePurchase($buyer, $prompt);
         $purchaseService->completePurchase($purchase, 'stripe', 'pi_paid');
 
+        // The intent matches the purchase metadata but is not the one that
+        // completed it — must be rejected, not double-counted.
         $this->mockIntent('succeeded', ['purchase_id' => (string) $purchase->id], 1000);
 
         $this->actingAs($buyer)
-            ->postJson(route('payment.stripe.confirm', $purchase), ['payment_intent_id' => 'pi_paid'])
+            ->postJson(route('payment.stripe.confirm', $purchase), ['payment_intent_id' => 'pi_other'])
             ->assertStatus(400);
+    }
+
+    public function test_confirm_returns_success_when_webhook_already_completed_the_purchase(): void
+    {
+        Notification::fake();
+
+        $buyer = User::factory()->create();
+        $seller = User::factory()->create();
+        $prompt = $this->paidPrompt($seller);
+
+        $purchaseService = $this->app->make(\App\Modules\Prompt\Services\PurchaseService::class);
+        $purchase = $purchaseService->initiatePurchase($buyer, $prompt);
+        $purchaseService->completePurchase($purchase, 'stripe', 'pi_raced');
+
+        // Webhook won the race and completed with this exact intent — confirm
+        // must report success, not "purchase is not awaiting payment".
+        $this->mockIntent('succeeded', ['purchase_id' => (string) $purchase->id], 1000);
+
+        $this->actingAs($buyer)
+            ->postJson(route('payment.stripe.confirm', $purchase), ['payment_intent_id' => 'pi_raced'])
+            ->assertOk()
+            ->assertJsonPath('success', true);
     }
 }
