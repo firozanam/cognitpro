@@ -34,6 +34,7 @@ class CartTest extends TestCase
             'seller_id' => $this->seller->id,
             'category_id' => $category->id,
             'status' => 'approved',
+            'pricing_model' => 'fixed',
             'price' => 9.99,
         ]);
     }
