@@ -18,13 +18,11 @@ class UsersTableSeeder extends Seeder
      */
     public function run(): void
     {
-        $password = env('SEED_ADMIN_PASSWORD', 'password');
-
         // Create admin user
         $admin = User::factory()->admin()->create([
             'name' => 'Admin User',
             'email' => 'admin@cognitpro.com',
-            'password' => Hash::make($password),
+            'password' => Hash::make(env('SEED_ADMIN_PASSWORD', 'password')),
             'email_verified_at' => now(),
         ]);
 

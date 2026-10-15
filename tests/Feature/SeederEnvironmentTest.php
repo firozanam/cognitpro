@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
@@ -41,7 +42,7 @@ class SeederEnvironmentTest extends TestCase
             $admin = User::where('email', 'admin@cognitpro.com')->first();
             $this->assertNotNull($admin);
             $this->assertTrue(
-                \Illuminate\Support\Facades\Hash::check('env-driven-secret', $admin->password),
+                Hash::check('env-driven-secret', $admin->password),
                 'admin password must come from SEED_ADMIN_PASSWORD when set'
             );
         } finally {

@@ -70,8 +70,5 @@ class PromptModuleServiceProvider extends ServiceProvider
 
         // Register module console commands
         $this->commands(ExpireStalePurchases::class);
-
-        // Load migrations
-        $this->loadMigrationsFrom(__DIR__.'/../../../database/migrations');
     }
 }
