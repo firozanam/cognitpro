@@ -30,9 +30,7 @@ interface Prompt {
 interface Buyer {
     id: number;
     name: string;
-    profile?: {
-        avatar: string | null;
-    };
+    avatar?: string | null;
 }
 
 interface Sale {
@@ -272,9 +270,8 @@ export default function SellerSales({ sales, stats }: Props) {
                                                                     src={
                                                                         sale
                                                                             .buyer
-                                                                            .profile
-                                                                            ?.avatar ||
-                                                                        ''
+                                                                            .avatar ??
+                                                                        undefined
                                                                     }
                                                                     alt={
                                                                         sale

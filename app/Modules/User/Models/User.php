@@ -54,6 +54,15 @@ class User extends Authenticatable implements MustVerifyEmail
     ];
 
     /**
+     * Accessors appended to every serialization.
+     *
+     * @var list<string>
+     */
+    protected $appends = [
+        'avatar',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -145,5 +154,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getProfile(): UserProfile
     {
         return $this->profile ?? $this->profile()->create();
+    }
+
+    /**
+     * Avatar URL from the profile, or null so initials render (GF-3-02).
+     */
+    protected function getAvatarAttribute(): ?string
+    {
+        $avatar = $this->profile?->avatar;
+
+        return $avatar ? asset('storage/'.$avatar) : null;
     }
 }

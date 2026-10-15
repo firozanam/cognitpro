@@ -54,7 +54,7 @@ class PurchaseRepository implements PurchaseRepositoryInterface
      */
     public function getBySellerId(int $sellerId, int $perPage = 15): LengthAwarePaginator
     {
-        return Purchase::with(['buyer', 'prompt'])
+        return Purchase::with(['buyer.profile', 'prompt'])
             ->whereHas('prompt', function ($query) use ($sellerId) {
                 $query->where('seller_id', $sellerId);
             })
