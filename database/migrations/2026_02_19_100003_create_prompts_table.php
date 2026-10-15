@@ -4,6 +4,7 @@ namespace Database\Migrations;
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -41,7 +42,10 @@ return new class extends Migration
             $table->index('featured');
             $table->index('ai_model');
             $table->index('pricing_model');
-            $table->fullText(['title', 'description'], 'prompt_search_index');
+            // SQLite (tests, local default) has no fulltext index support — keep it MySQL/production only (TST-01).
+            if (DB::connection()->getDriverName() !== 'sqlite') {
+                $table->fullText(['title', 'description'], 'prompt_search_index');
+            }
         });
 
         // Create prompt_tag pivot table

@@ -158,10 +158,18 @@ class Prompt extends Model
     }
 
     /**
-     * Scope for full-text search.
+     * Scope for full-text search. MySQL uses the fulltext index; SQLite
+     * (test suite) has no whereFullText support, so fall back to LIKE (TST-01).
      */
     public function scopeSearch($query, string $term)
     {
+        if ($query->getQuery()->getConnection()->getDriverName() === 'sqlite') {
+            return $query->where(function ($q) use ($term) {
+                $q->where('title', 'like', "%{$term}%")
+                    ->orWhere('description', 'like', "%{$term}%");
+            });
+        }
+
         return $query->whereFullText(['title', 'description'], $term);
     }
 
