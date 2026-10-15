@@ -42,7 +42,7 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
     Route::get('purchases', [PurchaseController::class, 'index'])->name('purchases.index');
     Route::get('purchases/{purchase}', [PurchaseController::class, 'show'])->name('purchases.show');
 
-    // Seller sales routes
+    // Seller routes
     Route::get('seller/sales', [PurchaseController::class, 'sales'])->name('seller.sales');
     Route::get('seller/dashboard', [PurchaseController::class, 'sellerDashboard'])->name('seller.dashboard');
 

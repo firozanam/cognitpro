@@ -46,13 +46,12 @@ class PurchaseController extends Controller
     {
         // Check if already purchased
         if ($this->purchaseService->hasPurchased($request->user()->id, $prompt->id)) {
-            return redirect()->route('purchases.show', [
-                'purchase' => $this->purchaseService->getPurchaseByOrderNumber(
-                    Purchase::where('buyer_id', $request->user()->id)
-                        ->where('prompt_id', $prompt->id)
-                        ->first()->order_number
-                )->id,
-            ])->with('info', 'You already own this prompt.');
+            $purchase = Purchase::where('buyer_id', $request->user()->id)
+                ->where('prompt_id', $prompt->id)
+                ->first();
+
+            return redirect()->route('purchases.show', ['purchase' => $purchase->id])
+                ->with('info', 'You already own this prompt.');
         }
 
         $prompt->load(['seller', 'seller.profile', 'category', 'tags']);
