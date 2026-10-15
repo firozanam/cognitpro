@@ -6,6 +6,7 @@ use App\Modules\Payment\PaymentService;
 use App\Modules\Prompt\Models\Purchase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Mockery;
+use PHPUnit\Framework\Attributes\Test;
 use Tests\TestCase;
 
 class PaymentServiceTest extends TestCase
@@ -32,13 +33,13 @@ class PaymentServiceTest extends TestCase
         parent::tearDown();
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_if_stripe_is_configured(): void
     {
         $this->assertTrue($this->paymentService->isConfigured());
     }
 
-    /** @test */
+    #[Test]
     public function it_detects_if_stripe_is_not_configured(): void
     {
         config(['services.stripe.secret' => null]);
@@ -49,7 +50,7 @@ class PaymentServiceTest extends TestCase
         $this->assertFalse($service->isConfigured());
     }
 
-    /** @test */
+    #[Test]
     public function it_returns_publishable_key(): void
     {
         $key = $this->paymentService->getPublishableKey();
@@ -57,7 +58,7 @@ class PaymentServiceTest extends TestCase
         $this->assertEquals('pk_test_123', $key);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_when_creating_intent_without_configuration(): void
     {
         config(['services.stripe.secret' => null]);
@@ -72,7 +73,7 @@ class PaymentServiceTest extends TestCase
         $service->createPaymentIntent($purchase);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_when_confirming_intent_without_configuration(): void
     {
         config(['services.stripe.secret' => null]);
@@ -85,7 +86,7 @@ class PaymentServiceTest extends TestCase
         $service->confirmPaymentIntent('pi_test_123');
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_when_processing_refund_without_configuration(): void
     {
         config(['services.stripe.secret' => null]);
@@ -100,10 +101,10 @@ class PaymentServiceTest extends TestCase
         $service->processRefund($purchase);
     }
 
-    /** @test */
+    #[Test]
     public function it_throws_exception_when_refunding_purchase_without_payment(): void
     {
-        $purchase = Mockery::mock(Purchase::class);
+        $purchase = new Purchase;
         $purchase->payment_id = null;
         $purchase->price = 10.00;
 
@@ -113,7 +114,7 @@ class PaymentServiceTest extends TestCase
         $this->paymentService->processRefund($purchase);
     }
 
-    /** @test */
+    #[Test]
     public function it_verifies_invalid_webhook_payload(): void
     {
         $result = $this->paymentService->verifyWebhookSignature(
@@ -125,7 +126,7 @@ class PaymentServiceTest extends TestCase
         $this->assertNull($result);
     }
 
-    /** @test */
+    #[Test]
     public function it_converts_price_to_cents(): void
     {
         // INT-06: (int) cast truncated — 19.99 became 1998 cents.
