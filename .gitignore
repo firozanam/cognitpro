@@ -116,3 +116,9 @@ git-commit.txt
 # Uncomment if you want to ignore lock files
 # composer.lock
 # package-lock.json
+
+# docs/
+/docs
+
+# Superpowers plan workspaces
+/.superpowers/
