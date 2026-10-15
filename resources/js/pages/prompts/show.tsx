@@ -19,8 +19,6 @@ import {
     Clock,
     Copy,
     Eye,
-    Heart,
-    Share2,
     ShoppingCart,
     Star,
     Tag as TagIcon,
@@ -215,14 +213,6 @@ export default function PromptShow({
                                             Featured
                                         </Badge>
                                     )}
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="icon">
-                                        <Heart className="h-5 w-5" />
-                                    </Button>
-                                    <Button variant="ghost" size="icon">
-                                        <Share2 className="h-5 w-5" />
-                                    </Button>
                                 </div>
                             </div>
 

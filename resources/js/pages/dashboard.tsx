@@ -1,23 +1,28 @@
-import { Head, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
-    ShoppingBag,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem, type SharedData } from '@/types';
+import { Head, Link, usePage } from '@inertiajs/react';
+import {
+    ArrowRight,
     DollarSign,
     Eye,
-    Star,
-    Plus,
     FileText,
-    TrendingUp,
-    ShoppingCart,
     Package,
-    ArrowRight,
+    Plus,
+    ShoppingBag,
+    ShoppingCart,
     Sparkles,
+    Star,
+    TrendingUp,
 } from 'lucide-react';
-import { type BreadcrumbItem, type SharedData } from '@/types';
-import { usePage } from '@inertiajs/react';
 
 interface Prompt {
     id: number;
@@ -34,7 +39,7 @@ interface Purchase {
     order_number: string;
     price: number;
     status: string;
-    purchased_at: string;
+    purchased_at: string | null;
     prompt: Prompt;
 }
 
@@ -44,7 +49,7 @@ interface Sale {
     price: number;
     seller_earnings: number;
     status: string;
-    purchased_at: string;
+    purchased_at: string | null;
     prompt: {
         id: number;
         title: string;
@@ -85,7 +90,12 @@ interface Props {
     prompts: UserPrompt[];
 }
 
-export default function Dashboard({ stats, recentPurchases, recentSales, prompts }: Props) {
+export default function Dashboard({
+    stats,
+    recentPurchases,
+    recentSales,
+    prompts,
+}: Props) {
     const { auth } = usePage<SharedData>().props;
     const user = auth?.user;
 
@@ -103,7 +113,11 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
         }).format(amount);
     };
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) {
+            return 'Pending';
+        }
+
         return new Date(dateString).toLocaleDateString('en-US', {
             month: 'short',
             day: 'numeric',
@@ -111,7 +125,10 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
     };
 
     const getStatusBadge = (status: string) => {
-        const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+        const variants: Record<
+            string,
+            'default' | 'secondary' | 'destructive' | 'outline'
+        > = {
             completed: 'default',
             pending: 'outline',
             draft: 'secondary',
@@ -126,7 +143,10 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
     };
 
     const isSeller = user?.role === 'seller' || user?.role === 'admin';
-    const isBuyer = user?.role === 'buyer' || user?.role === 'seller' || user?.role === 'admin';
+    const isBuyer =
+        user?.role === 'buyer' ||
+        user?.role === 'seller' ||
+        user?.role === 'admin';
 
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
@@ -146,7 +166,7 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                     {isSeller && (
                         <Button asChild>
                             <Link href="/prompts/create">
-                                <Plus className="h-4 w-4 mr-2" />
+                                <Plus className="mr-2 h-4 w-4" />
                                 Create Prompt
                             </Link>
                         </Button>
@@ -158,7 +178,9 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                     <div className="grid gap-4 md:grid-cols-4">
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Purchases</CardTitle>
+                                <CardTitle className="text-sm font-medium">
+                                    Total Purchases
+                                </CardTitle>
                                 <Package className="h-4 w-4 text-blue-600" />
                             </CardHeader>
                             <CardContent>
@@ -172,7 +194,9 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                         </Card>
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Spent</CardTitle>
+                                <CardTitle className="text-sm font-medium">
+                                    Total Spent
+                                </CardTitle>
                                 <DollarSign className="h-4 w-4 text-green-600" />
                             </CardHeader>
                             <CardContent>
@@ -185,9 +209,11 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                             </CardContent>
                         </Card>
                         <Link href="/cart" className="block">
-                            <Card className="cursor-pointer hover:shadow-md transition-shadow h-full">
+                            <Card className="h-full cursor-pointer transition-shadow hover:shadow-md">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Cart Items</CardTitle>
+                                    <CardTitle className="text-sm font-medium">
+                                        Cart Items
+                                    </CardTitle>
                                     <ShoppingCart className="h-4 w-4 text-purple-600" />
                                 </CardHeader>
                                 <CardContent>
@@ -201,9 +227,11 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                             </Card>
                         </Link>
                         <Link href="/marketplace" className="block">
-                            <Card className="cursor-pointer hover:shadow-md transition-shadow h-full">
+                            <Card className="h-full cursor-pointer transition-shadow hover:shadow-md">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Explore</CardTitle>
+                                    <CardTitle className="text-sm font-medium">
+                                        Explore
+                                    </CardTitle>
                                     <Sparkles className="h-4 w-4 text-yellow-600" />
                                 </CardHeader>
                                 <CardContent>
@@ -223,9 +251,11 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                 {isSeller && (
                     <div className="grid gap-4 md:grid-cols-4">
                         <Link href="/seller/sales" className="block">
-                            <Card className="cursor-pointer hover:shadow-md transition-shadow h-full">
+                            <Card className="h-full cursor-pointer transition-shadow hover:shadow-md">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Total Sales</CardTitle>
+                                    <CardTitle className="text-sm font-medium">
+                                        Total Sales
+                                    </CardTitle>
                                     <ShoppingBag className="h-4 w-4 text-blue-600" />
                                 </CardHeader>
                                 <CardContent>
@@ -239,9 +269,11 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                             </Card>
                         </Link>
                         <Link href="/seller/sales" className="block">
-                            <Card className="cursor-pointer hover:shadow-md transition-shadow h-full">
+                            <Card className="h-full cursor-pointer transition-shadow hover:shadow-md">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
+                                    <CardTitle className="text-sm font-medium">
+                                        Total Earnings
+                                    </CardTitle>
                                     <DollarSign className="h-4 w-4 text-green-600" />
                                 </CardHeader>
                                 <CardContent>
@@ -255,9 +287,11 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                             </Card>
                         </Link>
                         <Link href="/seller/dashboard" className="block">
-                            <Card className="cursor-pointer hover:shadow-md transition-shadow h-full">
+                            <Card className="h-full cursor-pointer transition-shadow hover:shadow-md">
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">My Prompts</CardTitle>
+                                    <CardTitle className="text-sm font-medium">
+                                        My Prompts
+                                    </CardTitle>
                                     <FileText className="h-4 w-4 text-purple-600" />
                                 </CardHeader>
                                 <CardContent>
@@ -272,7 +306,9 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                         </Link>
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                <CardTitle className="text-sm font-medium">Total Views</CardTitle>
+                                <CardTitle className="text-sm font-medium">
+                                    Total Views
+                                </CardTitle>
                                 <Eye className="h-4 w-4 text-orange-600" />
                             </CardHeader>
                             <CardContent>
@@ -299,12 +335,14 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                             <Package className="h-5 w-5 text-blue-500" />
                                             Recent Purchases
                                         </CardTitle>
-                                        <CardDescription>Your latest bought prompts</CardDescription>
+                                        <CardDescription>
+                                            Your latest bought prompts
+                                        </CardDescription>
                                     </div>
                                     <Button variant="outline" size="sm" asChild>
                                         <Link href="/purchases">
                                             View All
-                                            <ArrowRight className="h-4 w-4 ml-1" />
+                                            <ArrowRight className="ml-1 h-4 w-4" />
                                         </Link>
                                     </Button>
                                 </div>
@@ -313,33 +351,55 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                 {recentPurchases.length > 0 ? (
                                     <div className="space-y-4">
                                         {recentPurchases.map((purchase) => (
-                                            <div key={purchase.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                                <div className="flex-1 min-w-0">
+                                            <div
+                                                key={purchase.id}
+                                                className="flex items-center justify-between rounded-lg bg-muted p-3"
+                                            >
+                                                <div className="min-w-0 flex-1">
                                                     <Link
                                                         href={`/prompts/${purchase.prompt.slug}`}
-                                                        className="font-medium hover:text-primary line-clamp-1"
+                                                        className="line-clamp-1 font-medium hover:text-primary"
                                                     >
                                                         {purchase.prompt.title}
                                                     </Link>
                                                     <p className="text-sm text-muted-foreground">
-                                                        by {purchase.prompt.seller.name} • {formatDate(purchase.purchased_at)}
+                                                        by{' '}
+                                                        {
+                                                            purchase.prompt
+                                                                .seller.name
+                                                        }{' '}
+                                                        •{' '}
+                                                        {formatDate(
+                                                            purchase.purchased_at,
+                                                        )}
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-semibold text-green-600">
-                                                        {formatCurrency(purchase.price)}
+                                                        {formatCurrency(
+                                                            purchase.price,
+                                                        )}
                                                     </span>
-                                                    {getStatusBadge(purchase.status)}
+                                                    {getStatusBadge(
+                                                        purchase.status,
+                                                    )}
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-8 text-muted-foreground">
-                                        <Package className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                    <div className="py-8 text-center text-muted-foreground">
+                                        <Package className="mx-auto mb-2 h-12 w-12 opacity-50" />
                                         <p>No purchases yet</p>
-                                        <Button variant="outline" size="sm" className="mt-4" asChild>
-                                            <Link href="/marketplace">Browse Marketplace</Link>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="mt-4"
+                                            asChild
+                                        >
+                                            <Link href="/marketplace">
+                                                Browse Marketplace
+                                            </Link>
                                         </Button>
                                     </div>
                                 )}
@@ -357,12 +417,14 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                             <TrendingUp className="h-5 w-5 text-green-500" />
                                             Recent Sales
                                         </CardTitle>
-                                        <CardDescription>Your latest prompt sales</CardDescription>
+                                        <CardDescription>
+                                            Your latest prompt sales
+                                        </CardDescription>
                                     </div>
                                     <Button variant="outline" size="sm" asChild>
                                         <Link href="/seller/sales">
                                             View All
-                                            <ArrowRight className="h-4 w-4 ml-1" />
+                                            <ArrowRight className="ml-1 h-4 w-4" />
                                         </Link>
                                     </Button>
                                 </div>
@@ -371,32 +433,48 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                 {recentSales.length > 0 ? (
                                     <div className="space-y-4">
                                         {recentSales.map((sale) => (
-                                            <div key={sale.id} className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                                                <div className="flex-1 min-w-0">
+                                            <div
+                                                key={sale.id}
+                                                className="flex items-center justify-between rounded-lg bg-muted p-3"
+                                            >
+                                                <div className="min-w-0 flex-1">
                                                     <Link
                                                         href={`/prompts/${sale.prompt.slug}`}
-                                                        className="font-medium hover:text-primary line-clamp-1"
+                                                        className="line-clamp-1 font-medium hover:text-primary"
                                                     >
                                                         {sale.prompt.title}
                                                     </Link>
                                                     <p className="text-sm text-muted-foreground">
-                                                        by {sale.buyer.name} • {formatDate(sale.purchased_at)}
+                                                        by {sale.buyer.name} •{' '}
+                                                        {formatDate(
+                                                            sale.purchased_at,
+                                                        )}
                                                     </p>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-semibold text-green-600">
-                                                        +{formatCurrency(sale.seller_earnings)}
+                                                        +
+                                                        {formatCurrency(
+                                                            sale.seller_earnings,
+                                                        )}
                                                     </span>
                                                 </div>
                                             </div>
                                         ))}
                                     </div>
                                 ) : (
-                                    <div className="text-center py-8 text-muted-foreground">
-                                        <TrendingUp className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                    <div className="py-8 text-center text-muted-foreground">
+                                        <TrendingUp className="mx-auto mb-2 h-12 w-12 opacity-50" />
                                         <p>No sales yet</p>
-                                        <Button variant="outline" size="sm" className="mt-4" asChild>
-                                            <Link href="/prompts/create">Create Your First Prompt</Link>
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="mt-4"
+                                            asChild
+                                        >
+                                            <Link href="/prompts/create">
+                                                Create Your First Prompt
+                                            </Link>
                                         </Button>
                                     </div>
                                 )}
@@ -414,12 +492,14 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                             <FileText className="h-5 w-5 text-purple-500" />
                                             My Prompts
                                         </CardTitle>
-                                        <CardDescription>Manage your created prompts</CardDescription>
+                                        <CardDescription>
+                                            Manage your created prompts
+                                        </CardDescription>
                                     </div>
                                     <Button variant="outline" size="sm" asChild>
                                         <Link href="/seller/dashboard">
                                             View All
-                                            <ArrowRight className="h-4 w-4 ml-1" />
+                                            <ArrowRight className="ml-1 h-4 w-4" />
                                         </Link>
                                     </Button>
                                 </div>
@@ -430,18 +510,33 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                         <table className="w-full">
                                             <thead>
                                                 <tr className="border-b">
-                                                    <th className="text-left py-3 px-4 font-medium">Title</th>
-                                                    <th className="text-left py-3 px-4 font-medium">Status</th>
-                                                    <th className="text-left py-3 px-4 font-medium">Price</th>
-                                                    <th className="text-left py-3 px-4 font-medium">Views</th>
-                                                    <th className="text-left py-3 px-4 font-medium">Sales</th>
-                                                    <th className="text-left py-3 px-4 font-medium">Rating</th>
+                                                    <th className="px-4 py-3 text-left font-medium">
+                                                        Title
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left font-medium">
+                                                        Status
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left font-medium">
+                                                        Price
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left font-medium">
+                                                        Views
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left font-medium">
+                                                        Sales
+                                                    </th>
+                                                    <th className="px-4 py-3 text-left font-medium">
+                                                        Rating
+                                                    </th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {prompts.map((prompt) => (
-                                                    <tr key={prompt.id} className="border-b hover:bg-muted/50">
-                                                        <td className="py-3 px-4">
+                                                    <tr
+                                                        key={prompt.id}
+                                                        className="border-b hover:bg-muted/50"
+                                                    >
+                                                        <td className="px-4 py-3">
                                                             <Link
                                                                 href={`/prompts/${prompt.slug}`}
                                                                 className="font-medium hover:text-primary"
@@ -449,32 +544,46 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                                                 {prompt.title}
                                                             </Link>
                                                         </td>
-                                                        <td className="py-3 px-4">
-                                                            {getStatusBadge(prompt.status)}
+                                                        <td className="px-4 py-3">
+                                                            {getStatusBadge(
+                                                                prompt.status,
+                                                            )}
                                                         </td>
-                                                        <td className="py-3 px-4">
-                                                            ${prompt.price.toFixed(2)}
+                                                        <td className="px-4 py-3">
+                                                            $
+                                                            {prompt.price.toFixed(
+                                                                2,
+                                                            )}
                                                         </td>
-                                                        <td className="py-3 px-4">
+                                                        <td className="px-4 py-3">
                                                             <div className="flex items-center gap-1">
                                                                 <Eye className="h-4 w-4 text-muted-foreground" />
-                                                                {prompt.views_count}
+                                                                {
+                                                                    prompt.views_count
+                                                                }
                                                             </div>
                                                         </td>
-                                                        <td className="py-3 px-4">
+                                                        <td className="px-4 py-3">
                                                             <div className="flex items-center gap-1">
                                                                 <ShoppingBag className="h-4 w-4 text-muted-foreground" />
-                                                                {prompt.purchases_count}
+                                                                {
+                                                                    prompt.purchases_count
+                                                                }
                                                             </div>
                                                         </td>
-                                                        <td className="py-3 px-4">
-                                                            {prompt.rating_count > 0 ? (
+                                                        <td className="px-4 py-3">
+                                                            {prompt.rating_count >
+                                                            0 ? (
                                                                 <div className="flex items-center gap-1">
                                                                     <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                                                                    {prompt.rating.toFixed(1)}
+                                                                    {prompt.rating.toFixed(
+                                                                        1,
+                                                                    )}
                                                                 </div>
                                                             ) : (
-                                                                <span className="text-muted-foreground">-</span>
+                                                                <span className="text-muted-foreground">
+                                                                    -
+                                                                </span>
                                                             )}
                                                         </td>
                                                     </tr>
@@ -483,12 +592,12 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                         </table>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-8 text-muted-foreground">
-                                        <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
+                                    <div className="py-8 text-center text-muted-foreground">
+                                        <FileText className="mx-auto mb-2 h-12 w-12 opacity-50" />
                                         <p>No prompts yet</p>
                                         <Button className="mt-4" asChild>
                                             <Link href="/prompts/create">
-                                                <Plus className="h-4 w-4 mr-2" />
+                                                <Plus className="mr-2 h-4 w-4" />
                                                 Create Your First Prompt
                                             </Link>
                                         </Button>
@@ -506,32 +615,52 @@ export default function Dashboard({ stats, recentPurchases, recentSales, prompts
                                     <Sparkles className="h-5 w-5 text-yellow-500" />
                                     Quick Actions
                                 </CardTitle>
-                                <CardDescription>Get started with the marketplace</CardDescription>
+                                <CardDescription>
+                                    Get started with the marketplace
+                                </CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <div className="grid gap-4 sm:grid-cols-2">
-                                    <Button variant="outline" className="h-auto py-4 justify-start" asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="h-auto justify-start py-4"
+                                        asChild
+                                    >
                                         <Link href="/marketplace">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-primary/10 rounded-lg">
+                                                <div className="rounded-lg bg-primary/10 p-2">
                                                     <Sparkles className="h-5 w-5 text-primary" />
                                                 </div>
                                                 <div className="text-left">
-                                                    <p className="font-medium">Browse Marketplace</p>
-                                                    <p className="text-xs text-muted-foreground">Find prompts for your needs</p>
+                                                    <p className="font-medium">
+                                                        Browse Marketplace
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        Find prompts for your
+                                                        needs
+                                                    </p>
                                                 </div>
                                             </div>
                                         </Link>
                                     </Button>
-                                    <Button variant="outline" className="h-auto py-4 justify-start" asChild>
+                                    <Button
+                                        variant="outline"
+                                        className="h-auto justify-start py-4"
+                                        asChild
+                                    >
                                         <Link href="/cart">
                                             <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-primary/10 rounded-lg">
+                                                <div className="rounded-lg bg-primary/10 p-2">
                                                     <ShoppingCart className="h-5 w-5 text-primary" />
                                                 </div>
                                                 <div className="text-left">
-                                                    <p className="font-medium">View Cart</p>
-                                                    <p className="text-xs text-muted-foreground">{stats.cart_items} items waiting</p>
+                                                    <p className="font-medium">
+                                                        View Cart
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground">
+                                                        {stats.cart_items} items
+                                                        waiting
+                                                    </p>
                                                 </div>
                                             </div>
                                         </Link>

@@ -1,19 +1,25 @@
-import { Head, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
-    DollarSign,
-    ShoppingBag,
-    TrendingUp,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@/components/ui/card';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link } from '@inertiajs/react';
+import {
     Calendar,
-    FileText,
     ChevronLeft,
     ChevronRight,
+    DollarSign,
+    FileText,
+    ShoppingBag,
+    TrendingUp,
 } from 'lucide-react';
-import { type BreadcrumbItem } from '@/types';
 
 interface Prompt {
     id: number;
@@ -37,7 +43,7 @@ interface Sale {
     seller_earnings: number;
     status: string;
     payment_method: string;
-    purchased_at: string;
+    purchased_at: string | null;
     prompt: Prompt;
     buyer: Buyer;
 }
@@ -85,7 +91,11 @@ export default function SellerSales({ sales, stats }: Props) {
         }).format(amount);
     };
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) {
+            return 'Pending';
+        }
+
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -94,7 +104,13 @@ export default function SellerSales({ sales, stats }: Props) {
     };
 
     const getStatusBadge = (status: string) => {
-        const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; color: string }> = {
+        const statusConfig: Record<
+            string,
+            {
+                variant: 'default' | 'secondary' | 'destructive' | 'outline';
+                color: string;
+            }
+        > = {
             pending: { variant: 'outline', color: 'text-yellow-600' },
             completed: { variant: 'default', color: '' },
             refunded: { variant: 'destructive', color: '' },
@@ -149,16 +165,18 @@ export default function SellerSales({ sales, stats }: Props) {
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                     <div>
-                        <h1 className="text-2xl font-bold tracking-tight">Sales</h1>
+                        <h1 className="text-2xl font-bold tracking-tight">
+                            Sales
+                        </h1>
                         <p className="text-muted-foreground">
                             Track your prompt sales and earnings
                         </p>
                     </div>
                     <Button asChild>
                         <Link href="/seller/dashboard">
-                            <FileText className="h-4 w-4 mr-2" />
+                            <FileText className="mr-2 h-4 w-4" />
                             Manage Prompts
                         </Link>
                     </Button>
@@ -172,10 +190,14 @@ export default function SellerSales({ sales, stats }: Props) {
                                 <CardTitle className="text-sm font-medium">
                                     {stat.title}
                                 </CardTitle>
-                                <stat.icon className={`h-4 w-4 ${stat.color}`} />
+                                <stat.icon
+                                    className={`h-4 w-4 ${stat.color}`}
+                                />
                             </CardHeader>
                             <CardContent>
-                                <div className={`text-2xl font-bold ${stat.color}`}>
+                                <div
+                                    className={`text-2xl font-bold ${stat.color}`}
+                                >
                                     {stat.value}
                                 </div>
                                 <p className="text-xs text-muted-foreground">
@@ -201,68 +223,114 @@ export default function SellerSales({ sales, stats }: Props) {
                                     <table className="w-full">
                                         <thead>
                                             <tr className="border-b">
-                                                <th className="text-left py-3 px-4 font-medium">Order</th>
-                                                <th className="text-left py-3 px-4 font-medium">Prompt</th>
-                                                <th className="text-left py-3 px-4 font-medium">Buyer</th>
-                                                <th className="text-left py-3 px-4 font-medium">Date</th>
-                                                <th className="text-left py-3 px-4 font-medium">Amount</th>
-                                                <th className="text-left py-3 px-4 font-medium">Earnings</th>
-                                                <th className="text-left py-3 px-4 font-medium">Status</th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Order
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Prompt
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Buyer
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Date
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Amount
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Earnings
+                                                </th>
+                                                <th className="px-4 py-3 text-left font-medium">
+                                                    Status
+                                                </th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             {sales.data.map((sale) => (
-                                                <tr key={sale.id} className="border-b hover:bg-muted/50">
-                                                    <td className="py-3 px-4">
+                                                <tr
+                                                    key={sale.id}
+                                                    className="border-b hover:bg-muted/50"
+                                                >
+                                                    <td className="px-4 py-3">
                                                         <span className="font-mono text-sm">
                                                             #{sale.order_number}
                                                         </span>
                                                     </td>
-                                                    <td className="py-3 px-4">
+                                                    <td className="px-4 py-3">
                                                         <Link
                                                             href={`/prompts/${sale.prompt.slug}`}
-                                                            className="font-medium hover:text-primary line-clamp-1"
+                                                            className="line-clamp-1 font-medium hover:text-primary"
                                                         >
                                                             {sale.prompt.title}
                                                         </Link>
                                                     </td>
-                                                    <td className="py-3 px-4">
+                                                    <td className="px-4 py-3">
                                                         <div className="flex items-center gap-2">
                                                             <Avatar className="h-6 w-6">
                                                                 <AvatarImage
-                                                                    src={sale.buyer.profile?.avatar || ''}
-                                                                    alt={sale.buyer.name}
+                                                                    src={
+                                                                        sale
+                                                                            .buyer
+                                                                            .profile
+                                                                            ?.avatar ||
+                                                                        ''
+                                                                    }
+                                                                    alt={
+                                                                        sale
+                                                                            .buyer
+                                                                            .name
+                                                                    }
                                                                 />
                                                                 <AvatarFallback className="text-xs">
-                                                                    {getInitials(sale.buyer.name)}
+                                                                    {getInitials(
+                                                                        sale
+                                                                            .buyer
+                                                                            .name,
+                                                                    )}
                                                                 </AvatarFallback>
                                                             </Avatar>
                                                             <span className="text-sm">
-                                                                {sale.buyer.name}
+                                                                {
+                                                                    sale.buyer
+                                                                        .name
+                                                                }
                                                             </span>
                                                         </div>
                                                     </td>
-                                                    <td className="py-3 px-4">
+                                                    <td className="px-4 py-3">
                                                         <div className="flex items-center gap-1 text-sm text-muted-foreground">
                                                             <Calendar className="h-4 w-4" />
-                                                            {formatDate(sale.purchased_at)}
+                                                            {formatDate(
+                                                                sale.purchased_at,
+                                                            )}
                                                         </div>
                                                     </td>
-                                                    <td className="py-3 px-4">
+                                                    <td className="px-4 py-3">
                                                         <span className="font-medium">
-                                                            {formatCurrency(sale.price)}
+                                                            {formatCurrency(
+                                                                sale.price,
+                                                            )}
                                                         </span>
                                                     </td>
-                                                    <td className="py-3 px-4">
+                                                    <td className="px-4 py-3">
                                                         <span className="font-medium text-green-600">
-                                                            {formatCurrency(sale.seller_earnings)}
+                                                            {formatCurrency(
+                                                                sale.seller_earnings,
+                                                            )}
                                                         </span>
                                                         <p className="text-xs text-muted-foreground">
-                                                            -{formatCurrency(sale.platform_fee)} fee
+                                                            -
+                                                            {formatCurrency(
+                                                                sale.platform_fee,
+                                                            )}{' '}
+                                                            fee
                                                         </p>
                                                     </td>
-                                                    <td className="py-3 px-4">
-                                                        {getStatusBadge(sale.status)}
+                                                    <td className="px-4 py-3">
+                                                        {getStatusBadge(
+                                                            sale.status,
+                                                        )}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -272,9 +340,11 @@ export default function SellerSales({ sales, stats }: Props) {
 
                                 {/* Pagination */}
                                 {sales.last_page > 1 && (
-                                    <div className="flex items-center justify-center gap-2 mt-6">
+                                    <div className="mt-6 flex items-center justify-center gap-2">
                                         {sales.links.map((link, index) => {
-                                            if (link.label.includes('Previous')) {
+                                            if (
+                                                link.label.includes('Previous')
+                                            ) {
                                                 return (
                                                     <Button
                                                         key={index}
@@ -284,13 +354,15 @@ export default function SellerSales({ sales, stats }: Props) {
                                                         asChild={!!link.url}
                                                     >
                                                         {link.url ? (
-                                                            <Link href={link.url}>
-                                                                <ChevronLeft className="h-4 w-4 mr-1" />
+                                                            <Link
+                                                                href={link.url}
+                                                            >
+                                                                <ChevronLeft className="mr-1 h-4 w-4" />
                                                                 Previous
                                                             </Link>
                                                         ) : (
                                                             <span>
-                                                                <ChevronLeft className="h-4 w-4 mr-1" />
+                                                                <ChevronLeft className="mr-1 h-4 w-4" />
                                                                 Previous
                                                             </span>
                                                         )}
@@ -308,14 +380,16 @@ export default function SellerSales({ sales, stats }: Props) {
                                                         asChild={!!link.url}
                                                     >
                                                         {link.url ? (
-                                                            <Link href={link.url}>
+                                                            <Link
+                                                                href={link.url}
+                                                            >
                                                                 Next
-                                                                <ChevronRight className="h-4 w-4 ml-1" />
+                                                                <ChevronRight className="ml-1 h-4 w-4" />
                                                             </Link>
                                                         ) : (
                                                             <span>
                                                                 Next
-                                                                <ChevronRight className="h-4 w-4 ml-1" />
+                                                                <ChevronRight className="ml-1 h-4 w-4" />
                                                             </span>
                                                         )}
                                                     </Button>
@@ -325,14 +399,22 @@ export default function SellerSales({ sales, stats }: Props) {
                                             return (
                                                 <Button
                                                     key={index}
-                                                    variant={link.active ? 'default' : 'outline'}
+                                                    variant={
+                                                        link.active
+                                                            ? 'default'
+                                                            : 'outline'
+                                                    }
                                                     size="sm"
                                                     asChild={!!link.url}
                                                 >
                                                     {link.url ? (
-                                                        <Link href={link.url}>{link.label}</Link>
+                                                        <Link href={link.url}>
+                                                            {link.label}
+                                                        </Link>
                                                     ) : (
-                                                        <span>{link.label}</span>
+                                                        <span>
+                                                            {link.label}
+                                                        </span>
                                                     )}
                                                 </Button>
                                             );
@@ -341,20 +423,24 @@ export default function SellerSales({ sales, stats }: Props) {
                                 )}
 
                                 {/* Summary */}
-                                <div className="text-center text-sm text-muted-foreground mt-4">
-                                    Showing {sales.from} to {sales.to} of {sales.total} sales
+                                <div className="mt-4 text-center text-sm text-muted-foreground">
+                                    Showing {sales.from} to {sales.to} of{' '}
+                                    {sales.total} sales
                                 </div>
                             </>
                         ) : (
-                            <div className="text-center py-12">
-                                <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                <h3 className="text-lg font-semibold mb-2">No sales yet</h3>
-                                <p className="text-muted-foreground mb-4">
-                                    Your sales will appear here once you start selling prompts
+                            <div className="py-12 text-center">
+                                <ShoppingBag className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                                <h3 className="mb-2 text-lg font-semibold">
+                                    No sales yet
+                                </h3>
+                                <p className="mb-4 text-muted-foreground">
+                                    Your sales will appear here once you start
+                                    selling prompts
                                 </p>
                                 <Button asChild>
                                     <Link href="/seller/dashboard">
-                                        <FileText className="h-4 w-4 mr-2" />
+                                        <FileText className="mr-2 h-4 w-4" />
                                         Manage Your Prompts
                                     </Link>
                                 </Button>

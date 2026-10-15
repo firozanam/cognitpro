@@ -1,22 +1,22 @@
-import { Head, Link } from '@inertiajs/react';
-import AppLayout from '@/layouts/app-layout';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import AppLayout from '@/layouts/app-layout';
+import { type BreadcrumbItem } from '@/types';
+import { Head, Link } from '@inertiajs/react';
 import {
-    CheckCircle,
-    Star,
     Calendar,
+    CheckCircle,
     Copy,
     Eye,
     FileText,
-    Sparkles,
-    Tag,
     MessageSquare,
+    Sparkles,
+    Star,
+    Tag,
 } from 'lucide-react';
-import { type BreadcrumbItem } from '@/types';
 import { useState } from 'react';
 
 interface Category {
@@ -69,7 +69,7 @@ interface Purchase {
     seller_earnings: number;
     status: string;
     payment_method: string;
-    purchased_at: string;
+    purchased_at: string | null;
     prompt: Prompt;
     review?: Review | null;
 }
@@ -100,7 +100,11 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
         }).format(amount);
     };
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (dateString: string | null) => {
+        if (!dateString) {
+            return 'Pending';
+        }
+
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'long',
@@ -117,7 +121,13 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
     };
 
     const getStatusBadge = (status: string) => {
-        const statusConfig: Record<string, { variant: 'default' | 'secondary' | 'destructive' | 'outline'; color: string }> = {
+        const statusConfig: Record<
+            string,
+            {
+                variant: 'default' | 'secondary' | 'destructive' | 'outline';
+                color: string;
+            }
+        > = {
             pending: { variant: 'outline', color: 'text-yellow-600' },
             completed: { variant: 'default', color: '' },
             refunded: { variant: 'destructive', color: '' },
@@ -146,15 +156,17 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title={`Order #${purchase.order_number}`} />
 
-            <div className="container py-8 max-w-4xl">
+            <div className="container max-w-4xl py-8">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                <div className="mb-8 flex flex-col justify-between gap-4 md:flex-row md:items-center">
                     <div>
-                        <div className="flex items-center gap-2 mb-1">
-                            <h1 className="text-2xl font-bold">Order #{purchase.order_number}</h1>
+                        <div className="mb-1 flex items-center gap-2">
+                            <h1 className="text-2xl font-bold">
+                                Order #{purchase.order_number}
+                            </h1>
                             {getStatusBadge(purchase.status)}
                         </div>
-                        <p className="text-muted-foreground flex items-center gap-2">
+                        <p className="flex items-center gap-2 text-muted-foreground">
                             <Calendar className="h-4 w-4" />
                             Purchased on {formatDate(purchase.purchased_at)}
                         </p>
@@ -162,14 +174,14 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                     <div className="flex gap-2">
                         <Button variant="outline" asChild>
                             <Link href="/purchases">
-                                <Eye className="h-4 w-4 mr-2" />
+                                <Eye className="mr-2 h-4 w-4" />
                                 View All Purchases
                             </Link>
                         </Button>
                         {purchase.status === 'completed' && (
                             <Button asChild>
                                 <Link href={`/marketplace`}>
-                                    <Sparkles className="h-4 w-4 mr-2" />
+                                    <Sparkles className="mr-2 h-4 w-4" />
                                     Browse More
                                 </Link>
                             </Button>
@@ -179,7 +191,7 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
 
                 <div className="grid gap-6 md:grid-cols-3">
                     {/* Main Content */}
-                    <div className="md:col-span-2 space-y-6">
+                    <div className="space-y-6 md:col-span-2">
                         {/* Prompt Content */}
                         {purchase.status === 'completed' && (
                             <Card>
@@ -196,12 +208,12 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                                         >
                                             {copied ? (
                                                 <>
-                                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                                    <CheckCircle className="mr-2 h-4 w-4" />
                                                     Copied!
                                                 </>
                                             ) : (
                                                 <>
-                                                    <Copy className="h-4 w-4 mr-2" />
+                                                    <Copy className="mr-2 h-4 w-4" />
                                                     Copy
                                                 </>
                                             )}
@@ -209,7 +221,7 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <div className="bg-muted p-4 rounded-lg font-mono text-sm whitespace-pre-wrap">
+                                    <div className="rounded-lg bg-muted p-4 font-mono text-sm whitespace-pre-wrap">
                                         {purchase.prompt.content}
                                     </div>
                                 </CardContent>
@@ -223,19 +235,35 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div>
-                                    <Label className="text-muted-foreground">Title</Label>
-                                    <p className="font-medium">{purchase.prompt.title}</p>
+                                    <Label className="text-muted-foreground">
+                                        Title
+                                    </Label>
+                                    <p className="font-medium">
+                                        {purchase.prompt.title}
+                                    </p>
                                 </div>
                                 <div>
-                                    <Label className="text-muted-foreground">Description</Label>
-                                    <p className="text-sm">{purchase.prompt.description}</p>
+                                    <Label className="text-muted-foreground">
+                                        Description
+                                    </Label>
+                                    <p className="text-sm">
+                                        {purchase.prompt.description}
+                                    </p>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                    <Badge variant="secondary">{purchase.prompt.ai_model}</Badge>
-                                    <Badge variant="outline">{purchase.prompt.category.name}</Badge>
+                                    <Badge variant="secondary">
+                                        {purchase.prompt.ai_model}
+                                    </Badge>
+                                    <Badge variant="outline">
+                                        {purchase.prompt.category.name}
+                                    </Badge>
                                     {purchase.prompt.tags.map((tag) => (
-                                        <Badge key={tag.id} variant="outline" className="text-xs">
-                                            <Tag className="h-3 w-3 mr-1" />
+                                        <Badge
+                                            key={tag.id}
+                                            variant="outline"
+                                            className="text-xs"
+                                        >
+                                            <Tag className="mr-1 h-3 w-3" />
                                             {tag.name}
                                         </Badge>
                                     ))}
@@ -259,7 +287,8 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                                                 <Star
                                                     key={star}
                                                     className={`h-5 w-5 ${
-                                                        star <= purchase.review!.rating
+                                                        star <=
+                                                        purchase.review!.rating
                                                             ? 'fill-yellow-400 text-yellow-400'
                                                             : 'text-muted-foreground'
                                                     }`}
@@ -267,7 +296,9 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                                             ))}
                                         </div>
                                         {purchase.review.title && (
-                                            <p className="font-medium">{purchase.review.title}</p>
+                                            <p className="font-medium">
+                                                {purchase.review.title}
+                                            </p>
                                         )}
                                         {purchase.review.content && (
                                             <p className="text-sm text-muted-foreground">
@@ -280,14 +311,19 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                         ) : can_review && purchase.status === 'completed' ? (
                             <Card className="border-dashed">
                                 <CardContent className="py-8 text-center">
-                                    <Star className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                                    <h3 className="font-semibold mb-2">Share Your Experience</h3>
-                                    <p className="text-sm text-muted-foreground mb-4">
-                                        Help others by leaving a review for this prompt
+                                    <Star className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
+                                    <h3 className="mb-2 font-semibold">
+                                        Share Your Experience
+                                    </h3>
+                                    <p className="mb-4 text-sm text-muted-foreground">
+                                        Help others by leaving a review for this
+                                        prompt
                                     </p>
                                     <Button asChild>
-                                        <Link href={`/purchases/${purchase.id}/review`}>
-                                            <Star className="h-4 w-4 mr-2" />
+                                        <Link
+                                            href={`/purchases/${purchase.id}/review`}
+                                        >
+                                            <Star className="mr-2 h-4 w-4" />
                                             Write a Review
                                         </Link>
                                     </Button>
@@ -305,11 +341,17 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="flex justify-between">
-                                    <span className="text-muted-foreground">Price</span>
-                                    <span>{formatCurrency(purchase.price)}</span>
+                                    <span className="text-muted-foreground">
+                                        Price
+                                    </span>
+                                    <span>
+                                        {formatCurrency(purchase.price)}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Platform fee</span>
+                                    <span className="text-muted-foreground">
+                                        Platform fee
+                                    </span>
                                     <span className="text-muted-foreground">
                                         {formatCurrency(purchase.platform_fee)}
                                     </span>
@@ -323,11 +365,17 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                                 </div>
                                 <Separator />
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Payment Method</span>
-                                    <span className="capitalize">{purchase.payment_method || 'Free'}</span>
+                                    <span className="text-muted-foreground">
+                                        Payment Method
+                                    </span>
+                                    <span className="capitalize">
+                                        {purchase.payment_method || 'Free'}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-muted-foreground">Status</span>
+                                    <span className="text-muted-foreground">
+                                        Status
+                                    </span>
                                     {getStatusBadge(purchase.status)}
                                 </div>
                             </CardContent>
@@ -342,18 +390,29 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                                 <div className="flex items-center gap-3">
                                     <Avatar>
                                         <AvatarImage
-                                            src={purchase.prompt.seller.profile?.avatar || ''}
+                                            src={
+                                                purchase.prompt.seller.profile
+                                                    ?.avatar || ''
+                                            }
                                             alt={purchase.prompt.seller.name}
                                         />
                                         <AvatarFallback>
-                                            {getInitials(purchase.prompt.seller.name)}
+                                            {getInitials(
+                                                purchase.prompt.seller.name,
+                                            )}
                                         </AvatarFallback>
                                     </Avatar>
                                     <div>
-                                        <p className="font-medium">{purchase.prompt.seller.name}</p>
-                                        {purchase.prompt.seller.profile?.seller_verified && (
-                                            <Badge variant="secondary" className="text-xs">
-                                                <CheckCircle className="h-3 w-3 mr-1" />
+                                        <p className="font-medium">
+                                            {purchase.prompt.seller.name}
+                                        </p>
+                                        {purchase.prompt.seller.profile
+                                            ?.seller_verified && (
+                                            <Badge
+                                                variant="secondary"
+                                                className="text-xs"
+                                            >
+                                                <CheckCircle className="mr-1 h-3 w-3" />
                                                 Verified
                                             </Badge>
                                         )}
@@ -365,18 +424,28 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
                         {/* Help */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-base">Need Help?</CardTitle>
+                                <CardTitle className="text-base">
+                                    Need Help?
+                                </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-2">
-                                <Button variant="outline" className="w-full justify-start" asChild>
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start"
+                                    asChild
+                                >
                                     <Link href="/support">
-                                        <MessageSquare className="h-4 w-4 mr-2" />
+                                        <MessageSquare className="mr-2 h-4 w-4" />
                                         Contact Support
                                     </Link>
                                 </Button>
-                                <Button variant="outline" className="w-full justify-start" asChild>
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start"
+                                    asChild
+                                >
                                     <Link href="/faq">
-                                        <FileText className="h-4 w-4 mr-2" />
+                                        <FileText className="mr-2 h-4 w-4" />
                                         FAQ
                                     </Link>
                                 </Button>
@@ -389,6 +458,16 @@ export default function PurchaseShow({ purchase, can_review }: Props) {
     );
 }
 
-function Label({ className, children }: { className?: string; children: React.ReactNode }) {
-    return <p className={`text-xs uppercase tracking-wide ${className}`}>{children}</p>;
+function Label({
+    className,
+    children,
+}: {
+    className?: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <p className={`text-xs tracking-wide uppercase ${className}`}>
+            {children}
+        </p>
+    );
 }

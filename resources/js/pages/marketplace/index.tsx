@@ -233,26 +233,6 @@ function PublicFooter() {
                         © {new Date().getFullYear()} CognitPro. All rights
                         reserved.
                     </p>
-                    <div className="flex gap-6 text-sm text-muted-foreground">
-                        <Link
-                            href="#"
-                            className="transition-colors hover:text-foreground"
-                        >
-                            Privacy
-                        </Link>
-                        <Link
-                            href="#"
-                            className="transition-colors hover:text-foreground"
-                        >
-                            Terms
-                        </Link>
-                        <Link
-                            href="#"
-                            className="transition-colors hover:text-foreground"
-                        >
-                            Contact
-                        </Link>
-                    </div>
                 </div>
             </div>
         </footer>
@@ -419,9 +399,7 @@ export default function MarketplaceIndex({
                 </div>
             </CardFooter>
             <div className="border-t px-6 py-3">
-                <div
-                    className="flex items-center gap-2 text-sm text-muted-foreground"
-                >
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-primary/20 to-primary/40">
                         {prompt.seller.name.charAt(0).toUpperCase()}
                     </div>
