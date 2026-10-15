@@ -16,7 +16,10 @@ return [
     */
 
     'ssr' => [
-        'enabled' => true,
+        // No SSR bundle is built or served — the app ships as CSR.
+        // To enable: run `npm run build:ssr`, serve bootstrap/ssr/ssr.mjs
+        // on the URL below, then flip this to true (CFG-07).
+        'enabled' => false,
         'url' => 'http://127.0.0.1:13714',
         // 'bundle' => base_path('bootstrap/ssr/ssr.mjs'),
 
