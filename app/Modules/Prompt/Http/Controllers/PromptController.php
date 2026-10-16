@@ -8,6 +8,7 @@ use App\Modules\Prompt\Http\Requests\PromptUpdateRequest;
 use App\Modules\Prompt\Models\Category;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\Prompt\Services\PromptService;
+use App\Modules\Prompt\Services\ReviewService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,7 +17,8 @@ use Inertia\Response;
 class PromptController extends Controller
 {
     public function __construct(
-        protected PromptService $promptService
+        protected PromptService $promptService,
+        protected ReviewService $reviewService
     ) {}
 
     /**
@@ -101,6 +103,12 @@ class PromptController extends Controller
         if ($showContent) {
             $prompt->makeVisible('content');
         }
+
+        // The prompt page previews the latest five reviews
+        $prompt->setRelation(
+            'reviews',
+            $this->reviewService->getPromptReviews($prompt->id, 5)->getCollection()
+        );
 
         return Inertia::render('prompts/show', [
             'prompt' => $prompt,

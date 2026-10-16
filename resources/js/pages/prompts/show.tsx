@@ -10,17 +10,18 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
+import PublicLayout from '@/layouts/public-layout';
 import { formatDate, formatPromptPrice } from '@/lib/format';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { type Prompt } from '@/types/prompt';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
-    AlertCircle,
     Check,
     ChevronLeft,
     Clock,
     Copy,
     Eye,
+    Lock,
     ShoppingCart,
     Star,
     Tag as TagIcon,
@@ -39,7 +40,7 @@ export default function PromptShow({
     hasPurchased,
 }: Props) {
     const [copied, setCopied] = useState(false);
-    const { auth } = usePage<SharedData>().props ?? {};
+    const { auth } = usePage<SharedData>().props;
 
     const breadcrumbs: BreadcrumbItem[] = [
         {
@@ -72,11 +73,7 @@ export default function PromptShow({
     };
 
     const handleAddToCart = () => {
-        if (!auth?.user) {
-            router.visit('/login');
-            return;
-        }
-
+        // Guests add to the session cart; they are asked to log in at checkout
         router.post(`/cart/add/${prompt.id}`);
     };
 
@@ -99,9 +96,10 @@ export default function PromptShow({
     };
 
     const isOwner = auth?.user?.id === prompt.seller.id;
+    const isAuthenticated = auth?.user != null;
 
-    return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+    const pageContent = (
+        <>
             <Head title={prompt.title} />
 
             <div className="container mx-auto px-6 py-8">
@@ -168,8 +166,13 @@ export default function PromptShow({
                         <Card>
                             <CardHeader>
                                 <CardTitle className="flex items-center justify-between">
-                                    <span>Prompt</span>
-                                    {showContent && (
+                                    <span className="flex items-center gap-2">
+                                        {!showContent && (
+                                            <Lock className="h-4 w-4 text-muted-foreground" />
+                                        )}
+                                        Prompt
+                                    </span>
+                                    {showContent ? (
                                         <Button
                                             variant="outline"
                                             size="sm"
@@ -187,6 +190,14 @@ export default function PromptShow({
                                                 </>
                                             )}
                                         </Button>
+                                    ) : (
+                                        <Badge
+                                            variant="outline"
+                                            className="gap-1 text-muted-foreground"
+                                        >
+                                            <Lock className="h-3 w-3" />
+                                            Locked
+                                        </Badge>
                                     )}
                                 </CardTitle>
                             </CardHeader>
@@ -196,19 +207,17 @@ export default function PromptShow({
                                         {prompt.content}
                                     </pre>
                                 ) : (
-                                    <div className="relative">
-                                        <pre className="max-h-48 overflow-hidden rounded-lg bg-muted p-4 font-mono text-sm whitespace-pre-wrap blur-sm">
-                                            {prompt.content}
-                                        </pre>
-                                        <div className="absolute inset-0 flex items-center justify-center bg-background/80">
-                                            <div className="text-center">
-                                                <AlertCircle className="mx-auto mb-2 h-8 w-8 text-muted-foreground" />
-                                                <p className="mb-2 text-muted-foreground">
-                                                    Purchase to view the full
-                                                    prompt
-                                                </p>
-                                            </div>
+                                    <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-muted/30 px-6 py-12 text-center">
+                                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-muted">
+                                            <Lock className="h-6 w-6 text-muted-foreground" />
                                         </div>
+                                        <p className="font-medium">
+                                            Full prompt locked
+                                        </p>
+                                        <p className="max-w-sm text-sm text-muted-foreground">
+                                            Purchase this prompt to unlock the
+                                            complete prompt content.
+                                        </p>
                                     </div>
                                 )}
                             </CardContent>
@@ -545,6 +554,13 @@ export default function PromptShow({
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
+
+    // Authenticated users get the sidebar layout; guests get the public layout
+    if (isAuthenticated) {
+        return <AppLayout breadcrumbs={breadcrumbs}>{pageContent}</AppLayout>;
+    }
+
+    return <PublicLayout>{pageContent}</PublicLayout>;
 }

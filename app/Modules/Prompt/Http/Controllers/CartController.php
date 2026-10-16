@@ -3,8 +3,10 @@
 namespace App\Modules\Prompt\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Modules\Prompt\Models\Cart;
 use App\Modules\Prompt\Models\Prompt;
 use App\Modules\Prompt\Services\CartService;
+use App\Modules\Prompt\Services\GuestCartService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -14,20 +16,26 @@ class CartController extends Controller
 {
     protected CartService $cartService;
 
-    public function __construct(CartService $cartService)
+    protected GuestCartService $guestCartService;
+
+    public function __construct(CartService $cartService, GuestCartService $guestCartService)
     {
         $this->cartService = $cartService;
+        $this->guestCartService = $guestCartService;
     }
 
     /**
-     * Display the cart.
+     * Display the cart. Authenticated users read the database cart,
+     * guests read the session cart.
      */
     public function index(Request $request): Response
     {
-        $summary = $this->cartService->getCartSummary($request->user()->id);
+        $summary = $request->user()
+            ? $this->cartService->getCartSummary($request->user()->id)
+            : $this->guestCartService->getSummary($request->session());
 
         return Inertia::render('cart/index', [
-            'cartItems' => $summary['items']->map(function ($item) {
+            'cartItems' => $summary['items']->map(function (Cart $item) {
                 return [
                     'id' => $item->id,
                     'price' => $item->price,
@@ -63,7 +71,11 @@ class CartController extends Controller
     public function add(Request $request, Prompt $prompt): RedirectResponse
     {
         try {
-            $this->cartService->addToCart($request->user(), $prompt);
+            if ($user = $request->user()) {
+                $this->cartService->addToCart($user, $prompt);
+            } else {
+                $this->guestCartService->add($request->session(), $prompt);
+            }
 
             return back()->with('success', 'Added to cart successfully!');
         } catch (\Exception $e) {
@@ -77,7 +89,12 @@ class CartController extends Controller
     public function remove(Request $request, int $cartId): RedirectResponse
     {
         try {
-            $this->cartService->removeCartItem($request->user()->id, $cartId);
+            if ($request->user()) {
+                $this->cartService->removeCartItem($request->user()->id, $cartId);
+            } else {
+                // Guest cart rows are identified by prompt id
+                $this->guestCartService->remove($request->session(), $cartId);
+            }
 
             return back()->with('success', 'Item removed from cart.');
         } catch (\Exception $e) {
@@ -91,7 +108,11 @@ class CartController extends Controller
     public function clear(Request $request): RedirectResponse
     {
         try {
-            $this->cartService->clearCart($request->user()->id);
+            if ($request->user()) {
+                $this->cartService->clearCart($request->user()->id);
+            } else {
+                $this->guestCartService->clear($request->session());
+            }
 
             return back()->with('success', 'Cart cleared successfully.');
         } catch (\Exception $e) {
@@ -106,7 +127,7 @@ class CartController extends Controller
     public function checkout(Request $request): RedirectResponse
     {
         try {
-            [$completed, $pending] = $this->cartService->checkout($request->user());
+            [, $pending] = $this->cartService->checkout($request->user());
         } catch (\Exception $e) {
             return redirect()->route('cart.index')->with('error', $e->getMessage());
         }

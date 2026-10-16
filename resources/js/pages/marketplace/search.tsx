@@ -3,10 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import AppLayout from '@/layouts/app-layout';
+import PublicLayout from '@/layouts/public-layout';
 import { formatPromptPrice } from '@/lib/format';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { type Paginated, type Prompt } from '@/types/prompt';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ChevronLeft,
     ChevronRight,
@@ -35,8 +36,11 @@ export default function MarketplaceSearch({ prompts, searchTerm }: Props) {
         router.get('/marketplace/search', { q: term });
     };
 
-    return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+    const { auth } = usePage<SharedData>().props;
+    const isAuthenticated = auth?.user != null;
+
+    const pageContent = (
+        <>
             <Head title="Search Prompts" />
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
@@ -182,6 +186,13 @@ export default function MarketplaceSearch({ prompts, searchTerm }: Props) {
                     </div>
                 )}
             </div>
-        </AppLayout>
+        </>
     );
+
+    // Authenticated users get the sidebar layout; guests get the public layout
+    if (isAuthenticated) {
+        return <AppLayout breadcrumbs={breadcrumbs}>{pageContent}</AppLayout>;
+    }
+
+    return <PublicLayout>{pageContent}</PublicLayout>;
 }

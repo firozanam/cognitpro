@@ -25,6 +25,16 @@ class CartRepository implements CartRepositoryInterface
     }
 
     /**
+     * Get the count of cart items whose prompt is still approved.
+     */
+    public function getValidCountByUserId(int $userId): int
+    {
+        return Cart::where('user_id', $userId)
+            ->whereHas('prompt', fn ($query) => $query->approved())
+            ->count();
+    }
+
+    /**
      * Find a cart item by user and prompt.
      */
     public function findByUserAndPrompt(int $userId, int $promptId): ?Cart

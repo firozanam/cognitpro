@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Listeners\MergeGuestCart;
 use App\Modules\User\Providers\UserModuleServiceProvider;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Move the guest session cart into the user's cart on login
+        Event::listen(Login::class, MergeGuestCart::class);
     }
 }

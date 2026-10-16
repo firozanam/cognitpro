@@ -9,10 +9,11 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import AppLayout from '@/layouts/app-layout';
+import PublicLayout from '@/layouts/public-layout';
 import { formatCurrency } from '@/lib/format';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { type Prompt } from '@/types/prompt';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import {
     ArrowRight,
     CheckCircle,
@@ -54,6 +55,9 @@ interface Props {
 }
 
 export default function CartIndex({ cartItems, total, count }: Props) {
+    const { auth } = usePage<SharedData>().props;
+    const isAuthenticated = auth?.user != null;
+
     const breadcrumbs: BreadcrumbItem[] = [
         {
             title: 'Shopping Cart',
@@ -89,10 +93,9 @@ export default function CartIndex({ cartItems, total, count }: Props) {
     };
 
     const platformFee = total * 0.15;
-    const grandTotal = total;
 
-    return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+    const pageContent = (
+        <>
             <Head title="Shopping Cart" />
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
@@ -245,7 +248,7 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                                     <div className="flex justify-between text-lg font-semibold">
                                         <span>Total</span>
                                         <span className="text-success">
-                                            {formatCurrency(grandTotal)}
+                                            {formatCurrency(total)}
                                         </span>
                                     </div>
 
@@ -332,6 +335,13 @@ export default function CartIndex({ cartItems, total, count }: Props) {
                     </Card>
                 )}
             </div>
-        </AppLayout>
+        </>
     );
+
+    // Authenticated users get the sidebar layout; guests get the public layout
+    if (isAuthenticated) {
+        return <AppLayout breadcrumbs={breadcrumbs}>{pageContent}</AppLayout>;
+    }
+
+    return <PublicLayout>{pageContent}</PublicLayout>;
 }

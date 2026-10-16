@@ -18,6 +18,11 @@ interface CartRepositoryInterface
     public function getCountByUserId(int $userId): int;
 
     /**
+     * Get the count of cart items whose prompt is still approved.
+     */
+    public function getValidCountByUserId(int $userId): int;
+
+    /**
      * Find a cart item by user and prompt.
      */
     public function findByUserAndPrompt(int $userId, int $promptId): ?Cart;

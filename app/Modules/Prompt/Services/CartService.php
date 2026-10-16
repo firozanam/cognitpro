@@ -46,6 +46,14 @@ class CartService
     }
 
     /**
+     * Get the count of cart items whose prompt is still approved.
+     */
+    public function getValidCartCount(int $userId): int
+    {
+        return $this->cartRepository->getValidCountByUserId($userId);
+    }
+
+    /**
      * Get cart summary for a user.
      */
     public function getCartSummary(int $userId): array

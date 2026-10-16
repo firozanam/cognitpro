@@ -17,6 +17,7 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
+import PublicLayout from '@/layouts/public-layout';
 import { formatPromptPrice } from '@/lib/format';
 import { type BreadcrumbItem, type SharedData } from '@/types';
 import { type Paginated, type Prompt } from '@/types/prompt';
@@ -25,13 +26,11 @@ import {
     Eye,
     Grid3X3,
     List,
-    Menu,
     Search,
     ShoppingCart,
     SlidersHorizontal,
     Sparkles,
     Star,
-    X,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -69,129 +68,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: '/marketplace',
     },
 ];
-
-// Public header component for unauthenticated users
-function PublicHeader() {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-    return (
-        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container mx-auto flex h-16 items-center justify-between px-4">
-                <Link href="/" className="flex items-center gap-2">
-                    <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                        <Sparkles className="h-5 w-5" />
-                    </div>
-                    <span className="text-xl font-bold">CognitPro</span>
-                </Link>
-
-                {/* Desktop Navigation */}
-                <nav className="hidden items-center gap-6 md:flex">
-                    <Link
-                        href="/marketplace"
-                        className="text-sm font-medium text-foreground"
-                    >
-                        Marketplace
-                    </Link>
-                    <Link
-                        href="#categories"
-                        className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        Categories
-                    </Link>
-                    <Link
-                        href="#featured"
-                        className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                    >
-                        Featured
-                    </Link>
-                </nav>
-
-                <div className="hidden items-center gap-3 md:flex">
-                    <Button variant="ghost" asChild>
-                        <Link href="/login">Log in</Link>
-                    </Button>
-                    <Button asChild>
-                        <Link href="/register">Get Started</Link>
-                    </Button>
-                </div>
-
-                {/* Mobile menu button */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="md:hidden"
-                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                >
-                    {mobileMenuOpen ? (
-                        <X className="h-5 w-5" />
-                    ) : (
-                        <Menu className="h-5 w-5" />
-                    )}
-                </Button>
-            </div>
-
-            {/* Mobile Navigation */}
-            {mobileMenuOpen && (
-                <div className="border-t bg-background md:hidden">
-                    <nav className="container mx-auto flex flex-col gap-4 px-4 py-4">
-                        <Link
-                            href="/marketplace"
-                            className="text-sm font-medium"
-                        >
-                            Marketplace
-                        </Link>
-                        <Link
-                            href="#categories"
-                            className="text-sm font-medium text-muted-foreground"
-                        >
-                            Categories
-                        </Link>
-                        <Link
-                            href="#featured"
-                            className="text-sm font-medium text-muted-foreground"
-                        >
-                            Featured
-                        </Link>
-                        <div className="flex flex-col gap-2 border-t pt-4">
-                            <Button
-                                variant="ghost"
-                                asChild
-                                className="justify-start"
-                            >
-                                <Link href="/login">Log in</Link>
-                            </Button>
-                            <Button asChild className="justify-start">
-                                <Link href="/register">Get Started</Link>
-                            </Button>
-                        </div>
-                    </nav>
-                </div>
-            )}
-        </header>
-    );
-}
-
-// Public footer component
-function PublicFooter() {
-    return (
-        <footer className="mt-auto border-t bg-muted/30 py-8">
-            <div className="container mx-auto px-4">
-                <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-                    <div className="flex items-center gap-2">
-                        <div className="flex h-6 w-6 items-center justify-center rounded bg-primary text-primary-foreground">
-                            <Sparkles className="h-4 w-4" />
-                        </div>
-                        <span className="font-semibold">CognitPro</span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                        © {new Date().getFullYear()} CognitPro. All rights
-                        reserved.
-                    </p>
-                </div>
-            </div>
-        </footer>
-    );
-}
 
 export default function MarketplaceIndex({
     prompts,
@@ -317,18 +193,16 @@ export default function MarketplaceIndex({
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    {isAuthenticated && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                                router.post(`/cart/add/${prompt.id}`)
-                            }
-                        >
-                            <ShoppingCart className="mr-1 h-4 w-4" />
-                            Add
-                        </Button>
-                    )}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                            router.post(`/cart/add/${prompt.id}`)
+                        }
+                    >
+                        <ShoppingCart className="mr-1 h-4 w-4" />
+                        Add
+                    </Button>
                     <div className="flex items-center gap-1 text-muted-foreground">
                         <Eye className="h-4 w-4" />
                         <span className="text-xs">{prompt.views_count}</span>
@@ -610,12 +484,12 @@ export default function MarketplaceIndex({
                                 {/* Pagination */}
                                 {prompts.last_page > 1 && (
                                     <div className="mt-8 flex justify-center gap-2">
-                                        {prompts.links.prev && (
+                                        {prompts.prev_page_url && (
                                             <Button
                                                 variant="outline"
                                                 onClick={() =>
                                                     router.get(
-                                                        prompts.links.prev!,
+                                                        prompts.prev_page_url!,
                                                     )
                                                 }
                                             >
@@ -626,12 +500,12 @@ export default function MarketplaceIndex({
                                             Page {prompts.current_page} of{' '}
                                             {prompts.last_page}
                                         </span>
-                                        {prompts.links.next && (
+                                        {prompts.next_page_url && (
                                             <Button
                                                 variant="outline"
                                                 onClick={() =>
                                                     router.get(
-                                                        prompts.links.next!,
+                                                        prompts.next_page_url!,
                                                     )
                                                 }
                                             >
@@ -663,7 +537,7 @@ export default function MarketplaceIndex({
         </>
     );
 
-    // For authenticated users: use AppLayout with sidebar
+    // Authenticated users get the sidebar layout; guests get the public layout
     if (isAuthenticated) {
         return (
             <AppLayout breadcrumbs={breadcrumbs}>
@@ -673,13 +547,16 @@ export default function MarketplaceIndex({
         );
     }
 
-    // For unauthenticated users: use public layout without sidebar
     return (
-        <div className="flex min-h-screen flex-col bg-background">
+        <PublicLayout
+            navLinks={[
+                { label: 'Marketplace', href: '/marketplace', active: true },
+                { label: 'Categories', href: '#categories' },
+                { label: 'Featured', href: '#featured' },
+            ]}
+        >
             <Head title="AI Prompt Marketplace - CognitPro" />
-            <PublicHeader />
-            <main className="flex-1">{pageContent}</main>
-            <PublicFooter />
-        </div>
+            {pageContent}
+        </PublicLayout>
     );
 }

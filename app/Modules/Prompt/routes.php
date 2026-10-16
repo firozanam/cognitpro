@@ -15,6 +15,14 @@ Route::middleware('web')->group(function () {
 
     // Public review routes
     Route::get('prompts/{prompt}/reviews', [ReviewController::class, 'index'])->name('prompts.reviews.index');
+
+    // Guest-capable cart routes: guests keep their cart in the session and
+    // are asked to log in only at checkout. Checkout and the count endpoint
+    // stay authenticated.
+    Route::get('cart', [CartController::class, 'index'])->name('cart.index');
+    Route::post('cart/add/{prompt}', [CartController::class, 'add'])->name('cart.add');
+    Route::delete('cart/{cartId}', [CartController::class, 'remove'])->name('cart.remove');
+    Route::delete('cart', [CartController::class, 'clear'])->name('cart.clear');
 });
 
 // Authenticated routes
@@ -27,12 +35,8 @@ Route::middleware(['web', 'auth', 'verified'])->group(function () {
     Route::delete('prompts/{prompt}', [PromptController::class, 'destroy'])->name('prompts.destroy');
     Route::post('prompts/{prompt}/submit', [PromptController::class, 'submitForApproval'])->name('prompts.submit');
 
-    // Cart routes
-    Route::get('cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('cart/add/{prompt}', [CartController::class, 'add'])->name('cart.add');
+    // Cart checkout and count stay authenticated
     Route::post('cart/checkout', [CartController::class, 'checkout'])->name('cart.checkout');
-    Route::delete('cart/{cartId}', [CartController::class, 'remove'])->name('cart.remove');
-    Route::delete('cart', [CartController::class, 'clear'])->name('cart.clear');
     Route::get('cart/count', [CartController::class, 'count'])->name('cart.count');
 
     // Purchase routes (buyers)

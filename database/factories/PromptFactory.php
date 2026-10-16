@@ -58,8 +58,10 @@ class PromptFactory extends Factory
             'featured' => fake()->boolean(10),
             'views_count' => fake()->numberBetween(0, 1000),
             'purchases_count' => fake()->numberBetween(0, 100),
-            'rating' => fake()->randomFloat(2, 3, 5),
-            'rating_count' => fake()->numberBetween(0, 50),
+            // Ratings come from real review rows; the seeder recomputes
+            // them after seeding reviews
+            'rating' => 0,
+            'rating_count' => 0,
             'rejection_reason' => null,
         ];
     }
@@ -102,7 +104,6 @@ class PromptFactory extends Factory
     {
         return $this->state(fn (array $attributes) => [
             'featured' => true,
-            'rating' => fake()->randomFloat(2, 4.5, 5),
             'purchases_count' => fake()->numberBetween(50, 500),
         ]);
     }

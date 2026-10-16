@@ -61,7 +61,6 @@ class MarketplaceSeeder extends Seeder
         foreach ($promptsToFeature as $prompt) {
             $prompt->update([
                 'featured' => true,
-                'rating' => fake()->randomFloat(2, 4.5, 5),
                 'purchases_count' => fake()->numberBetween(50, 200),
             ]);
         }
@@ -113,6 +112,15 @@ class MarketplaceSeeder extends Seeder
 
         $this->command->info("Created {$purchaseCount} purchases");
         $this->command->info("Created {$reviewCount} reviews");
+
+        // Derive ratings from the reviews that actually exist so the
+        // rating column never disagrees with the review list
+        foreach ($prompts as $prompt) {
+            $prompt->update([
+                'rating' => round((float) $prompt->reviews()->avg('rating'), 2),
+                'rating_count' => $prompt->reviews()->count(),
+            ]);
+        }
 
         // Create some pending and draft prompts
         $pendingPrompts = 15;

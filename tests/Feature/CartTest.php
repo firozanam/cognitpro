@@ -40,9 +40,11 @@ class CartTest extends TestCase
     }
 
     #[Test]
-    public function guest_is_redirected_from_cart(): void
+    public function guest_can_view_cart(): void
     {
-        $this->get('/cart')->assertRedirect('/login');
+        // Guest cart items live in the session
+        $this->get('/cart')->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->component('cart/index'));
     }
 
     #[Test]
@@ -170,6 +172,57 @@ class CartTest extends TestCase
             ->getJson('/cart/count')
             ->assertOk()
             ->assertJson(['count' => 1]);
+    }
+
+    #[Test]
+    public function cart_count_is_shared_across_pages(): void
+    {
+        $prompt2 = Prompt::factory()->create([
+            'seller_id' => $this->seller->id,
+            'category_id' => $this->prompt->category_id,
+            'status' => 'approved',
+            'price' => 19.99,
+        ]);
+
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id]);
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $prompt2->id]);
+
+        $this->actingAs($this->buyer)->get('/dashboard')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('cartCount', 2));
+    }
+
+    #[Test]
+    public function shared_cart_count_excludes_unapproved_prompts(): void
+    {
+        $draftPrompt = Prompt::factory()->create([
+            'seller_id' => $this->seller->id,
+            'category_id' => $this->prompt->category_id,
+            'status' => 'draft',
+        ]);
+
+        // A prompt can become unapproved after being added to the cart,
+        // so a stale cart row must not inflate the shared count.
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id]);
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $draftPrompt->id]);
+
+        $this->actingAs($this->buyer)->get('/cart')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page->where('cartCount', 1));
+    }
+
+    #[Test]
+    public function cart_prompt_rating_is_a_number(): void
+    {
+        // The decimal cast serializes as a string in JSON, which breaks
+        // the frontend's .toFixed() — the props must carry a number
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id]);
+
+        $this->actingAs($this->buyer)->get('/cart')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('cart/index')
+                ->where('cartItems.0.prompt.rating', fn ($rating) => ! is_string($rating)));
     }
 
     #[Test]

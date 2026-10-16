@@ -1,10 +1,11 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
+import PublicLayout from '@/layouts/public-layout';
 import { formatDate } from '@/lib/format';
-import { type BreadcrumbItem } from '@/types';
+import { type BreadcrumbItem, type SharedData } from '@/types';
 import { type Prompt } from '@/types/prompt';
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { ArrowLeft, Star, ThumbsUp } from 'lucide-react';
 
 interface Review {
@@ -50,8 +51,11 @@ export default function PromptReviews({ prompt, reviews, stats }: Props) {
         </div>
     );
 
-    return (
-        <AppLayout breadcrumbs={breadcrumbs}>
+    const { auth } = usePage<SharedData>().props;
+    const isAuthenticated = auth?.user != null;
+
+    const pageContent = (
+        <>
             <Head title={`Reviews — ${prompt.title}`} />
 
             <div className="flex h-full flex-1 flex-col gap-4 p-4">
@@ -216,6 +220,13 @@ export default function PromptReviews({ prompt, reviews, stats }: Props) {
                     </div>
                 </div>
             </div>
-        </AppLayout>
+        </>
     );
+
+    // Authenticated users get the sidebar layout; guests get the public layout
+    if (isAuthenticated) {
+        return <AppLayout breadcrumbs={breadcrumbs}>{pageContent}</AppLayout>;
+    }
+
+    return <PublicLayout>{pageContent}</PublicLayout>;
 }

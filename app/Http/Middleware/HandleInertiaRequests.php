@@ -2,11 +2,18 @@
 
 namespace App\Http\Middleware;
 
+use App\Modules\Prompt\Services\CartService;
+use App\Modules\Prompt\Services\GuestCartService;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(
+        protected CartService $cartService,
+        protected GuestCartService $guestCartService,
+    ) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -52,6 +59,9 @@ class HandleInertiaRequests extends Middleware
                 ] : null,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
+            'cartCount' => $request->user()
+                ? $this->cartService->getValidCartCount($request->user()->id)
+                : $this->guestCartService->getValidCount($request->session()),
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),

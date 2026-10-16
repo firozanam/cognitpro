@@ -62,7 +62,9 @@ class Prompt extends Model
             'featured' => 'boolean',
             'views_count' => 'integer',
             'purchases_count' => 'integer',
-            'rating' => 'decimal:2',
+            // Float, not decimal: ratings cross the Inertia props as JSON
+            // numbers and the frontend calls .toFixed() on them
+            'rating' => 'float',
             'rating_count' => 'integer',
         ];
     }

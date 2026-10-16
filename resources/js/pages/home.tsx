@@ -15,6 +15,7 @@ import {
     Palette,
     Search,
     Shield,
+    ShoppingCart,
     Sparkles,
     Star,
     TrendingUp,
@@ -49,7 +50,7 @@ export default function Home({
     // These will be used when backend data is available
     void _featuredPrompts;
     void _categories;
-    const { auth = { user: null } } = usePage<SharedData>().props;
+    const { auth, cartCount } = usePage<SharedData>().props;
 
     const aiModels = [
         { name: 'ChatGPT', icon: Bot, color: 'text-success' },
@@ -148,7 +149,18 @@ export default function Home({
                         </nav>
 
                         <div className="flex items-center gap-3">
-                            {auth.user ? (
+                            {/* Cart icon is shared by authenticated users and guests */}
+                            <Button variant="outline" size="icon" asChild className="relative">
+                                <Link href="/cart" aria-label="Shopping Cart">
+                                    <ShoppingCart className="h-4 w-4" />
+                                    {cartCount ? (
+                                        <span className="absolute -top-1.5 -right-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-medium text-primary-foreground">
+                                            {cartCount}
+                                        </span>
+                                    ) : null}
+                                </Link>
+                            </Button>
+                            {auth?.user ? (
                                 <Button asChild>
                                     <Link href={dashboard()}>Dashboard</Link>
                                 </Button>

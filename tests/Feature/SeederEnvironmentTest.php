@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Modules\Prompt\Models\Prompt;
 use App\Modules\User\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -48,5 +49,27 @@ class SeederEnvironmentTest extends TestCase
         } finally {
             unset($_SERVER['SEED_ADMIN_PASSWORD']);
         }
+    }
+
+    #[Test]
+    public function seeded_prompts_report_ratings_from_actual_reviews(): void
+    {
+        $this->artisan('db:seed');
+
+        Prompt::query()->withCount('reviews')->each(function (Prompt $prompt): void {
+            $this->assertSame(
+                $prompt->reviews_count,
+                $prompt->rating_count,
+                "Prompt [{$prompt->slug}] rating_count must match its review rows"
+            );
+
+            $average = $prompt->reviews()->avg('rating');
+
+            $this->assertSame(
+                $average === null ? 0.0 : round((float) $average, 2),
+                (float) $prompt->rating,
+                "Prompt [{$prompt->slug}] rating must be the average of its reviews"
+            );
+        });
     }
 }

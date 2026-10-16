@@ -23,7 +23,7 @@ class ReviewRepository implements ReviewRepositoryInterface
      */
     public function getByPromptId(int $promptId, int $perPage = 10): LengthAwarePaginator
     {
-        return Review::with(['user'])
+        return Review::with(['user:id,name'])
             ->where('prompt_id', $promptId)
             ->orderBy('helpful_count', 'desc')
             ->orderBy('created_at', 'desc')

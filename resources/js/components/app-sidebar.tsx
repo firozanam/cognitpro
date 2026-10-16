@@ -19,7 +19,6 @@ import {
     PlusCircle,
     Settings,
     Shield,
-    ShoppingCart,
     TrendingUp,
     Users,
 } from 'lucide-react';
@@ -40,11 +39,6 @@ const buyerNavItems: NavItem[] = [
         title: 'My Purchases',
         href: '/purchases',
         icon: Package,
-    },
-    {
-        title: 'Cart',
-        href: '/cart',
-        icon: ShoppingCart,
     },
 ];
 
@@ -105,42 +99,12 @@ export function AppSidebar() {
         switch (user.role) {
             case 'admin':
                 // Admins see admin items + all marketplace features
-                items.push(...adminNavItems);
-                items.push({
-                    title: 'My Purchases',
-                    href: '/purchases',
-                    icon: Package,
-                });
-                items.push({
-                    title: 'Cart',
-                    href: '/cart',
-                    icon: ShoppingCart,
-                });
-                items.push({
-                    title: 'Sales',
-                    href: '/seller/sales',
-                    icon: TrendingUp,
-                });
-                items.push({
-                    title: 'Create Prompt',
-                    href: '/prompts/create',
-                    icon: PlusCircle,
-                });
+                items.push(...adminNavItems, ...buyerNavItems, ...sellerNavItems);
                 break;
 
             case 'seller':
                 // Sellers see seller items + buyer items
-                items.push(...sellerNavItems);
-                items.push({
-                    title: 'My Purchases',
-                    href: '/purchases',
-                    icon: Package,
-                });
-                items.push({
-                    title: 'Cart',
-                    href: '/cart',
-                    icon: ShoppingCart,
-                });
+                items.push(...sellerNavItems, ...buyerNavItems);
                 break;
 
             case 'buyer':

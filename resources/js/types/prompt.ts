@@ -84,10 +84,8 @@ export interface Paginated<T> {
     last_page: number;
     total: number;
     per_page?: number;
-    links: {
-        first: string;
-        last: string;
-        prev: string | null;
-        next: string | null;
-    };
+    prev_page_url: string | null;
+    next_page_url: string | null;
+    // Laravel's LengthAwarePaginator links collection
+    links: Array<{ url: string | null; label: string; active: boolean }>;
 }
