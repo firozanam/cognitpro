@@ -118,7 +118,8 @@ git-commit.txt
 # package-lock.json
 
 # docs/
-/docs
+/docs/
 
 # Superpowers plan workspaces
 /.superpowers/
+commit-message.txt
