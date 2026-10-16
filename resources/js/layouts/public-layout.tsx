@@ -1,3 +1,4 @@
+import { FlashToasts } from '@/components/flash-toasts';
 import { Button } from '@/components/ui/button';
 import { type SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
@@ -145,6 +146,7 @@ export default function PublicLayout({
 }: PublicLayoutProps) {
     return (
         <div className="flex min-h-screen flex-col bg-background">
+            <FlashToasts />
             <PublicHeader navLinks={navLinks} />
             <main className="flex-1">{children}</main>
             <PublicFooter />

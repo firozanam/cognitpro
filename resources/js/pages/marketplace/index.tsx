@@ -181,25 +181,33 @@ export default function MarketplaceIndex({
             </CardContent>
             <CardFooter className="flex items-center justify-between border-t pt-4">
                 <div className="flex flex-col">
-                    <span className="text-lg font-bold text-primary">
-                        {formatPromptPrice(prompt)}
-                    </span>
+                    {prompt.pricing_model === 'pay_what_you_want' ? (
+                        <span className="text-sm font-semibold text-primary">
+                            Pay what you want
+                        </span>
+                    ) : (
+                        <span className="text-lg font-bold text-primary">
+                            {formatPromptPrice(prompt)}
+                        </span>
+                    )}
                     <div className="flex items-center gap-3 text-muted-foreground">
                         {renderStars(prompt.rating)}
                         <span className="text-xs">({prompt.rating_count})</span>
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() =>
-                            router.post(`/cart/add/${prompt.id}`)
-                        }
-                    >
-                        <ShoppingCart className="mr-1 h-4 w-4" />
-                        Add
-                    </Button>
+                    {prompt.pricing_model !== 'pay_what_you_want' && (
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                                router.post(`/cart/add/${prompt.id}`)
+                            }
+                        >
+                            <ShoppingCart className="mr-1 h-4 w-4" />
+                            Add
+                        </Button>
+                    )}
                     <div className="flex items-center gap-1 text-muted-foreground">
                         <Eye className="h-4 w-4" />
                         <span className="text-xs">{prompt.views_count}</span>
