@@ -90,9 +90,8 @@ class PurchaseController extends Controller
                     ->with('success', 'Prompt acquired successfully!');
             }
 
-            // For paid prompts, redirect to payment
-            // This will be handled by payment integration
-            return redirect()->route('purchases.payment', $purchase->id);
+            // For paid prompts, redirect to the Stripe payment page
+            return redirect()->route('payment.stripe.show', $purchase->id);
 
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
