@@ -196,18 +196,16 @@ export default function MarketplaceIndex({
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    {prompt.pricing_model !== 'pay_what_you_want' && (
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() =>
-                                router.post(`/cart/add/${prompt.id}`)
-                            }
-                        >
-                            <ShoppingCart className="mr-1 h-4 w-4" />
-                            Add
-                        </Button>
-                    )}
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() =>
+                            router.post(`/cart/add/${prompt.id}`)
+                        }
+                    >
+                        <ShoppingCart className="mr-1 h-4 w-4" />
+                        Add
+                    </Button>
                     <div className="flex items-center gap-1 text-muted-foreground">
                         <Eye className="h-4 w-4" />
                         <span className="text-xs">{prompt.views_count}</span>
