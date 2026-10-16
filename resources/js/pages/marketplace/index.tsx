@@ -136,18 +136,18 @@ export default function MarketplaceIndex({
     };
 
     const PromptCard = ({ prompt }: { prompt: Prompt }) => (
-        <Card className="group overflow-hidden transition-all hover:shadow-lg">
+        <Card className="group relative overflow-hidden transition-all hover:shadow-lg">
+            {prompt.featured && (
+                <div className="absolute top-0 right-0 flex h-12 w-12 items-start justify-end bg-gradient-to-br from-amber-500 to-orange-500 p-2.5 [clip-path:polygon(0_0,100%_0,100%_100%)]">
+                    <Sparkles className="h-3 w-3 text-white" />
+                    <span className="sr-only">Featured</span>
+                </div>
+            )}
             <CardHeader className="pb-3">
                 <div className="mb-2 flex flex-wrap items-center gap-2">
                     <Badge variant="outline" className="shrink-0">
                         {prompt.ai_model}
                     </Badge>
-                    {prompt.featured && (
-                        <Badge className="bg-gradient-to-r from-amber-500 to-orange-500">
-                            <Sparkles className="mr-1 h-3 w-3" />
-                            Featured
-                        </Badge>
-                    )}
                     <Badge variant="secondary" className="ml-auto">
                         {prompt.category.name}
                     </Badge>
