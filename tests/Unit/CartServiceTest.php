@@ -297,9 +297,11 @@ class CartServiceTest extends TestCase
         $prompt2->status = 'approved';
 
         $item1 = new Cart;
+        $item1->price = 9.99;
         $item1->setRelation('prompt', $prompt1);
 
         $item2 = new Cart;
+        $item2->price = 19.99;
         $item2->setRelation('prompt', $prompt2);
 
         $items = new Collection([$item1, $item2]);

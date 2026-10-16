@@ -235,8 +235,8 @@ class CartTest extends TestCase
             'price' => 19.99,
         ]);
 
-        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id]);
-        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $prompt2->id]);
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id, 'price' => 9.99]);
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $prompt2->id, 'price' => 19.99]);
 
         $this->actingAs($this->buyer)->get('/cart')
             ->assertOk()
@@ -245,5 +245,54 @@ class CartTest extends TestCase
                     ->where('total', 29.98)
                     ->where('count', 2);
             });
+    }
+
+    #[Test]
+    public function cart_page_totals_include_pay_what_you_want_prices(): void
+    {
+        $pwyw = Prompt::factory()->create([
+            'seller_id' => $this->seller->id,
+            'category_id' => $this->prompt->category_id,
+            'status' => 'approved',
+            'pricing_model' => 'pay_what_you_want',
+            'price' => 5.00,
+            'min_price' => 1.00,
+        ]);
+
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $this->prompt->id, 'price' => 9.99]);
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $pwyw->id, 'price' => 3]);
+
+        $this->actingAs($this->buyer)->get('/cart')
+            ->assertOk()
+            ->assertInertia(fn (AssertableInertia $page) => $page
+                ->component('cart/index')
+                ->has('cartItems', 2)
+                ->where('total', 12.99)
+                ->where('count', 2));
+    }
+
+    #[Test]
+    public function checkout_uses_the_chosen_pay_what_you_want_price(): void
+    {
+        $pwyw = Prompt::factory()->create([
+            'seller_id' => $this->seller->id,
+            'category_id' => $this->prompt->category_id,
+            'status' => 'approved',
+            'pricing_model' => 'pay_what_you_want',
+            'price' => 5.00,
+            'min_price' => 1.00,
+        ]);
+
+        Cart::create(['user_id' => $this->buyer->id, 'prompt_id' => $pwyw->id, 'price' => 7.5]);
+
+        $this->actingAs($this->buyer)->post('/cart/checkout')
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('purchases', [
+            'buyer_id' => $this->buyer->id,
+            'prompt_id' => $pwyw->id,
+            'price' => 7.5,
+            'status' => 'pending',
+        ]);
     }
 }

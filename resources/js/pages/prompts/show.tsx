@@ -40,6 +40,10 @@ export default function PromptShow({
     hasPurchased,
 }: Props) {
     const [copied, setCopied] = useState(false);
+    const isPayWhatYouWant = prompt.pricing_model === 'pay_what_you_want';
+    const [pwywPrice, setPwywPrice] = useState(
+        String(Number(prompt.min_price ?? 0)),
+    );
     const { auth } = usePage<SharedData>().props;
 
     const breadcrumbs: BreadcrumbItem[] = [
@@ -73,8 +77,12 @@ export default function PromptShow({
     };
 
     const handleAddToCart = () => {
-        // Guests add to the session cart; they are asked to log in at checkout
-        router.post(`/cart/add/${prompt.id}`);
+        // Gumroad-style: the buyer names their price here, and the chosen
+        // price travels with the cart item
+        router.post(
+            `/cart/add/${prompt.id}`,
+            isPayWhatYouWant ? { price: pwywPrice } : {},
+        );
     };
 
     const renderStars = (rating: number, size: 'sm' | 'md' = 'sm') => {
@@ -354,6 +362,25 @@ export default function PromptShow({
                                             <ShoppingCart className="mr-2 h-5 w-5" />
                                             Purchase Prompt
                                         </Button>
+                                        {isPayWhatYouWant && (
+                                            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+                                                <span className="whitespace-nowrap">
+                                                    Your price:
+                                                </span>
+                                                <input
+                                                    type="number"
+                                                    min={Number(prompt.min_price ?? 0)}
+                                                    step="0.01"
+                                                    value={pwywPrice}
+                                                    onChange={(e) =>
+                                                        setPwywPrice(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    className="w-full rounded-md border border-input bg-background px-2 py-1.5 text-sm text-foreground"
+                                                />
+                                            </label>
+                                        )}
                                         <Button
                                             variant="outline"
                                             className="w-full"

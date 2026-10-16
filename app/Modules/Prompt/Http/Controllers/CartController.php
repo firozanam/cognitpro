@@ -70,11 +70,15 @@ class CartController extends Controller
      */
     public function add(Request $request, Prompt $prompt): RedirectResponse
     {
+        $request->validate([
+            'price' => ['nullable', 'numeric', 'min:0'],
+        ]);
+
         try {
             if ($user = $request->user()) {
-                $this->cartService->addToCart($user, $prompt);
+                $this->cartService->addToCart($user, $prompt, $request->float('price'));
             } else {
-                $this->guestCartService->add($request->session(), $prompt);
+                $this->guestCartService->add($request->session(), $prompt, $request->float('price'));
             }
 
             return back()->with('success', 'Added to cart successfully!');

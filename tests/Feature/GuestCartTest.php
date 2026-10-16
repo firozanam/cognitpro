@@ -46,7 +46,7 @@ class GuestCartTest extends TestCase
             ->assertRedirect()
             ->assertSessionHas('success');
 
-        $this->assertSame([$this->prompt->id], session('guest_cart'));
+        $this->assertSame([$this->prompt->id => null], session('guest_cart'));
         $this->assertDatabaseCount('carts', 0);
     }
 
@@ -75,7 +75,7 @@ class GuestCartTest extends TestCase
             ->assertRedirect()
             ->assertSessionHas('error');
 
-        $this->assertSame([$this->prompt->id], session('guest_cart'));
+        $this->assertSame([$this->prompt->id => null], session('guest_cart'));
     }
 
     #[Test]
@@ -88,7 +88,7 @@ class GuestCartTest extends TestCase
             'price' => 19.99,
         ]);
 
-        $this->withSession(['guest_cart' => [$this->prompt->id, $prompt2->id]])
+        $this->withSession(['guest_cart' => [$this->prompt->id => null, $prompt2->id => null]])
             ->get('/cart')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
@@ -107,7 +107,7 @@ class GuestCartTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $this->withSession(['guest_cart' => [$this->prompt->id, $draftPrompt->id]])
+        $this->withSession(['guest_cart' => [$this->prompt->id => null, $draftPrompt->id => null]])
             ->get('/cart')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page
@@ -126,18 +126,18 @@ class GuestCartTest extends TestCase
             'status' => 'approved',
         ]);
 
-        $this->withSession(['guest_cart' => [$this->prompt->id, $prompt2->id]])
+        $this->withSession(['guest_cart' => [$this->prompt->id => null, $prompt2->id => null]])
             ->delete("/cart/{$prompt2->id}")
             ->assertRedirect()
             ->assertSessionHas('success');
 
-        $this->assertSame([$this->prompt->id], session('guest_cart'));
+        $this->assertSame([$this->prompt->id => null], session('guest_cart'));
     }
 
     #[Test]
     public function guest_can_clear_cart(): void
     {
-        $this->withSession(['guest_cart' => [$this->prompt->id]])
+        $this->withSession(['guest_cart' => [$this->prompt->id => null]])
             ->delete('/cart')
             ->assertRedirect()
             ->assertSessionHas('success');
@@ -149,6 +149,42 @@ class GuestCartTest extends TestCase
     public function guest_checkout_redirects_to_login(): void
     {
         $this->post('/cart/checkout')->assertRedirect('/login');
+    }
+
+    #[Test]
+    public function guest_can_add_pay_what_you_want_prompt_with_price(): void
+    {
+        $pwyw = Prompt::factory()->create([
+            'seller_id' => $this->seller->id,
+            'category_id' => $this->prompt->category_id,
+            'status' => 'approved',
+            'pricing_model' => 'pay_what_you_want',
+            'min_price' => 1.00,
+        ]);
+
+        $this->post("/cart/add/{$pwyw->id}", ['price' => 7.5])
+            ->assertRedirect()
+            ->assertSessionHas('success');
+
+        $this->assertSame([$pwyw->id => 7.5], session('guest_cart'));
+    }
+
+    #[Test]
+    public function guest_cannot_add_pay_what_you_want_below_minimum(): void
+    {
+        $pwyw = Prompt::factory()->create([
+            'seller_id' => $this->seller->id,
+            'category_id' => $this->prompt->category_id,
+            'status' => 'approved',
+            'pricing_model' => 'pay_what_you_want',
+            'min_price' => 1.00,
+        ]);
+
+        $this->post("/cart/add/{$pwyw->id}", ['price' => 0.5])
+            ->assertRedirect()
+            ->assertSessionHas('error');
+
+        $this->assertNull(session('guest_cart'));
     }
 
     #[Test]
@@ -173,7 +209,7 @@ class GuestCartTest extends TestCase
             'prompt_id' => $prompt2->id,
         ]);
 
-        $this->withSession(['guest_cart' => [$this->prompt->id, $prompt2->id, $draftPrompt->id]])
+        $this->withSession(['guest_cart' => [$this->prompt->id => null, $prompt2->id => null, $draftPrompt->id => null]])
             ->post('/login', [
                 'email' => $this->buyer->email,
                 'password' => 'password',
@@ -203,7 +239,7 @@ class GuestCartTest extends TestCase
             'status' => 'draft',
         ]);
 
-        $this->withSession(['guest_cart' => [$this->prompt->id, $draftPrompt->id]])
+        $this->withSession(['guest_cart' => [$this->prompt->id => null, $draftPrompt->id => null]])
             ->get('/cart')
             ->assertOk()
             ->assertInertia(fn (AssertableInertia $page) => $page->where('cartCount', 1));

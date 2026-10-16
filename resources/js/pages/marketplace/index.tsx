@@ -200,7 +200,11 @@ export default function MarketplaceIndex({
                         variant="outline"
                         size="sm"
                         onClick={() =>
-                            router.post(`/cart/add/${prompt.id}`)
+                            // Pay-what-you-want needs a price, which is
+                            // named on the prompt page (Gumroad-style)
+                            prompt.pricing_model === 'pay_what_you_want'
+                                ? router.visit(`/prompts/${prompt.slug}`)
+                                : router.post(`/cart/add/${prompt.id}`)
                         }
                     >
                         <ShoppingCart className="mr-1 h-4 w-4" />

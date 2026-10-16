@@ -11,7 +11,8 @@ use Illuminate\Session\Store;
 use Illuminate\Support\Collection;
 
 /**
- * Carts for unauthenticated visitors live in the session as prompt ids.
+ * Carts for unauthenticated visitors live in the session as a map of
+ * prompt id to the chosen pay-what-you-want price (null otherwise).
  * They are merged into the user's cart on login (MergeGuestCart listener).
  */
 class GuestCartService
@@ -30,32 +31,44 @@ class GuestCartService
      */
     public function getIds(Store $session): array
     {
-        return array_values(array_map(intval(...), (array) $session->get('guest_cart', [])));
+        return array_map(intval(...), array_keys((array) $session->get('guest_cart', [])));
     }
 
     /**
      * Add a prompt to the guest cart.
      */
-    public function add(Store $session, Prompt $prompt): void
+    public function add(Store $session, Prompt $prompt, ?float $price = null): void
     {
         if (! $prompt->isApproved()) {
             throw new Exception('This prompt is not available for purchase.');
         }
 
-        // Pay-what-you-want needs a custom price, which the cart cannot
-        // collect — it must be purchased from the prompt page.
+        // Pay-what-you-want prices are chosen by the buyer; fixed and free
+        // prompts always use the prompt price.
+        $cartPrice = null;
+
         if ($prompt->isPayWhatYouWant()) {
-            throw new Exception('Pay-what-you-want prompts are purchased directly from the prompt page.');
+            if ($price === null) {
+                throw new Exception('Choose a price before adding this prompt to the cart.');
+            }
+
+            $minimum = (float) ($prompt->min_price ?? 0);
+
+            if ($price < $minimum) {
+                throw new Exception('The minimum price for this prompt is '.number_format($minimum, 2).'.');
+            }
+
+            $cartPrice = $price;
         }
 
-        $ids = $this->getIds($session);
+        $carts = (array) $session->get('guest_cart', []);
 
-        if (in_array($prompt->id, $ids, true)) {
+        if (array_key_exists($prompt->id, $carts)) {
             throw new Exception('This prompt is already in your cart.');
         }
 
-        $ids[] = $prompt->id;
-        $session->put('guest_cart', $ids);
+        $carts[$prompt->id] = $cartPrice;
+        $session->put('guest_cart', $carts);
     }
 
     /**
@@ -63,14 +76,14 @@ class GuestCartService
      */
     public function remove(Store $session, int $promptId): void
     {
-        $ids = $this->getIds($session);
-        $remaining = array_values(array_diff($ids, [$promptId]));
+        $carts = (array) $session->get('guest_cart', []);
 
-        if (count($remaining) === count($ids)) {
+        if (! array_key_exists($promptId, $carts)) {
             throw new Exception('Item not found in cart.');
         }
 
-        $session->put('guest_cart', $remaining);
+        unset($carts[$promptId]);
+        $session->put('guest_cart', $carts);
     }
 
     /**
@@ -88,7 +101,8 @@ class GuestCartService
      */
     public function getItems(Store $session): Collection
     {
-        $ids = $this->getIds($session);
+        $carts = (array) $session->get('guest_cart', []);
+        $ids = array_map(intval(...), array_keys($carts));
 
         $prompts = Prompt::query()
             ->with(['seller', 'category'])
@@ -101,10 +115,14 @@ class GuestCartService
         return collect($ids)
             ->map(fn (int $id) => $prompts->get($id))
             ->filter()
-            ->map(function (Prompt $prompt) {
+            ->map(function (Prompt $prompt) use ($carts) {
+                $price = $prompt->isPayWhatYouWant()
+                    ? (float) ($carts[$prompt->id] ?? $prompt->price)
+                    : $prompt->price;
+
                 $cart = new Cart([
                     'prompt_id' => $prompt->id,
-                    'price' => $prompt->price,
+                    'price' => $price,
                 ]);
                 // The frontend removes by item id; guests use the prompt id
                 $cart->id = $prompt->id;
@@ -144,12 +162,13 @@ class GuestCartService
      */
     public function mergeToUser(Store $session, User $user): void
     {
-        $ids = $this->getIds($session);
+        $carts = (array) $session->get('guest_cart', []);
 
-        if ($ids === []) {
+        if ($carts === []) {
             return;
         }
 
+        $ids = array_map(intval(...), array_keys($carts));
         $prompts = Prompt::whereIn('id', $ids)->get();
 
         foreach ($prompts as $prompt) {
@@ -161,10 +180,20 @@ class GuestCartService
                 continue;
             }
 
+            $price = $prompt->isPayWhatYouWant()
+                ? (float) ($carts[$prompt->id] ?? 0)
+                : $prompt->price;
+
+            // Drop pay-what-you-want rows whose stored price violates the
+            // prompt's minimum — the session data is not trusted
+            if ($price < (float) ($prompt->min_price ?? 0)) {
+                continue;
+            }
+
             $this->cartRepository->create([
                 'user_id' => $user->id,
                 'prompt_id' => $prompt->id,
-                'price' => $prompt->price,
+                'price' => $price,
             ]);
         }
 

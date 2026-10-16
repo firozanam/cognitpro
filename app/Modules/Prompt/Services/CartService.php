@@ -64,7 +64,9 @@ class CartService
 
         foreach ($items as $item) {
             if ($item->prompt && $item->prompt->isApproved()) {
-                $total += $item->prompt->price;
+                // The cart row price is the snapshot: the prompt price for
+                // fixed prompts, the buyer's choice for pay-what-you-want
+                $total += $item->price;
                 $validItems++;
             }
         }
@@ -79,17 +81,29 @@ class CartService
     /**
      * Add a prompt to the cart.
      */
-    public function addToCart(User $user, Prompt $prompt): Cart
+    public function addToCart(User $user, Prompt $prompt, ?float $price = null): Cart
     {
         // Validate prompt can be added
         if (! $prompt->isApproved()) {
             throw new Exception('This prompt is not available for purchase.');
         }
 
-        // Pay-what-you-want needs a custom price, which the cart cannot
-        // collect — it must be purchased from the prompt page.
+        // Pay-what-you-want prices are chosen by the buyer and stored on
+        // the cart row; fixed and free prompts always use the prompt price.
         if ($prompt->isPayWhatYouWant()) {
-            throw new Exception('Pay-what-you-want prompts are purchased directly from the prompt page.');
+            if ($price === null) {
+                throw new Exception('Choose a price before adding this prompt to the cart.');
+            }
+
+            $minimum = (float) ($prompt->min_price ?? 0);
+
+            if ($price < $minimum) {
+                throw new Exception('The minimum price for this prompt is '.number_format($minimum, 2).'.');
+            }
+
+            $cartPrice = $price;
+        } else {
+            $cartPrice = $prompt->price;
         }
 
         // Check if user is the seller
@@ -110,7 +124,7 @@ class CartService
         return $this->cartRepository->create([
             'user_id' => $user->id,
             'prompt_id' => $prompt->id,
-            'price' => $prompt->price,
+            'price' => $cartPrice,
         ]);
     }
 
@@ -226,7 +240,12 @@ class CartService
         // must not leave half a cart checked out.
         DB::transaction(function () use ($user, $validation, &$completed, &$pending) {
             foreach ($validation['items'] as $item) {
-                $purchase = $this->purchaseService->initiatePurchase($user, $item->prompt);
+                // Pay-what-you-want rows carry the buyer's chosen price
+                $customPrice = $item->prompt->isPayWhatYouWant()
+                    ? (float) $item->price
+                    : null;
+
+                $purchase = $this->purchaseService->initiatePurchase($user, $item->prompt, $customPrice);
 
                 if ($item->prompt->isFree()) {
                     $this->purchaseService->completePurchase(
